@@ -1,53 +1,48 @@
 #include <Windows.h>
 #include <Windowsx.h>
 
-LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+#include <thread>
+#include <vector>
+#include <memory>
+
+#include "ray.h"
+#include "sphere.h"
+#include "mat4.h"
+
+#include "windows/MainWindow.h"
+#include "Scene.h"
 
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nShowCmd)
 {
-	HWND hWnd;
-	WNDCLASSEX wc;
-
-	ZeroMemory(&wc, sizeof(WNDCLASSEX));
-
-	wc.cbSize = sizeof(WNDCLASSEX);
-	wc.style = CS_HREDRAW | CS_VREDRAW;
-	wc.lpfnWndProc = WindowProc;
-	wc.hInstance = hInstance;
-	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
-	wc.lpszClassName = L"WindowClass1";
-
-	RegisterClassEx(&wc);
-
-	hWnd = CreateWindowEx(NULL,
-		L"WindowClass1",
-		L"FirstWindow",
-		WS_OVERLAPPEDWINDOW,
-		300, 300, 500, 400, NULL, NULL, hInstance, NULL);
-
-	ShowWindow(hWnd, nShowCmd);
-
-	MSG msg;
-
-	while (GetMessage(&msg, NULL, 0, 0))
 	{
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
+		Scene scene;
+		
+		MainWindow window;
+		window.Create(0, 0, { 0, 0, 200, 100 }, L"MainWindow", WS_OVERLAPPEDWINDOW, NULL, NULL, hInstance, NULL);
+		window.Show(nShowCmd);
+
+		MSG msg;
+
+		bool run = true;
+		while (run)
+		{
+			while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+			{
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+
+				if (msg.message == WM_QUIT)
+				{
+					run = false;
+					break;
+				}
+			}
+			scene.ProcessInput();
+			scene.Render(window);
+
+			std::this_thread::yield();
+		}
 	}
 
-	return msg.wParam;
-}
-
-LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	switch (message)
-	{
-	case WM_DESTROY:
-	{
-		PostQuitMessage(0);
-		return 0;
-	} break;
-	}
-	return DefWindowProc(hWnd, message, wParam, lParam);
+	getchar();
 }
