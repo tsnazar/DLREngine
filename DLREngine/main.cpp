@@ -59,4 +59,6 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 		std::this_thread::yield();
 	}
+
+	return msg.wParam;
 }

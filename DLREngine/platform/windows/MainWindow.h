@@ -5,8 +5,6 @@
 class MainWindow : public BaseWindow
 {
 public:
-	using InputCallbackFunction = std::function<bool(UINT, WPARAM, LPARAM)>;
-
 	MainWindow() = default;
 	virtual ~MainWindow();
 

@@ -116,7 +116,6 @@ math::vec3 Scene::Color(const math::ray& r)
 	math::hit_record rec;
 	if (m_Objects.hit(r, 0.0, 1000, rec))
 	{
-		//return 0.5 * math::vec3(rec.normal.x + 1, rec.normal.y + 1, rec.normal.z + 1);
 		return math::vec3(1, 0, 0);
 	}
 	math::vec3 unit = math::normalize(r.direction());
