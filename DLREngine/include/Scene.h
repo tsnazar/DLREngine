@@ -11,7 +11,7 @@ public:
 
 	bool Render(const MainWindow& win);
 
-	bool ProcessInput();
+	bool ProcessInput(float delta);
 private:
 	math::vec3 Color(const math::ray& r);
 private:

@@ -2,9 +2,9 @@
 
 bool math::sphere::hit(const ray& r, float t_min, float t_max, hit_record& rec) const
 {
-	vec3 oc = r.origin() - center;
-	float a = dot(r.direction(), r.direction());
-	float b = dot(r.direction(), oc);
+	vec3 oc = r.A - center;
+	float a = dot(r.B, r.B);
+	float b = dot(r.B, oc);
 	float c = dot(oc, oc) - radius * radius;
 	float discriminant = b * b - a * c;
 	if (discriminant > 0)

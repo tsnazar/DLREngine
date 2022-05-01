@@ -11,6 +11,8 @@
 #define VK_W 0x57
 #define VK_PRESSED 0x8000
 
+const float VELOCITY = 100.0f;
+
 Scene::Scene()
 {
 	m_BMI.bmiHeader.biSize = sizeof(m_BMI);
@@ -42,9 +44,10 @@ bool Scene::Render(const MainWindow& win)
 			math::ray r(math::vec3(x, y, 0) - m_Offsets, math::vec3(0, 0, -1));
 			math::vec3 col = 255 * Color(r);
 
-			m_Pixels[y * width + x] = (int)col.x << 16;
-			m_Pixels[y * width + x] |= (int)col.y << 8;
-			m_Pixels[y * width + x] |= (int)col.z << 0;
+			int index = y * width + x;
+			m_Pixels[index] = (int)col.x << 16;
+			m_Pixels[index] |= (int)col.y << 8;
+			m_Pixels[index] |= (int)col.z << 0;
 		}
 	}
 
@@ -65,18 +68,18 @@ bool Scene::Render(const MainWindow& win)
 	return true;
 }
 
-bool Scene::ProcessInput()
+bool Scene::ProcessInput(float delta)
 {
 	static bool firstMove = true;
 
 	if (GetKeyState(VK_A) & VK_PRESSED)
-		m_Offsets.x -= 10;
+		m_Offsets.x -= VELOCITY * delta;
 	if (GetKeyState(VK_D) & VK_PRESSED)
-		m_Offsets.x += 10;
+		m_Offsets.x += VELOCITY * delta;
 	if (GetKeyState(VK_S) & VK_PRESSED)
-		m_Offsets.y -= 10;
+		m_Offsets.y -= VELOCITY * delta;
 	if (GetKeyState(VK_W) & VK_PRESSED)
-		m_Offsets.y += 10;
+		m_Offsets.y += VELOCITY * delta;
 
 	if (GetKeyState(VK_RBUTTON) & VK_PRESSED)
 	{
@@ -113,11 +116,10 @@ math::vec3 Scene::Color(const math::ray& r)
 	math::hit_record rec;
 	if (m_Objects.hit(r, 0.0, 1000, rec))
 	{
-		return 0.5 * math::vec3(rec.normal.x + 1, rec.normal.y + 1, rec.normal.z + 1);
+		//return 0.5 * math::vec3(rec.normal.x + 1, rec.normal.y + 1, rec.normal.z + 1);
+		return math::vec3(1, 0, 0);
 	}
-	else {
-		math::vec3 unit = math::normalize(r.direction());
-		float t = 0.5 * (unit.y + 1.0);
-		return (1.0 - t) * math::vec3(1.0, 1.0, 1.0) + t * math::vec3(0.5, 0.7, 1.0);
-	}
+	math::vec3 unit = math::normalize(r.direction());
+	float t = 0.5 * (unit.y + 1.0);
+	return (1.0 - t) * math::vec3(1.0, 1.0, 1.0) + t * math::vec3(0.5, 0.7, 1.0);
 }
