@@ -6,7 +6,7 @@ namespace math
 	struct hit_record
 	{
 		float t;
-		vec3 p;
+		vec3 point;
 		vec3 normal;
 	};
 

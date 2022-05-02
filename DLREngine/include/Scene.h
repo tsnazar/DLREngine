@@ -13,7 +13,7 @@ public:
 
 	bool ProcessInput(float delta);
 private:
-	math::vec3 Color(const math::ray& r);
+	math::vec3 Color(const math::ray& castedRay);
 private:
 	BITMAPINFO m_BMI;
 	math::vec3 m_Offsets;

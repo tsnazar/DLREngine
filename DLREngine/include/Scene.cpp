@@ -111,14 +111,14 @@ bool Scene::ProcessInput(float delta)
 	return true;
 }
 
-math::vec3 Scene::Color(const math::ray& r)
+math::vec3 Scene::Color(const math::ray& castedRay)
 {
 	math::hit_record rec;
-	if (m_Objects.hit(r, 0.0, 1000, rec))
+	if (m_Objects.hit(castedRay, 0.0, 1000, rec))
 	{
 		return math::vec3(1, 0, 0);
 	}
-	math::vec3 unit = math::normalize(r.direction());
+	math::vec3 unit = math::normalize(castedRay.direction);
 	float t = 0.5 * (unit.y + 1.0);
 	return (1.0 - t) * math::vec3(1.0, 1.0, 1.0) + t * math::vec3(0.5, 0.7, 1.0);
 }

@@ -132,7 +132,7 @@ namespace math
 
 	inline float length(const vec3& vec)
 	{
-		return sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
+		return sqrt(dot(vec, vec));
 	}
 
 	inline vec3 normalize(vec3 vec)

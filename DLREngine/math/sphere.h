@@ -9,7 +9,7 @@ namespace math
 		float radius;
 
 		sphere(): center(), radius(0) {}
-		sphere(vec3 cen, float r): center(cen), radius(r) {}
-		virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const;
+		sphere(vec3 center, float radius): center(center), radius(radius) {}
+		virtual bool hit(const ray& casted_ray, float t_min, float t_max, hit_record& record) const;
 	};
 }

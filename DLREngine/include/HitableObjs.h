@@ -12,7 +12,7 @@ public:
 
 	void push_back(std::unique_ptr<math::hitable>&& el);
 
-	virtual bool hit(const math::ray& r, float t_min, float t_max, math::hit_record& rec) const;
+	virtual bool hit(const math::ray& casted_ray, float t_min, float t_max, math::hit_record& rec) const;
 private:
 	std::vector<std::unique_ptr<math::hitable>> m_Objects;
 };

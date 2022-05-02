@@ -2,19 +2,6 @@
 #include <Windows.h>
 #include <Windowsx.h>
 
-struct WindowProps
-{
-	int x;
-	int y;
-	RECT wr;
-	LPCTSTR pszTitle;
-	DWORD dwStyle;
-	DWORD dwStyleEx;
-	HMENU pszMenu;
-	HINSTANCE hInstance;
-	HWND hwndParent;
-};
-
 class BaseWindow
 {
 public:
