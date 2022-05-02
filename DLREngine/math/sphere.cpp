@@ -18,7 +18,7 @@ bool math::sphere::hit(const ray& casted_ray, float t_min, float t_max, hit_reco
 			record.normal = (record.point - center) / radius;
 			return true;
 		}
-		temp = (-b + discriminant) / a;
+		temp = (-b + sqrtDiscriminant) / a;
 		if (temp < t_max && temp > t_min)
 		{
 			record.t = temp;
