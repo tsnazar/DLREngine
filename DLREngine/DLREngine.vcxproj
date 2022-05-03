@@ -151,6 +151,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Controller.cpp" />
     <ClCompile Include="include\Scene.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="math\sphere.cpp" />
@@ -158,6 +159,7 @@
     <ClCompile Include="platform\windows\MainWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Controller.h" />
     <ClInclude Include="include\Scene.h" />
     <ClInclude Include="math\hit_record.h" />
     <ClInclude Include="math\ray.h" />

@@ -5,17 +5,8 @@
 #include "../math/mat4.h"
 #include "../math/mat4.h"
 
-#define VK_A 0x41
-#define VK_D 0x44
-#define VK_S 0x53
-#define VK_W 0x57
-#define VK_PRESSED 0x8000
-
-const float VELOCITY = 100.0f;
-
 Scene::Scene()
 {
-	m_Objects.emplace_back(math::vec3(50, 50, -1), 50);
 }
 
 bool Scene::Render(MainWindow& win)
@@ -38,49 +29,6 @@ bool Scene::Render(MainWindow& win)
 			pixels[index] |= (int)col.z << 0;
 		}
 	}
-	return true;
-}
-
-bool Scene::ProcessInput(float delta)
-{
-	static bool firstMove = true;
-
-	if (GetKeyState(VK_A) & VK_PRESSED)
-		m_Offsets.x -= VELOCITY * delta;
-	if (GetKeyState(VK_D) & VK_PRESSED)
-		m_Offsets.x += VELOCITY * delta;
-	if (GetKeyState(VK_S) & VK_PRESSED)
-		m_Offsets.y -= VELOCITY * delta;
-	if (GetKeyState(VK_W) & VK_PRESSED)
-		m_Offsets.y += VELOCITY * delta;
-
-	if (GetKeyState(VK_RBUTTON) & VK_PRESSED)
-	{
-		static int lastX, lastY;
-
-		POINT pos;
-		GetCursorPos(&pos);
-		int x = pos.x;
-		int y = pos.y;
-
-		if (firstMove)
-		{
-			firstMove = false;
-			lastX = x;
-			lastY = y;
-		}
-
-		math::vec3 p(x - lastX, lastY - y, 0);
-		m_Offsets += p;
-
-		lastX = x;
-		lastY = y;
-	}
-	else
-	{
-		firstMove = true;
-	}
-
 	return true;
 }
 

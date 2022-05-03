@@ -11,7 +11,7 @@
 #include "mat4.h"
 
 #include "windows/MainWindow.h"
-#include "Scene.h"
+#include "Controller.h"
 
 const float FRAME_DURATION = 1.f / 60.f;
 
@@ -27,7 +27,9 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	initConsole();
 
 	Scene scene;
-		
+	Controller controller(scene);	
+	controller.InitScene();
+
 	MainWindow window;
 	window.Create(0, 0, { 0, 0, 200, 100 }, L"MainWindow", WS_OVERLAPPEDWINDOW, NULL, NULL, hInstance, NULL);
 	window.Show(nShowCmd);
@@ -55,7 +57,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		if (delta >= FRAME_DURATION)
 		{
 			prevFrame = currentFrame;
-			scene.ProcessInput(delta);
+			controller.ProcessInput(delta);
 			scene.Render(window);
 			window.Flush();
 		}
