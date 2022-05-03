@@ -10,15 +10,8 @@ bool math::sphere::hit(const ray& casted_ray, float t_min, float t_max, hit_reco
 	if (discriminant > 0)
 	{
 		float sqrtDiscriminant = sqrt(discriminant);
+		//float temp = (-b > sqrtDiscriminant) ? (-b - sqrtDiscriminant) / a : (-b + sqrtDiscriminant) / a;
 		float temp = (-b - sqrtDiscriminant) / a;
-		if (temp < t_max && temp > t_min)
-		{
-			record.t = temp;
-			record.point = casted_ray.point_at_line(temp);
-			record.normal = (record.point - center) / radius;
-			return true;
-		}
-		temp = (-b + sqrtDiscriminant) / a;
 		if (temp < t_max && temp > t_min)
 		{
 			record.t = temp;

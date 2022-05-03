@@ -1,6 +1,7 @@
 #include "Scene.h"
 
 #include <memory>
+#include <limits>
 #include "../math/sphere.h"
 #include "../math/mat4.h"
 #include "../math/mat4.h"
@@ -36,7 +37,7 @@ math::vec3 Scene::ComputeColor(const math::ray& castedRay)
 {
 	math::hit_record rec;
 	for (const auto& obj : m_Objects)
-		if (obj.hit(castedRay, 0, 100, rec))
+		if (obj.hit(castedRay, 0, std::numeric_limits<float>::infinity(), rec))
 			return math::vec3(1, 0, 0);
 
 	math::vec3 unit = math::normalize(castedRay.direction);
