@@ -15,56 +15,29 @@ const float VELOCITY = 100.0f;
 
 Scene::Scene()
 {
-	m_BMI.bmiHeader.biSize = sizeof(m_BMI);
-	m_BMI.bmiHeader.biWidth = 0;
-	m_BMI.bmiHeader.biHeight = 0;
-	m_BMI.bmiHeader.biPlanes = 1;
-	m_BMI.bmiHeader.biBitCount = 32;
-	m_BMI.bmiHeader.biCompression = BI_RGB;
-
-	m_Objects.push_back(std::make_unique<math::sphere>(math::vec3(50, 50, -1), 50));
+	m_Objects.emplace_back(math::vec3(50, 50, -1), 50);
 }
 
-bool Scene::Render(const MainWindow& win)
+bool Scene::Render(MainWindow& win)
 {
 	int width = win.GetClientWidth();
 	int height = win.GetClientHeight();
-
-	if (m_BMI.bmiHeader.biWidth != width || m_BMI.bmiHeader.biHeight != height)
-	{
-		m_BMI.bmiHeader.biWidth = width;
-		m_BMI.bmiHeader.biHeight = height;
-		m_Pixels.resize(width * height);
-	}
+	
+	std::vector<int32_t>& pixels = win.GetPixels();
 
 	for (int y = 0; y < height; ++y)
 	{
 		for (int x = 0; x < width; ++x)
 		{
 			math::ray r(math::vec3(x, y, 0) - m_Offsets, math::vec3(0, 0, -1));
-			math::vec3 col = 255 * Color(r);
+			math::vec3 col = 255 * ComputeColor(r);
 
 			int index = y * width + x;
-			m_Pixels[index] = (int)col.x << 16;
-			m_Pixels[index] |= (int)col.y << 8;
-			m_Pixels[index] |= (int)col.z << 0;
+			pixels[index] = (int)col.x << 16;
+			pixels[index] |= (int)col.y << 8;
+			pixels[index] |= (int)col.z << 0;
 		}
 	}
-
-	SetDIBitsToDevice(win.GetHDC(),
-		0,
-		0,
-		width,
-		height,
-		0,
-		0,
-		0,
-		height,
-		m_Pixels.data(),
-		&m_BMI,
-		DIB_RGB_COLORS
-	);
-
 	return true;
 }
 
@@ -111,13 +84,13 @@ bool Scene::ProcessInput(float delta)
 	return true;
 }
 
-math::vec3 Scene::Color(const math::ray& castedRay)
+math::vec3 Scene::ComputeColor(const math::ray& castedRay)
 {
 	math::hit_record rec;
-	if (m_Objects.hit(castedRay, 0.0, 1000, rec))
-	{
-		return math::vec3(1, 0, 0);
-	}
+	for (const auto& obj : m_Objects)
+		if (obj.hit(castedRay, 0, 100, rec))
+			return math::vec3(1, 0, 0);
+
 	math::vec3 unit = math::normalize(castedRay.direction);
 	float t = 0.5 * (unit.y + 1.0);
 	return (1.0 - t) * math::vec3(1.0, 1.0, 1.0) + t * math::vec3(0.5, 0.7, 1.0);

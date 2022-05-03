@@ -13,6 +13,8 @@
 #include "windows/MainWindow.h"
 #include "Scene.h"
 
+const float FRAME_DURATION = 1.f / 60.f;
+
 void initConsole()
 {
 	AllocConsole();
@@ -48,13 +50,14 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 			}
 		}
 		auto currentFrame = std::chrono::steady_clock::now();
-		auto delta = std::chrono::duration_cast<std::chrono::milliseconds>(currentFrame - prevFrame).count();
+		auto delta = std::chrono::duration<float>(currentFrame - prevFrame).count();
 			
-		if (delta >= 16)
+		if (delta >= FRAME_DURATION)
 		{
 			prevFrame = currentFrame;
-			scene.ProcessInput(delta/1000.f);
+			scene.ProcessInput(delta);
 			scene.Render(window);
+			window.Flush();
 		}
 
 		std::this_thread::yield();

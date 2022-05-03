@@ -153,15 +153,13 @@
   <ItemGroup>
     <ClCompile Include="include\Scene.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="include\HitableObjs.cpp" />
     <ClCompile Include="math\sphere.cpp" />
     <ClCompile Include="platform\windows\BaseWindow.cpp" />
     <ClCompile Include="platform\windows\MainWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Scene.h" />
-    <ClInclude Include="math\hitable.h" />
-    <ClInclude Include="include\HitableObjs.h" />
+    <ClInclude Include="math\hit_record.h" />
     <ClInclude Include="math\ray.h" />
     <ClInclude Include="math\sphere.h" />
     <ClInclude Include="math\vec3.h" />

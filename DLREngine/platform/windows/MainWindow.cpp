@@ -10,7 +10,34 @@ HWND MainWindow::Create(int x, int y, RECT wr, LPCTSTR pszTitle, DWORD dwStyle, 
 {
 	BaseWindow::Create(x, y, wr, pszTitle, dwStyle, dwStyleEx, pszMenu, hInstance, hwndParent);
 	m_HDC = GetDC(m_HandleWnd);
+
+	m_BMI.bmiHeader.biSize = sizeof(m_BMI);
+	m_BMI.bmiHeader.biWidth = m_ClientWidth;
+	m_BMI.bmiHeader.biHeight = m_ClientHeight;
+	m_BMI.bmiHeader.biPlanes = 1;
+	m_BMI.bmiHeader.biBitCount = 32;
+	m_BMI.bmiHeader.biCompression = BI_RGB;
+
+	m_Pixels.resize(m_ClientHeight * m_ClientWidth);
+
 	return m_HandleWnd;
+}
+
+void MainWindow::Flush()
+{
+	SetDIBitsToDevice(m_HDC,
+		0,
+		0,
+		m_ClientWidth,
+		m_ClientHeight,
+		0,
+		0,
+		0,
+		m_ClientHeight,
+		m_Pixels.data(),
+		&m_BMI,
+		DIB_RGB_COLORS
+	);
 }
 
 LRESULT MainWindow::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -33,6 +60,10 @@ LRESULT MainWindow::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 		GetClientRect(m_HandleWnd, &rt);
 		m_ClientWidth = rt.right - rt.left;
 		m_ClientHeight = rt.bottom - rt.top;
+
+		m_BMI.bmiHeader.biWidth = m_ClientWidth;
+		m_BMI.bmiHeader.biHeight = m_ClientHeight;
+		m_Pixels.resize(m_ClientWidth * m_ClientHeight);
 
 		return 0;
 	}

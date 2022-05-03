@@ -1,22 +1,20 @@
 #pragma once
 #include <Windows.h>
 #include <vector>
-#include "HitableObjs.h"
 #include "windows/MainWindow.h"
+#include "sphere.h"
 
 class Scene
 {
 public:
 	Scene();
 
-	bool Render(const MainWindow& win);
+	bool Render(MainWindow& win);
 
 	bool ProcessInput(float delta);
 private:
-	math::vec3 Color(const math::ray& castedRay);
+	math::vec3 ComputeColor(const math::ray& castedRay);
 private:
-	BITMAPINFO m_BMI;
 	math::vec3 m_Offsets;
-	HitableObjs m_Objects;
-	std::vector<int32_t> m_Pixels;
+	std::vector<math::sphere> m_Objects;
 };
