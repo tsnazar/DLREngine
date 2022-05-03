@@ -14,7 +14,7 @@ void Controller::InitScene()
 {
 	std::vector<math::sphere>& objs = m_Scene.GetObjects();
 
-	objs.emplace_back(math::vec3(50, 50, -50), 50);
+	objs.emplace_back(math::vec3(50, 50, -51), 50);
 }
 
 void Controller::ProcessInput(float delta)
