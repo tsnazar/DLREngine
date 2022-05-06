@@ -1,12 +1,12 @@
 #pragma once
-#include "vec3.h"
+#include <DirectXMath.h>
 
 namespace math
 {
 	struct hit_record
 	{
 		float t;
-		vec3 point;
-		vec3 normal;
+		DirectX::XMFLOAT3 point;
+		DirectX::XMFLOAT3 normal;
 	};
 }

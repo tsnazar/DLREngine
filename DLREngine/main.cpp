@@ -5,10 +5,10 @@
 #include <vector>
 #include <memory>
 #include <chrono>
+#include <iostream>
 
 #include "ray.h"
 #include "sphere.h"
-#include "mat4.h"
 
 #include "windows/MainWindow.h"
 #include "Controller.h"

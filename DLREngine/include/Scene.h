@@ -4,6 +4,8 @@
 #include "windows/MainWindow.h"
 #include "sphere.h"
 
+#include <DirectXMath.h>
+
 class Scene
 {
 public:
@@ -13,14 +15,14 @@ public:
 
 	std::vector<math::sphere>& GetObjects() { return m_Objects; }
 	
-	math::vec3 GetOffset() const { return m_Offsets; }
+	DirectX::XMFLOAT3 GetOffset() const { return m_Offset; }
 
-	void SetOffset(const math::vec3& offset) { m_Offsets = offset; }
-
-private:
-	math::vec3 ComputeColor(const math::ray& castedRay);
+	void SetOffset(const DirectX::XMFLOAT3& offset) { m_Offset = offset; }
 
 private:
-	math::vec3 m_Offsets;
+	DirectX::XMFLOAT3 ComputeColor(const math::ray& castedRay);
+
+private:
+	DirectX::XMFLOAT3 m_Offset;
 	std::vector<math::sphere> m_Objects;
 };

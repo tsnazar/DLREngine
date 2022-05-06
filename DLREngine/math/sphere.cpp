@@ -2,10 +2,12 @@
 
 bool math::sphere::hit(const ray& casted_ray, float t_min, float t_max, hit_record& record) const
 {
-	vec3 oc = casted_ray.origin - center;
-	float a = dot(casted_ray.direction, casted_ray.direction);
-	float b = dot(casted_ray.direction, oc);
-	float c = dot(oc, oc) - radius * radius;
+	DirectX::XMVECTOR centerVec = DirectX::XMLoadFloat3(&center);
+	DirectX::XMVECTOR dirVec = DirectX::XMLoadFloat3(&casted_ray.direction);
+	DirectX::XMVECTOR oc = DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(&casted_ray.origin), centerVec);
+	float a = DirectX::XMVectorGetX(DirectX::XMVector3Dot(dirVec, dirVec));
+	float b = DirectX::XMVectorGetX(DirectX::XMVector3Dot(dirVec, oc));
+	float c = DirectX::XMVectorGetX(DirectX::XMVector3Dot(oc, oc)) - radius * radius;
 	float discriminant = b * b - a * c;
 	if (discriminant > 0)
 	{
@@ -14,8 +16,8 @@ bool math::sphere::hit(const ray& casted_ray, float t_min, float t_max, hit_reco
 		if (temp < t_max && temp > t_min)
 		{
 			record.t = temp;
-			record.point = casted_ray.point_at_line(temp);
-			record.normal = (record.point - center) / radius;
+			casted_ray.point_at_line(record.point, temp);
+			DirectX::XMStoreFloat3(&record.normal, DirectX::XMVectorScale(DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(&record.point), centerVec), 1.0f/radius));
 			return true;
 		}
 	}

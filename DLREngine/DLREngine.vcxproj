@@ -164,7 +164,6 @@
     <ClInclude Include="math\hit_record.h" />
     <ClInclude Include="math\ray.h" />
     <ClInclude Include="math\sphere.h" />
-    <ClInclude Include="math\vec3.h" />
     <ClInclude Include="platform\windows\BaseWindow.h" />
     <ClInclude Include="platform\windows\MainWindow.h" />
   </ItemGroup>

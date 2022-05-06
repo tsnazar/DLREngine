@@ -1,15 +1,17 @@
 #pragma once
-#include "vec3.h"
+#include <DirectXMath.h>
 
 namespace math
 {
 	struct ray
 	{
-		vec3 origin, direction;
+		DirectX::XMFLOAT3 origin, direction;
 
 		ray() {}
-		ray(const vec3& origin, const vec3& direction) : origin(origin),direction(direction) {}
+		ray(const DirectX::XMFLOAT3& origin, const DirectX::XMFLOAT3& direction) : origin(origin),direction(direction) {}
 
-		vec3 point_at_line(float t) const { return origin + t * direction; }
+		void point_at_line(DirectX::XMFLOAT3& point, float t) const {
+			DirectX::XMVECTOR vec = DirectX::XMVectorAdd(DirectX::XMLoadFloat3(&origin), DirectX::XMVectorScale(DirectX::XMLoadFloat3(&direction), t));
+			return DirectX::XMStoreFloat3(&point, vec); }
 	};
 }

@@ -14,12 +14,12 @@ void Controller::InitScene()
 {
 	std::vector<math::sphere>& objs = m_Scene.GetObjects();
 
-	objs.emplace_back(math::vec3(50, 50, -51), 50);
+	objs.emplace_back(DirectX::XMFLOAT3(50.0f, 50.0f, -51.0f), 50);
 }
 
 void Controller::ProcessInput(float delta)
 {
-	math::vec3 offset = m_Scene.GetOffset();
+	DirectX::XMFLOAT3 offset = m_Scene.GetOffset();
 
 	if (GetKeyState(VK_A) & VK_PRESSED)
 		offset.x -= VELOCITY * delta;
@@ -42,8 +42,10 @@ void Controller::ProcessInput(float delta)
 			m_LastY = pos.y;
 		}
 
-		math::vec3 path(pos.x - m_LastX, m_LastY - pos.y, 0);
-		offset += path;
+		DirectX::XMFLOAT3 path(pos.x - m_LastX, m_LastY - pos.y, 0);
+		offset.x +=  path.x;
+		offset.y +=  path.y;
+		offset.z +=  path.z;
 
 		m_LastX = pos.x;
 		m_LastY = pos.y;
