@@ -60,6 +60,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 			controller.ProcessInput(delta);
 			scene.Render(window);
 			window.Flush();
+
+			std::cout << delta << std::endl;
 		}
 
 		std::this_thread::yield();

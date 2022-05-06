@@ -7,7 +7,8 @@ namespace math
 	{
 		vec4 cols[4];
 
-		mat4(float s = 0.0f) : cols{ vec4(s,0,0,0), vec4(0,s,0,0), vec4(0,0,s,0), vec4(0,0,0,s)} {}
+		mat4(){}
+		mat4(float s) : cols{ vec4(s,0,0,0), vec4(0,s,0,0), vec4(0,0,s,0), vec4(0,0,0,s)} {}
 		mat4(float x0, float y0, float z0, float w0,
 			 float x1, float y1, float z1, float w1,
 			 float x2, float y2, float z2, float w2,
@@ -111,7 +112,7 @@ namespace math
 
 	inline mat4 ortho(float l, float r, float b, float t, float n, float f)
 	{
-		mat4 mat;
+		mat4 mat(0.0f);
 		mat[0][0] =  2.0f / (r - l);
 		mat[1][1] =  2.0f / (t - b);
 		mat[2][2] = -2.0f / (f - n);

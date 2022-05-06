@@ -8,7 +8,7 @@ namespace math
 	{
 		float x, y, z;
 
-		vec3() : x(0), y(0), z(0) {};
+		vec3(){};
 		vec3(float e0, float e1, float e2) : x(e0), y(e1), z(e2) {};
 
 		inline float& operator[](int i)
