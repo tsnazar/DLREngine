@@ -27,7 +27,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	initConsole();
 
 	Scene scene;
-	Controller controller(scene);	
+	Camera camera;
+	Controller controller(scene, camera);	
 	controller.InitScene();
 
 	MainWindow window;
@@ -58,7 +59,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		{
 			prevFrame = currentFrame;
 			controller.ProcessInput(delta);
-			scene.Render(window);
+			camera.UpdateMatrices();
+			scene.Render(window, camera);
 			window.Flush();
 
 			std::cout << delta << std::endl;

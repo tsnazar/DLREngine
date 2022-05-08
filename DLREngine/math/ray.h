@@ -7,11 +7,10 @@ namespace math
 	{
 		DirectX::XMFLOAT3 origin, direction;
 
-		ray() {}
+		ray() : origin(), direction() {}
 		ray(const DirectX::XMFLOAT3& origin, const DirectX::XMFLOAT3& direction) : origin(origin),direction(direction) {}
 
-		void point_at_line(DirectX::XMFLOAT3& point, float t) const {
-			DirectX::XMVECTOR vec = DirectX::XMVectorAdd(DirectX::XMLoadFloat3(&origin), DirectX::XMVectorScale(DirectX::XMLoadFloat3(&direction), t));
-			return DirectX::XMStoreFloat3(&point, vec); }
+		DirectX::XMVECTOR point_at_line(float t) const {
+			return DirectX::XMVectorAdd(DirectX::XMLoadFloat3(&origin), DirectX::XMVectorScale(DirectX::XMLoadFloat3(&direction), t)); }
 	};
 }
