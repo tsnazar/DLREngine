@@ -64,10 +64,12 @@ LRESULT MainWindow::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 		m_BMI.bmiHeader.biWidth = m_ClientWidth;
 		m_BMI.bmiHeader.biHeight = m_ClientHeight;
 		m_Pixels.resize(m_ClientWidth * m_ClientHeight);
+	}
+	}
 
-		return 0;
-	}
-	}
+	if (m_EventCallback)
+		return m_EventCallback(hWnd, message, wParam, lParam);
+
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }
 

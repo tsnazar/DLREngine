@@ -7,8 +7,7 @@
 #include <chrono>
 #include <iostream>
 
-#include "ray.h"
-#include "sphere.h"
+#include "geometry/Ray.h"
 
 #include "windows/MainWindow.h"
 #include "Controller.h"
@@ -25,15 +24,19 @@ void initConsole()
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nShowCmd)
 {
 	initConsole();
-
 	Scene scene;
 	Camera camera;
-	Controller controller(scene, camera);	
-	controller.InitScene();
-
+	
 	MainWindow window;
-	window.Create(0, 0, { 0, 0, 200, 100 }, L"MainWindow", WS_OVERLAPPEDWINDOW, NULL, NULL, hInstance, NULL);
+	window.Create(0, 0, { 0, 0, 200, 200 }, L"MainWindow", WS_OVERLAPPEDWINDOW, NULL, NULL, hInstance, NULL);
 	window.Show(nShowCmd);
+
+	Controller controller(scene, camera, window);
+	controller.InitScene();
+	controller.InitCamera();
+
+	std::function<LRESULT(HWND, UINT, WPARAM, LPARAM)> f = std::bind(&Controller::ProcessEvents, &controller, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
+	window.BindEventCallback(f);
 
 	MSG msg;
 
@@ -59,10 +62,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		{
 			prevFrame = currentFrame;
 			controller.ProcessInput(delta);
-			camera.UpdateMatrices();
-			scene.Render(window, camera);
-			window.Flush();
-
+			controller.Draw();
 			std::cout << delta << std::endl;
 		}
 

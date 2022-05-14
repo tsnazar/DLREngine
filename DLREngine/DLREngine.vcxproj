@@ -96,7 +96,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)math;$(ProjectDir)platform;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)math;$(ProjectDir)platform;$(ProjectDir)decorators;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -111,7 +111,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)math;$(ProjectDir)platform;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)math;$(ProjectDir)platform;$(ProjectDir)decorators;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -126,7 +126,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)math;$(ProjectDir)platform;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)math;$(ProjectDir)platform;$(ProjectDir)decorators;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -141,7 +141,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)math;$(ProjectDir)platform;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)math;$(ProjectDir)platform;$(ProjectDir)decorators;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -155,19 +155,35 @@
     <ClCompile Include="include\Camera.cpp" />
     <ClCompile Include="include\Scene.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="math\plane.cpp" />
-    <ClCompile Include="math\sphere.cpp" />
+    <ClCompile Include="math\lights\DirectionLight.cpp" />
+    <ClCompile Include="math\geometry\Plane.cpp" />
+    <ClCompile Include="math\lights\PointLight.cpp" />
+    <ClCompile Include="math\geometry\Sphere.cpp" />
+    <ClCompile Include="math\lights\SpotLight.cpp" />
+    <ClCompile Include="math\geometry\Triangle.cpp" />
+    <ClCompile Include="math\geometry\Mesh.cpp" />
     <ClCompile Include="platform\windows\BaseWindow.cpp" />
     <ClCompile Include="platform\windows\MainWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Controller.h" />
     <ClInclude Include="include\Camera.h" />
+    <ClInclude Include="decorators\math\IObjectMover.h" />
     <ClInclude Include="include\Scene.h" />
-    <ClInclude Include="math\hit_record.h" />
-    <ClInclude Include="math\plane.h" />
-    <ClInclude Include="math\ray.h" />
-    <ClInclude Include="math\sphere.h" />
+    <ClInclude Include="decorators\math\SphereMover.h" />
+    <ClInclude Include="decorators\math\TransformMover.h" />
+    <ClInclude Include="decorators\math\Vector3Mover.h" />
+    <ClInclude Include="math\geometry\Mesh.h" />
+    <ClInclude Include="math\lights\DirectionLight.h" />
+    <ClInclude Include="math\Intersection.h" />
+    <ClInclude Include="math\Material.h" />
+    <ClInclude Include="math\geometry\Plane.h" />
+    <ClInclude Include="math\lights\PointLight.h" />
+    <ClInclude Include="math\geometry\Ray.h" />
+    <ClInclude Include="math\geometry\Sphere.h" />
+    <ClInclude Include="math\lights\SpotLight.h" />
+    <ClInclude Include="math\Transform.h" />
+    <ClInclude Include="math\geometry\Triangle.h" />
     <ClInclude Include="platform\windows\BaseWindow.h" />
     <ClInclude Include="platform\windows\MainWindow.h" />
     <ClInclude Include="platform\windows\winapi.hpp" />

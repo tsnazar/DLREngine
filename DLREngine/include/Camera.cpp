@@ -11,8 +11,8 @@ void Camera::SetPerspective(float fov, float aspect, float near, float far)
 
 void Camera::SetWorldAngles(float pitch, float yaw, float roll)
 {
-	m_UpdatedBasis = false;
 	m_UpdatedMatrices = false;
+	m_Rotation = DirectX::XMQuaternionRotationRollPitchYaw(pitch, yaw, roll);
 }
 
 void Camera::SetWorldOffset(const DirectX::XMFLOAT3& offset)
@@ -32,11 +32,6 @@ void Camera::AddRelativeOffset(const DirectX::XMFLOAT3& offset)
 void Camera::AddRelativeAngles(const DirectX::XMFLOAT3& angles)
 {
 	m_UpdatedMatrices = false;
-	m_UpdatedBasis = false;
-	//DirectX::XMVECTOR up = DirectX::XMVectorSet(0, 1, 0, 1);
-	//DirectX::XMVECTOR right = DirectX::XMVectorSet(1, 0, 0, 1);
-	//DirectX::XMVECTOR forward = DirectX::XMVectorSet(0, 0, 1, 1);
-
 	m_Rotation = DirectX::XMQuaternionMultiply(m_Rotation, DirectX::XMQuaternionRotationAxis(Forward(), angles.z));
 	m_Rotation = DirectX::XMQuaternionMultiply(m_Rotation, DirectX::XMQuaternionRotationAxis(Right(), angles.y));
 	m_Rotation = DirectX::XMQuaternionMultiply(m_Rotation, DirectX::XMQuaternionRotationAxis(Up(), angles.x));
@@ -51,8 +46,13 @@ void Camera::UpdateMatrices()
 	DirectX::XMMATRIX mat = DirectX::XMMatrixRotationQuaternion(m_Rotation);
 	const DirectX::XMVECTOR pos = Position();
 
-	m_ViewInv = DirectX::XMMatrixTranspose(mat);
+	m_ViewInv = mat;
 	Position() = pos;
 
+	m_View = DirectX::XMMatrixTranspose(mat);
+	m_View.r[3] = DirectX::XMVectorNegate(DirectX::XMVector3Transform(pos, m_View));
+	m_View.r[3] = DirectX::XMVectorSetW(m_View.r[3], 1.0f);
+
+	m_ViewProj = m_View * m_Proj;
 	m_ViewProjInv = m_ProjInv * m_ViewInv;
 }

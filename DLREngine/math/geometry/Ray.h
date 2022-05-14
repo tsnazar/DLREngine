@@ -3,14 +3,14 @@
 
 namespace math
 {
-	struct ray
+	struct Ray
 	{
 		DirectX::XMFLOAT3 origin, direction;
 
-		ray() : origin(), direction() {}
-		ray(const DirectX::XMFLOAT3& origin, const DirectX::XMFLOAT3& direction) : origin(origin),direction(direction) {}
+		Ray() : origin(), direction() {}
+		Ray(const DirectX::XMFLOAT3& origin, const DirectX::XMFLOAT3& direction) : origin(origin), direction(direction) {}
 
-		DirectX::XMVECTOR point_at_line(float t) const {
+		DirectX::XMVECTOR PointAtLine(float t) const {
 			return DirectX::XMVectorAdd(DirectX::XMLoadFloat3(&origin), DirectX::XMVectorScale(DirectX::XMLoadFloat3(&direction), t)); }
 	};
 }

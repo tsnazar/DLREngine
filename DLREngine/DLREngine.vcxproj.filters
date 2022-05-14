@@ -27,7 +27,7 @@
     <ClCompile Include="include\Scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="math\sphere.cpp">
+    <ClCompile Include="math\geometry\Sphere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Controller.cpp">
@@ -36,15 +36,30 @@
     <ClCompile Include="include\Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="math\plane.cpp">
+    <ClCompile Include="math\geometry\Plane.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="math\geometry\Triangle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="math\geometry\Mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="math\lights\DirectionLight.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="math\lights\PointLight.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="math\lights\SpotLight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="math\ray.h">
+    <ClInclude Include="math\geometry\Ray.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="math\sphere.h">
+    <ClInclude Include="math\geometry\Sphere.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="platform\windows\BaseWindow.h">
@@ -56,10 +71,7 @@
     <ClInclude Include="include\Scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="math\hit_record.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Controller.h">
+    <ClInclude Include="math\Intersection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Camera.h">
@@ -68,7 +80,43 @@
     <ClInclude Include="platform\windows\winapi.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="math\plane.h">
+    <ClInclude Include="math\geometry\Plane.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="math\Material.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="math\lights\DirectionLight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="math\lights\PointLight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="math\lights\SpotLight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="math\geometry\Triangle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="math\geometry\Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="math\Transform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="decorators\math\IObjectMover.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Controller.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="decorators\math\SphereMover.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="decorators\math\TransformMover.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="decorators\math\Vector3Mover.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

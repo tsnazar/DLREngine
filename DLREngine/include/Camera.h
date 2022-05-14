@@ -28,7 +28,6 @@ public:
 	DirectX::XMVECTOR& Position() { return m_ViewInv.r[3]; }
 	DirectX::XMVECTOR& Rotation() { return m_Rotation; }
 
-
 private:
 	DirectX::XMMATRIX m_View = DirectX::XMMatrixIdentity();
 	DirectX::XMMATRIX m_Proj = DirectX::XMMatrixIdentity();
@@ -40,7 +39,6 @@ private:
 
 	DirectX::XMVECTOR m_Rotation = DirectX::XMQuaternionIdentity();
 
-	bool m_UpdatedBasis = false;
 	bool m_UpdatedMatrices = false;
 };
 
