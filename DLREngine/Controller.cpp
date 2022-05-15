@@ -8,6 +8,7 @@
 #define VK_W 0x57
 #define VK_PRESSED 0x8000
 
+extern const int RESOLUTION_DECREASE_COEF;
 const float VELOCITY = 1.0f;
 const float ROTATION_FACTOR = 1.0f;
 const float FOV = 0.5f;
@@ -103,8 +104,8 @@ void Controller::ProcessInput(float delta)
 		GetCursorPos(&pos);
 		ScreenToClient(m_Window.GetWindow(), &pos);
 
-		float xNDC = (2.0f * pos.x / m_Window.GetClientWidth()) - 1.0f;
-		float yNDC = 1.0f - (2.0f * pos.y / m_Window.GetClientHeight());
+		float xNDC = (2.0f * pos.x / (m_Window.GetClientWidth() * RESOLUTION_DECREASE_COEF)) - 1.0f;
+		float yNDC = 1.0f - (2.0f * pos.y / (m_Window.GetClientHeight() * RESOLUTION_DECREASE_COEF));
 
 		DirectX::XMVECTOR cameraPos = m_Camera.Position();
 		DirectX::XMVECTOR worldPos = NdcToWorld(DirectX::XMVectorSet(xNDC, yNDC, 0.0f, 1.0f), m_Camera.GetInvViewProj());

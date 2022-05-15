@@ -26,3 +26,5 @@ private:
 	std::function<LRESULT(HWND, UINT, WPARAM, LPARAM)> m_EventCallback = nullptr;
 	std::vector<int32_t> m_Pixels;
 };
+
+extern const int RESOLUTION_DECREASE_COEF;

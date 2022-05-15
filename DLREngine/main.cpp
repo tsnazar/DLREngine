@@ -28,7 +28,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	Camera camera;
 	
 	MainWindow window;
-	window.Create(0, 0, { 0, 0, 200, 200 }, L"MainWindow", WS_OVERLAPPEDWINDOW, NULL, NULL, hInstance, NULL);
+	window.Create(0, 0, { 0, 0, 300, 300 }, L"MainWindow", WS_OVERLAPPEDWINDOW, NULL, NULL, hInstance, NULL);
 	window.Show(nShowCmd);
 
 	Controller controller(scene, camera, window);
