@@ -10,7 +10,7 @@
 
 extern const int RESOLUTION_DECREASE_COEF;
 const float VELOCITY = 1.0f;
-const float ROTATION_FACTOR = 1.0f;
+const float ROTATION_SPEED = 0.5f;
 const float FOV = 0.5f;
 const float zNear = 100.0f;
 const float zFar = 0.1f;
@@ -71,9 +71,9 @@ void Controller::ProcessInput(float delta)
 		offset.z = VELOCITY * delta;
 
 	if (GetKeyState(VK_Q) & VK_PRESSED)
-		ang.z = ROTATION_FACTOR * delta;
+		ang.z = ROTATION_SPEED * delta;
 	if (GetKeyState(VK_E) & VK_PRESSED)
-		ang.z = -ROTATION_FACTOR * delta;
+		ang.z = -ROTATION_SPEED * delta;
 
 	if (GetKeyState(VK_LBUTTON) & VK_PRESSED)
 	{
@@ -87,11 +87,8 @@ void Controller::ProcessInput(float delta)
 			m_LastYLB = pos.y;
 		}
 
-		ang.x = (pos.x - m_LastXLB) * DirectX::XM_PI / 180.0f;
-		ang.y = (pos.y - m_LastYLB) * DirectX::XM_PI / 180.0f;
-
-		m_LastXLB = pos.x;
-		m_LastYLB = pos.y;
+		ang.x = (pos.x - m_LastXLB) * DirectX::XM_PI / 180.0f * ROTATION_SPEED * delta;
+		ang.y = (pos.y - m_LastYLB) * DirectX::XM_PI / 180.0f * ROTATION_SPEED * delta;
 	}
 	else
 	{
