@@ -7,15 +7,11 @@
 #include "math/TransformMover.h"
 #include "math/Vector3Mover.h"
 
-const float SHADOW_BIAS = 0.0005f;
-const float AMBIENT_STRENGTH = 0.3f;
-const float LIGHT_REP_RADIUS = 0.1f;
-
-DirectX::XMVECTOR NdcToWorld(DirectX::XMVECTOR pos, const DirectX::XMMATRIX& mat) 
+namespace
 {
-	pos = DirectX::XMVector4Transform(pos, mat);
-	pos = DirectX::XMVectorScale(pos, 1.0f / DirectX::XMVectorGetW(pos));
-	return pos;
+	const float SHADOW_BIAS = 0.0005f;
+	const float AMBIENT_STRENGTH = 0.3f;
+	const float LIGHT_REP_RADIUS = 0.1f;
 }
 
 bool Scene::Sphere::Intersect(const math::Ray& ray, ObjRef& outRef, math::Intersection& outNearest, const math::Material*& outMaterial)
@@ -42,9 +38,9 @@ bool Scene::Plane::Intersect(const math::Ray& ray, ObjRef& outRef, math::Interse
 	return found;
 }
 
-bool Scene::Transform::Intersect(const math::Ray& ray, ObjRef& outRef, math::Intersection& outNearest, const math::Material*& outMaterial)
+bool Scene::MeshInstance::Intersect(const math::Ray& ray, ObjRef& outRef, math::Intersection& outNearest, const math::Material*& outMaterial)
 {
-	DirectX::XMMATRIX inv = math::Transform::ToInvMatrix();
+	DirectX::XMMATRIX inv = transform.ToInvMatrix();
 	DirectX::XMVECTOR origin = DirectX::XMVectorSetW(DirectX::XMLoadFloat3(&ray.origin), 1.0f);
 	DirectX::XMVECTOR direction = DirectX::XMLoadFloat3(&ray.direction);
 
@@ -52,7 +48,7 @@ bool Scene::Transform::Intersect(const math::Ray& ray, ObjRef& outRef, math::Int
 	DirectX::XMStoreFloat3(&modelRay.origin, DirectX::XMVector4Transform(origin, inv));
 	DirectX::XMStoreFloat3(&modelRay.direction, DirectX::XMVector4Transform(direction, inv));
 
-	bool found = mesh.Intersect(modelRay, outNearest);
+	bool found = mesh->Intersect(modelRay, outNearest);
 	if (found)
 	{
 		DirectX::XMStoreFloat3(&outNearest.pos, ray.PointAtLine(outNearest.t));
@@ -184,7 +180,7 @@ void Scene::FindIntersectionInternal(const math::Ray& ray, ObjRef& outRef, math:
 	for (auto& obj : m_Spheres)
 		obj.Intersect(ray, outRef, outNearest, outMaterial);
 
-	for (auto& obj : m_CubeTransforms)
+	for (auto& obj : m_Meshes)
 		obj.Intersect(ray, outRef, outNearest, outMaterial);
 
 	if (onlyObjects)
@@ -243,8 +239,8 @@ bool Scene::FindIntersection(const math::Ray& ray, IntersectionQuery& query, boo
 
 bool Scene::Render(MainWindow& win, Camera& camera)
 {
-	int width = win.GetClientWidth();
-	int height = win.GetClientHeight();
+	int width = win.GetImageWidth();
+	int height = win.GetImageHeight();
 	
 	std::vector<int32_t>& pixels = win.GetPixels();
 
@@ -256,7 +252,7 @@ bool Scene::Render(MainWindow& win, Camera& camera)
 			float yNDC = (2.0f * y / height) - 1.0f;
 			
 			DirectX::XMVECTOR cameraPos = camera.Position();
-			DirectX::XMVECTOR worldPos = NdcToWorld(DirectX::XMVectorSet(xNDC, yNDC, 1.0f, 1.0f), camera.GetInvViewProj());
+			DirectX::XMVECTOR worldPos = camera.Unproject(DirectX::XMVectorSet(xNDC, yNDC, 1.0f, 1.0f));
 			DirectX::XMVECTOR direction = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(worldPos, cameraPos));
 
 			DirectX::XMFLOAT3 d, p;
@@ -275,7 +271,7 @@ bool Scene::Render(MainWindow& win, Camera& camera)
 	return true;
 }
 
-DirectX::XMFLOAT3 Scene::ComputeColor(const math::Ray& castedRay, const DirectX::XMVECTOR& cameraPos)
+DirectX::XMFLOAT3 Scene::ComputeColor(const math::Ray& ray, const DirectX::XMVECTOR& cameraPos)
 {
 	math::Intersection rec;
 	rec.Reset();
@@ -283,7 +279,7 @@ DirectX::XMFLOAT3 Scene::ComputeColor(const math::Ray& castedRay, const DirectX:
 	ObjRef ref = { nullptr, IntersectedType::NUM };
 	const math::Material* materialPtr = nullptr;
 	
-	FindIntersectionInternal(castedRay, ref, rec, materialPtr, false);
+	FindIntersectionInternal(ray, ref, rec, materialPtr, false);
 
 	if (ref.type == IntersectedType::Light)
 		return materialPtr->albedo;
@@ -296,7 +292,7 @@ DirectX::XMFLOAT3 Scene::ComputeColor(const math::Ray& castedRay, const DirectX:
 
 		pixelPos = DirectX::XMLoadFloat3(&rec.pos);
 		pixelNormal = DirectX::XMLoadFloat3(&rec.normal);
-		pixelToCamera = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(cameraPos, pixelPos));
+		pixelToCamera = DirectX::XMVectorNegate(DirectX::XMLoadFloat3(&ray.direction));
 
 		sum = DirectX::XMVectorMultiply(matVec.albedo, DirectX::XMVectorReplicate(AMBIENT_STRENGTH));
 		sum = DirectX::XMVectorAdd(sum, matVec.emission);
@@ -317,7 +313,7 @@ DirectX::XMFLOAT3 Scene::ComputeColor(const math::Ray& castedRay, const DirectX:
 	}
 
 	DirectX::XMFLOAT3 unit;
-	DirectX::XMStoreFloat3(&unit, DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&castedRay.direction)));
+	DirectX::XMStoreFloat3(&unit, DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&ray.direction)));
 	float t = 0.5 * (unit.y + 1.0);
 	float it = 1.0 - t;
 

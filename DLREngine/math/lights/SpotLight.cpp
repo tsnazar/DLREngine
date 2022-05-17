@@ -7,8 +7,8 @@ DirectX::XMVECTOR math::SpotLight::Illuminate(const DirectX::XMVECTOR& toLightDi
 	DirectX::XMVECTOR halfWay = DirectX::XMVector3Normalize(DirectX::XMVectorAdd(toLightDir, toCameraDir));
 
 	DirectX::XMVECTOR theta = DirectX::XMVector3Dot(toLightDir, DirectX::XMVectorNegate(DirectX::XMLoadFloat3(&direction)));
-	DirectX::XMVECTOR epsilon = DirectX::XMVectorReplicate(cos(innerRad) - cos(outerRad));
-	DirectX::XMVECTOR intensity = DirectX::XMVectorClamp(DirectX::XMVectorDivide(DirectX::XMVectorSubtract(theta, DirectX::XMVectorReplicate(cos(outerRad))), epsilon), DirectX::XMVectorZero(), DirectX::XMVectorReplicate(1.0f));
+	DirectX::XMVECTOR epsilon = DirectX::XMVectorReplicate(cosInnerRad - cosOuterRad);
+	DirectX::XMVECTOR intensity = DirectX::XMVectorClamp(DirectX::XMVectorDivide(DirectX::XMVectorSubtract(theta, DirectX::XMVectorReplicate(cosOuterRad)), epsilon), DirectX::XMVectorZero(), DirectX::XMVectorReplicate(1.0f));
 	
 	DirectX::XMVECTOR diff = DirectX::XMVectorMax(DirectX::XMVector3Dot(pixelNormal, toLightDir), DirectX::XMVectorZero());
 	diff = DirectX::XMVectorMultiply(diff, material.albedo);

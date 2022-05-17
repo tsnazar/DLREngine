@@ -12,6 +12,9 @@ public:
 	DirectX::XMMATRIX GetViewProj() const { return m_ViewProj; }
 	DirectX::XMMATRIX GetInvViewProj() const { return m_ViewProjInv; }
 
+	DirectX::XMVECTOR Project(DirectX::XMVECTOR vec);
+	DirectX::XMVECTOR Unproject(DirectX::XMVECTOR vec);
+
 	void SetWorldAngles(float pitch, float yaw, float roll);
 	void SetWorldOffset(const DirectX::XMFLOAT3& offset);
 

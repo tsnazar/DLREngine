@@ -46,13 +46,14 @@ public:
 		bool Intersect(const math::Ray& ray, ObjRef& outRef, math::Intersection& record, const math::Material*& outMaterial);
 	};
 
-	struct Transform : public math::Transform
+	struct MeshInstance
 	{
+		math::Transform transform;
 		math::Material material;
-		math::Mesh& mesh;
+		math::Mesh* mesh;
 
-		Transform(DirectX::XMFLOAT3 scale, DirectX::XMFLOAT4 rotation, DirectX::XMFLOAT3 position, const math::Material& material, math::Mesh& mesh)
-			: math::Transform(scale, rotation, position), material(material), mesh(mesh) {}
+		MeshInstance(const math::Transform& transform, const math::Material& material, math::Mesh* mesh)
+			: transform(transform) , material(material), mesh(mesh) {}
 		bool Intersect(const math::Ray& ray, ObjRef& outRef, math::Intersection& record, const math::Material*& outMaterial);
 	};
 
@@ -118,8 +119,8 @@ public:
 	void AddPlaneToScene(const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& normal, const math::Material& material)
 		{ m_Planes.emplace_back(pos, normal, material); }
 	
-	void AddCubeToScene(DirectX::XMFLOAT3 scale, DirectX::XMFLOAT4 rotation, DirectX::XMFLOAT3 position, const math::Material& material) 
-		{ m_CubeTransforms.emplace_back(scale, rotation, position, material, m_CubeMesh);}
+	void AddCubeToScene(const math::Transform& transform, const math::Material& material) 
+		{ m_Meshes.emplace_back(transform, material, &m_CubeMesh);}
 
 	void AddDirLightToScene(const DirectX::XMFLOAT3& dir, const DirectX::XMFLOAT3& intensity) 
 		{ m_DirLights.emplace_back(dir, intensity); }
@@ -140,16 +141,12 @@ protected:
 
 	DirectX::XMFLOAT3 ComputeColor(const math::Ray& castedRay, const DirectX::XMVECTOR& cameraPos);
 
-
-
 private:
 	std::vector<Sphere> m_Spheres;
 	std::vector<Plane> m_Planes;
 	std::vector<DirectionLight> m_DirLights;
 	std::vector<PointLight> m_PointLights;
 	std::vector<SpotLight> m_SpotLights;
-	std::vector<Transform> m_CubeTransforms;
+	std::vector<MeshInstance> m_Meshes;
 	math::Mesh m_CubeMesh = math::Mesh::createCube();
 };
-
-DirectX::XMVECTOR NdcToWorld(DirectX::XMVECTOR pos, const DirectX::XMMATRIX& mat);

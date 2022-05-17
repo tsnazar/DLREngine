@@ -1,34 +1,36 @@
 #include "Controller.h"
 
-#define VK_A 0x41
-#define VK_D 0x44
-#define VK_E 0x45
-#define VK_Q 0x51
-#define VK_S 0x53
-#define VK_W 0x57
-#define VK_PRESSED 0x8000
+namespace
+{
+	const SHORT VK_A = 0x41;
+	const SHORT VK_D = 0x44;
+	const SHORT VK_E = 0x45;
+	const SHORT VK_Q = 0x51;
+	const SHORT VK_S = 0x53;
+	const SHORT VK_W = 0x57;
+	const SHORT VK_PRESSED = 0x8000;
 
-extern const int RESOLUTION_DECREASE_COEF;
-const float VELOCITY = 1.0f;
-const float ROTATION_SPEED = 0.5f;
-const float FOV = 0.5f;
-const float zNear = 100.0f;
-const float zFar = 0.1f;
+	const float VELOCITY = 1.0f;
+	const float ROTATION_SPEED = 0.5f;
+	const float FOV = 0.5f;
+	const float ZNEAR = 100.0f;
+	const float ZFAR = 0.1f;
 
-const math::Material red({ 1,0,0 }, { 0,0,0 }, 64.0f, 0.5f); // temp materials
-const math::Material green({ 0,1,0 }, { 0,0,0 }, 16.0f, 0.7f); // temp materials
-const math::Material blue({ 0,0,1 }, { 0,0,0 }, 32.0f, 0.7f); // temp materials
-const math::Material lasure({ 0.0f , 1.0f , 0.5f }, { 0,0,0 }, 32.0f, 0.3f); // temp materials
-const math::Material purple({ 0.4f , 0.0f , 0.8f }, { 0,0,0 }, 128.0f, 0.5f); // temp materials
+	const math::Material red({ 1,0,0 }, { 0,0,0 }, 64.0f, 0.5f); // temp materials
+	const math::Material green({ 0,1,0 }, { 0,0,0 }, 16.0f, 0.7f); // temp materials
+	const math::Material blue({ 0,0,1 }, { 0,0,0 }, 32.0f, 0.7f); // temp materials
+	const math::Material azure({ 0.0f , 1.0f , 0.5f }, { 0,0,0 }, 32.0f, 0.3f); // temp materials
+	const math::Material purple({ 0.4f , 0.0f , 0.8f }, { 0,0,0 }, 128.0f, 0.5f); // temp materials
+}
 
 Controller::Controller(Scene& scene, Camera& camera, MainWindow& window):m_Scene(scene), m_Camera(camera), m_Window(window){}
 
 void Controller::InitScene()
 {
 	m_Scene.AddSphereToScene(DirectX::XMFLOAT3(0, 0, 2.0f), 0.5f, red);
-	m_Scene.AddSphereToScene(DirectX::XMFLOAT3(0, 0, -2.0f), 0.5f, lasure);
-	m_Scene.AddCubeToScene(DirectX::XMFLOAT3(0.5f, 0.5f, 0.5f), DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f), DirectX::XMFLOAT3(0.0f, 0.0f, 5.0f), blue);
-	m_Scene.AddCubeToScene(DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f), DirectX::XMFLOAT3(-3.0f, 2.0f, 3.0f), purple);
+	m_Scene.AddSphereToScene(DirectX::XMFLOAT3(0, 0, -2.0f), 0.5f, azure);
+	m_Scene.AddCubeToScene(math::Transform({ 0.5f, 0.5f, 0.5f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 5.0f }), blue);
+	m_Scene.AddCubeToScene(math::Transform({ 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { -3.0f, 2.0f, 3.0f }), purple);
 	m_Scene.AddPlaneToScene(DirectX::XMFLOAT3(0, -1, 0), DirectX::XMFLOAT3(0, 1, 0), green);
 
 	m_Scene.AddDirLightToScene(DirectX::XMFLOAT3(0.0f, -1.0f, 5.0f), DirectX::XMFLOAT3(0.3f, 0.5f, 0.5f));
@@ -39,10 +41,10 @@ void Controller::InitScene()
 
 void Controller::InitCamera()
 {
-	int width = m_Window.GetClientWidth();
-	int height = m_Window.GetClientHeight();
+	int width = m_Window.GetImageWidth();
+	int height = m_Window.GetImageHeight();
 
-	m_Camera.SetPerspective(FOV, (float)width / (float)height, zNear, zFar);
+	m_Camera.SetPerspective(FOV, (float)width / (float)height, ZNEAR, ZFAR);
 }
 
 void Controller::MoveCamera(const DirectX::XMFLOAT3 & offset, const DirectX::XMFLOAT3 & angles)
@@ -101,11 +103,11 @@ void Controller::ProcessInput(float delta)
 		GetCursorPos(&pos);
 		ScreenToClient(m_Window.GetWindow(), &pos);
 
-		float xNDC = (2.0f * pos.x / (m_Window.GetClientWidth() * RESOLUTION_DECREASE_COEF)) - 1.0f;
-		float yNDC = 1.0f - (2.0f * pos.y / (m_Window.GetClientHeight() * RESOLUTION_DECREASE_COEF));
+		float xNDC = (2.0f * pos.x / (m_Window.GetClientWidth())) - 1.0f;
+		float yNDC = 1.0f - (2.0f * pos.y / (m_Window.GetClientHeight()));
 
 		DirectX::XMVECTOR cameraPos = m_Camera.Position();
-		DirectX::XMVECTOR worldPos = NdcToWorld(DirectX::XMVectorSet(xNDC, yNDC, 0.0f, 1.0f), m_Camera.GetInvViewProj());
+		DirectX::XMVECTOR worldPos = m_Camera.Unproject(DirectX::XMVectorSet(xNDC, yNDC, 1.0f, 1.0f));
 		DirectX::XMVECTOR direction = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(worldPos, cameraPos));
 
 		DirectX::XMFLOAT3 dir, org;
@@ -129,7 +131,6 @@ void Controller::ProcessInput(float delta)
 
 		if (m_Mover != nullptr)
 		{
-
 			DirectX::XMFLOAT3 off;
 			DirectX::XMStoreFloat3(&off, DirectX::XMVectorSubtract(ray.PointAtLine(m_Inter.t), DirectX::XMLoadFloat3(&m_Inter.pos)));
 			m_Mover->Move(off);
@@ -152,10 +153,10 @@ LRESULT Controller::ProcessEvents(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 	{
 	case WM_SIZE:
 	{
-		int width = m_Window.GetClientWidth();
-		int height = m_Window.GetClientHeight();
+		int width = m_Window.GetImageWidth();
+		int height = m_Window.GetImageHeight();
 
-		m_Camera.SetPerspective(FOV, (float)width / (float)height, zNear, zFar);
+		m_Camera.SetPerspective(FOV, (float)width / (float)height, ZNEAR, ZFAR);
 		return 0;
 	}
 	}

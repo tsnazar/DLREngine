@@ -1,5 +1,20 @@
 #include "Camera.h"
 
+DirectX::XMVECTOR Camera::Project(DirectX::XMVECTOR vec)
+{
+	vec = DirectX::XMVector4Transform(vec, m_ViewProj);
+	vec = DirectX::XMVectorScale(vec, 1.0f / DirectX::XMVectorGetW(vec));
+	return vec;
+
+}
+
+DirectX::XMVECTOR Camera::Unproject(DirectX::XMVECTOR vec)
+{
+	vec = DirectX::XMVector4Transform(vec, m_ViewProjInv);
+	vec = DirectX::XMVectorScale(vec, 1.0f / DirectX::XMVectorGetW(vec));
+	return vec;
+}
+
 void Camera::SetPerspective(float fov, float aspect, float near, float far)
 {
 	m_Proj = DirectX::XMMatrixPerspectiveFovLH(fov, aspect, near, far);
