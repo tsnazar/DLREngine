@@ -244,15 +244,21 @@ bool Scene::Render(MainWindow& win, Camera& camera)
 	
 	std::vector<int32_t>& pixels = win.GetPixels();
 
+	DirectX::XMVECTOR bottomLeft = camera.Unproject(DirectX::XMVectorSet(-1.0f, -1.0f, 1.0f, 1.0f));
+	DirectX::XMVECTOR bottomRight = camera.Unproject(DirectX::XMVectorSet(1.0f, -1.0f, 1.0f, 1.0f));
+	DirectX::XMVECTOR topLeft = camera.Unproject(DirectX::XMVectorSet(-1.0f, 1.0f, 1.0f, 1.0f));
+	DirectX::XMVECTOR xDir = DirectX::XMVectorSubtract(bottomRight, bottomLeft);
+	DirectX::XMVECTOR yDir = DirectX::XMVectorSubtract(topLeft, bottomLeft);
+
 	for (int y = 0; y < height; ++y)
 	{
 		for (int x = 0; x < width; ++x)
 		{
-			float xNDC = (2.0f * x / width) - 1.0f;
-			float yNDC = (2.0f * y / height) - 1.0f;
+			float xNDC = (x + 0.5f) / width;
+			float yNDC = (y + 0.5f) / height;
 			
 			DirectX::XMVECTOR cameraPos = camera.Position();
-			DirectX::XMVECTOR worldPos = camera.Unproject(DirectX::XMVectorSet(xNDC, yNDC, 1.0f, 1.0f));
+			DirectX::XMVECTOR worldPos = DirectX::XMVectorAdd(bottomLeft, DirectX::XMVectorAdd(DirectX::XMVectorScale(xDir, xNDC), DirectX::XMVectorScale(yDir, yNDC))); //BL + xNDC * (BR-BL) + yNDC * (TL-BL)
 			DirectX::XMVECTOR direction = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(worldPos, cameraPos));
 
 			DirectX::XMFLOAT3 d, p;

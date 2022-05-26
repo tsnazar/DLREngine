@@ -103,8 +103,8 @@ void Controller::ProcessInput(float delta)
 		GetCursorPos(&pos);
 		ScreenToClient(m_Window.GetWindow(), &pos);
 
-		float xNDC = (2.0f * pos.x / (m_Window.GetClientWidth())) - 1.0f;
-		float yNDC = 1.0f - (2.0f * pos.y / (m_Window.GetClientHeight()));
+		float xNDC = (2.0f * (pos.x + 0.5f) / (m_Window.GetClientWidth())) - 1.0f;
+		float yNDC = 1.0f - (2.0f * (pos.y + 0.5f) / (m_Window.GetClientHeight()));
 
 		DirectX::XMVECTOR cameraPos = m_Camera.Position();
 		DirectX::XMVECTOR worldPos = m_Camera.Unproject(DirectX::XMVectorSet(xNDC, yNDC, 1.0f, 1.0f));
