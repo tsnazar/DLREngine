@@ -23,7 +23,7 @@ namespace
 	const math::Material purple({ 0.4f , 0.0f , 0.8f }, { 0,0,0 }, 128.0f, 0.5f); // temp materials
 }
 
-Controller::Controller(Scene& scene, Camera& camera, MainWindow& window):m_Scene(scene), m_Camera(camera), m_Window(window){}
+Controller::Controller(Scene& scene, Camera& camera, MainWindow& window) :m_Scene(scene), m_Camera(camera), m_Window(window), m_Keys{ 0 }{}
 
 void Controller::InitScene()
 {
@@ -59,25 +59,25 @@ void Controller::ProcessInput(float delta)
 	DirectX::XMFLOAT3 offset = { 0, 0, 0 };
 	DirectX::XMFLOAT3 ang = { 0, 0, 0 };
 
-	if (GetKeyState(VK_A) & VK_PRESSED)
+	if (m_Keys[static_cast<size_t>(Keys::KEY_A)])
 		offset.x = -VELOCITY * delta;
-	if (GetKeyState(VK_D) & VK_PRESSED)
+	if (m_Keys[static_cast<size_t>(Keys::KEY_D)])
 		offset.x = VELOCITY * delta;
-	if (GetKeyState(VK_SPACE) & VK_PRESSED)
+	if (m_Keys[static_cast<size_t>(Keys::KEY_SPACE)])
 		offset.y = VELOCITY * delta;
-	if (GetKeyState(VK_CONTROL) & VK_PRESSED)
+	if (m_Keys[static_cast<size_t>(Keys::KEY_CONTROL)])
 		offset.y = -VELOCITY * delta;
-	if (GetKeyState(VK_S) & VK_PRESSED)
+	if (m_Keys[static_cast<size_t>(Keys::KEY_S)])
 		offset.z = -VELOCITY * delta;
-	if (GetKeyState(VK_W) & VK_PRESSED)
+	if (m_Keys[static_cast<size_t>(Keys::KEY_W)])
 		offset.z = VELOCITY * delta;
 
-	if (GetKeyState(VK_Q) & VK_PRESSED)
+	if (m_Keys[static_cast<size_t>(Keys::KEY_Q)])
 		ang.z = ROTATION_SPEED * delta;
-	if (GetKeyState(VK_E) & VK_PRESSED)
+	if (m_Keys[static_cast<size_t>(Keys::KEY_E)])
 		ang.z = -ROTATION_SPEED * delta;
 
-	if (GetKeyState(VK_LBUTTON) & VK_PRESSED)
+	if (m_Keys[static_cast<size_t>(Keys::KEY_LMB)])
 	{
 		POINT pos;
 		GetCursorPos(&pos);
@@ -97,7 +97,7 @@ void Controller::ProcessInput(float delta)
 		m_FirstMoveLB = true;
 	}
 
-	if (GetKeyState(VK_RBUTTON) & VK_PRESSED)
+	if (m_Keys[static_cast<size_t>(Keys::KEY_RMB)])
 	{
 		POINT pos;
 		GetCursorPos(&pos);
@@ -159,6 +159,81 @@ LRESULT Controller::ProcessEvents(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 		m_Camera.SetPerspective(FOV, (float)width / (float)height, ZNEAR, ZFAR);
 		return 0;
 	}
+	case WM_KEYDOWN:
+	{
+		switch (wParam)
+		{
+		case VK_A:
+			m_Keys[static_cast<size_t>(Keys::KEY_A)] = true;
+			break;
+		case VK_D:
+			m_Keys[static_cast<size_t>(Keys::KEY_D)] = true;
+			break;
+		case VK_E:
+			m_Keys[static_cast<size_t>(Keys::KEY_E)] = true;
+			break;
+		case VK_Q:
+			m_Keys[static_cast<size_t>(Keys::KEY_Q)] = true;
+			break;
+		case VK_S:
+			m_Keys[static_cast<size_t>(Keys::KEY_S)] = true;
+			break;
+		case VK_W:
+			m_Keys[static_cast<size_t>(Keys::KEY_W)] = true;
+			break;
+		case VK_SPACE:
+			m_Keys[static_cast<size_t>(Keys::KEY_SPACE)] = true;
+			break;
+		case VK_CONTROL:
+			m_Keys[static_cast<size_t>(Keys::KEY_CONTROL)] = true;
+			break;
+		}
+		return 0;
+	}
+
+	case WM_KEYUP:
+	{
+		switch (wParam)
+		{
+		case VK_A:
+			m_Keys[static_cast<size_t>(Keys::KEY_A)] = false;
+			break;
+		case VK_D:
+			m_Keys[static_cast<size_t>(Keys::KEY_D)] = false;
+			break;
+		case VK_E:
+			m_Keys[static_cast<size_t>(Keys::KEY_E)] = false;
+			break;
+		case VK_Q:
+			m_Keys[static_cast<size_t>(Keys::KEY_Q)] = false;
+			break;
+		case VK_S:
+			m_Keys[static_cast<size_t>(Keys::KEY_S)] = false;
+			break;
+		case VK_W:
+			m_Keys[static_cast<size_t>(Keys::KEY_W)] = false;
+			break;
+		case VK_SPACE:
+			m_Keys[static_cast<size_t>(Keys::KEY_SPACE)] = false;
+			break;
+		case VK_CONTROL:
+			m_Keys[static_cast<size_t>(Keys::KEY_CONTROL)] = false;
+			break;
+		}
+		return 0;
+	}
+	case WM_LBUTTONDOWN:
+		m_Keys[static_cast<size_t>(Keys::KEY_LMB)] = true;
+		return 0;
+	case WM_RBUTTONDOWN:
+		m_Keys[static_cast<size_t>(Keys::KEY_RMB)] = true;
+		return 0;
+	case WM_LBUTTONUP:
+		m_Keys[static_cast<size_t>(Keys::KEY_LMB)] = false;
+		return 0;
+	case WM_RBUTTONUP:
+		m_Keys[static_cast<size_t>(Keys::KEY_RMB)] = false;
+		return 0;
 	}
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }
