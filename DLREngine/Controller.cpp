@@ -59,25 +59,25 @@ void Controller::ProcessInput(float delta)
 	DirectX::XMFLOAT3 offset = { 0, 0, 0 };
 	DirectX::XMFLOAT3 ang = { 0, 0, 0 };
 
-	if (m_Keys[static_cast<size_t>(Keys::KEY_A)])
+	if (m_Keys[size_t(Keys::KEY_A)])
 		offset.x = -VELOCITY * delta;
-	if (m_Keys[static_cast<size_t>(Keys::KEY_D)])
+	if (m_Keys[size_t(Keys::KEY_D)])
 		offset.x = VELOCITY * delta;
-	if (m_Keys[static_cast<size_t>(Keys::KEY_SPACE)])
+	if (m_Keys[size_t(Keys::KEY_SPACE)])
 		offset.y = VELOCITY * delta;
-	if (m_Keys[static_cast<size_t>(Keys::KEY_CONTROL)])
+	if (m_Keys[size_t(Keys::KEY_CONTROL)])
 		offset.y = -VELOCITY * delta;
-	if (m_Keys[static_cast<size_t>(Keys::KEY_S)])
+	if (m_Keys[size_t(Keys::KEY_S)])
 		offset.z = -VELOCITY * delta;
-	if (m_Keys[static_cast<size_t>(Keys::KEY_W)])
+	if (m_Keys[size_t(Keys::KEY_W)])
 		offset.z = VELOCITY * delta;
 
-	if (m_Keys[static_cast<size_t>(Keys::KEY_Q)])
+	if (m_Keys[size_t(Keys::KEY_Q)])
 		ang.z = ROTATION_SPEED * delta;
-	if (m_Keys[static_cast<size_t>(Keys::KEY_E)])
+	if (m_Keys[size_t(Keys::KEY_E)])
 		ang.z = -ROTATION_SPEED * delta;
 
-	if (m_Keys[static_cast<size_t>(Keys::KEY_LMB)])
+	if (m_Keys[size_t(Keys::KEY_LMB)])
 	{
 		POINT pos;
 		GetCursorPos(&pos);
@@ -97,7 +97,7 @@ void Controller::ProcessInput(float delta)
 		m_FirstMoveLB = true;
 	}
 
-	if (m_Keys[static_cast<size_t>(Keys::KEY_RMB)])
+	if (m_Keys[size_t(Keys::KEY_RMB)])
 	{
 		POINT pos;
 		GetCursorPos(&pos);
@@ -161,78 +161,27 @@ LRESULT Controller::ProcessEvents(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 	}
 	case WM_KEYDOWN:
 	{
-		switch (wParam)
-		{
-		case VK_A:
-			m_Keys[static_cast<size_t>(Keys::KEY_A)] = true;
-			break;
-		case VK_D:
-			m_Keys[static_cast<size_t>(Keys::KEY_D)] = true;
-			break;
-		case VK_E:
-			m_Keys[static_cast<size_t>(Keys::KEY_E)] = true;
-			break;
-		case VK_Q:
-			m_Keys[static_cast<size_t>(Keys::KEY_Q)] = true;
-			break;
-		case VK_S:
-			m_Keys[static_cast<size_t>(Keys::KEY_S)] = true;
-			break;
-		case VK_W:
-			m_Keys[static_cast<size_t>(Keys::KEY_W)] = true;
-			break;
-		case VK_SPACE:
-			m_Keys[static_cast<size_t>(Keys::KEY_SPACE)] = true;
-			break;
-		case VK_CONTROL:
-			m_Keys[static_cast<size_t>(Keys::KEY_CONTROL)] = true;
-			break;
-		}
+		
+		m_Keys[wParam] = true;
 		return 0;
 	}
 
 	case WM_KEYUP:
 	{
-		switch (wParam)
-		{
-		case VK_A:
-			m_Keys[static_cast<size_t>(Keys::KEY_A)] = false;
-			break;
-		case VK_D:
-			m_Keys[static_cast<size_t>(Keys::KEY_D)] = false;
-			break;
-		case VK_E:
-			m_Keys[static_cast<size_t>(Keys::KEY_E)] = false;
-			break;
-		case VK_Q:
-			m_Keys[static_cast<size_t>(Keys::KEY_Q)] = false;
-			break;
-		case VK_S:
-			m_Keys[static_cast<size_t>(Keys::KEY_S)] = false;
-			break;
-		case VK_W:
-			m_Keys[static_cast<size_t>(Keys::KEY_W)] = false;
-			break;
-		case VK_SPACE:
-			m_Keys[static_cast<size_t>(Keys::KEY_SPACE)] = false;
-			break;
-		case VK_CONTROL:
-			m_Keys[static_cast<size_t>(Keys::KEY_CONTROL)] = false;
-			break;
-		}
+		m_Keys[wParam] = false;
 		return 0;
 	}
 	case WM_LBUTTONDOWN:
-		m_Keys[static_cast<size_t>(Keys::KEY_LMB)] = true;
+		m_Keys[size_t(Keys::KEY_LMB)] = true;
 		return 0;
 	case WM_RBUTTONDOWN:
-		m_Keys[static_cast<size_t>(Keys::KEY_RMB)] = true;
+		m_Keys[size_t(Keys::KEY_RMB)] = true;
 		return 0;
 	case WM_LBUTTONUP:
-		m_Keys[static_cast<size_t>(Keys::KEY_LMB)] = false;
+		m_Keys[size_t(Keys::KEY_LMB)] = false;
 		return 0;
 	case WM_RBUTTONUP:
-		m_Keys[static_cast<size_t>(Keys::KEY_RMB)] = false;
+		m_Keys[size_t(Keys::KEY_RMB)] = false;
 		return 0;
 	}
 	return DefWindowProc(hWnd, message, wParam, lParam);

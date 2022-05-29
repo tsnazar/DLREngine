@@ -8,7 +8,7 @@
 class Controller
 {
 public:
-	enum class Keys {KEY_W, KEY_A, KEY_S, KEY_D, KEY_Q, KEY_E, KEY_SPACE, KEY_CONTROL, KEY_LMB, KEY_RMB, NUM};
+	enum class Keys { KEY_LMB = 0x01, KEY_RMB = 0x02, KEY_CONTROL = 0x11, KEY_SPACE = 0x20, KEY_A = 0x41, KEY_D = 0x44, KEY_E = 0x45, KEY_Q = 0x51, KEY_S = 0x53, KEY_W = 0x57 };
 public:
 	Controller(Scene& scene, Camera& camera, MainWindow& window);
 
@@ -27,7 +27,7 @@ private:
 	Scene& m_Scene;
 	Camera& m_Camera;
 	MainWindow& m_Window;
-	bool m_Keys[static_cast<size_t>(Keys::NUM)];
+	bool m_Keys[256];
 
 	bool m_FirstMoveLB = true;
 	int m_LastXLB = 0, m_LastYLB = 0;
