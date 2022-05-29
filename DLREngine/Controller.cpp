@@ -161,7 +161,6 @@ LRESULT Controller::ProcessEvents(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 	}
 	case WM_KEYDOWN:
 	{
-		
 		m_Keys[wParam] = true;
 		return 0;
 	}

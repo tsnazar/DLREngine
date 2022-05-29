@@ -5,6 +5,11 @@
 #include "windows/winapi.hpp"
 #include <DirectXMath.h>
 
+namespace
+{
+	const short NUM = 256;
+}
+
 class Controller
 {
 public:
@@ -27,7 +32,7 @@ private:
 	Scene& m_Scene;
 	Camera& m_Camera;
 	MainWindow& m_Window;
-	bool m_Keys[256];
+	bool m_Keys[NUM];
 
 	bool m_FirstMoveLB = true;
 	int m_LastXLB = 0, m_LastYLB = 0;
