@@ -5,59 +5,135 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    <Filter Include="Math">
+      <UniqueIdentifier>{8a4234b4-bd0d-447c-81fb-bd402d1ef5c1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    <Filter Include="Decorators">
+      <UniqueIdentifier>{910b0ba8-e7e1-4465-97a8-623d567ba4e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Decorators\Math">
+      <UniqueIdentifier>{4fac8ed2-ffb7-4322-9874-1992709f99c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Math\Geometry">
+      <UniqueIdentifier>{425f43e7-a000-4294-9e48-9f3d8b8fab99}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Math\Lights">
+      <UniqueIdentifier>{fef4b5fe-057e-42a6-9bcb-cffabbe68781}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform">
+      <UniqueIdentifier>{b5d99568-8dcc-4aac-8a9a-1dae97cbe2fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform\Windows">
+      <UniqueIdentifier>{5e59becd-5e5f-4139-b02f-7033674295aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include">
+      <UniqueIdentifier>{b25288ec-1388-4f57-a2eb-ce615059871e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="platform\windows\BaseWindow.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="platform\windows\MainWindow.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="include\Scene.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="math\sphere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Controller.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="math\geometry\Mesh.cpp">
+      <Filter>Math\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="math\geometry\Plane.cpp">
+      <Filter>Math\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="math\geometry\Sphere.cpp">
+      <Filter>Math\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="math\geometry\Triangle.cpp">
+      <Filter>Math\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="math\lights\SpotLight.cpp">
+      <Filter>Math\Lights</Filter>
+    </ClCompile>
+    <ClCompile Include="math\lights\PointLight.cpp">
+      <Filter>Math\Lights</Filter>
+    </ClCompile>
+    <ClCompile Include="math\lights\DirectionLight.cpp">
+      <Filter>Math\Lights</Filter>
+    </ClCompile>
+    <ClCompile Include="include\Camera.cpp">
+      <Filter>Include</Filter>
+    </ClCompile>
+    <ClCompile Include="include\Scene.cpp">
+      <Filter>Include</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\windows\BaseWindow.cpp">
+      <Filter>Platform\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\windows\MainWindow.cpp">
+      <Filter>Platform\Windows</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="math\vec3.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="decorators\math\TransformMover.h">
+      <Filter>Decorators\Math</Filter>
     </ClInclude>
-    <ClInclude Include="math\ray.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="decorators\math\Vector3Mover.h">
+      <Filter>Decorators\Math</Filter>
     </ClInclude>
-    <ClInclude Include="math\sphere.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="decorators\math\SphereMover.h">
+      <Filter>Decorators\Math</Filter>
     </ClInclude>
-    <ClInclude Include="platform\windows\BaseWindow.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="decorators\math\IObjectMover.h">
+      <Filter>Decorators\Math</Filter>
     </ClInclude>
-    <ClInclude Include="platform\windows\MainWindow.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="math\geometry\Mesh.h">
+      <Filter>Math\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="math\geometry\Triangle.h">
+      <Filter>Math\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="math\geometry\Sphere.h">
+      <Filter>Math\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="math\geometry\Ray.h">
+      <Filter>Math\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="math\geometry\Plane.h">
+      <Filter>Math\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="math\lights\SpotLight.h">
+      <Filter>Math\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="math\lights\PointLight.h">
+      <Filter>Math\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="math\lights\DirectionLight.h">
+      <Filter>Math\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="math\Transform.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="math\Material.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="math\Intersection.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Camera.h">
+      <Filter>Include</Filter>
     </ClInclude>
     <ClInclude Include="include\Scene.h">
-      <Filter>Header Files</Filter>
+      <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="math\hit_record.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="platform\windows\MainWindow.h">
+      <Filter>Platform\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\windows\BaseWindow.h">
+      <Filter>Platform\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\windows\winapi.hpp">
+      <Filter>Platform\Windows</Filter>
     </ClInclude>
     <ClInclude Include="Controller.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
