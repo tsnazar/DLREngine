@@ -108,7 +108,7 @@ public:
 	};
 
 public:
-	Scene();
+	Scene(float EV100 = 2.0f) : m_EV100(EV100) {};
 
 	bool Render(MainWindow& win, Camera& camera);
 
@@ -130,6 +130,10 @@ public:
 	void AddSpotLightToScene(const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& dir, const DirectX::XMFLOAT3& intensity, float lightRadius, float innerRad, float outerRad) 
 		{ m_SpotLights.emplace_back(pos, dir, intensity, lightRadius, innerRad, outerRad); }
 
+	void SetEV100(float EV100) { m_EV100 = EV100; }
+
+	float GetEV100() { return m_EV100; }
+
 	bool FindIntersection(const math::Ray& ray, math::Intersection& outNearest, const math::Material*& outMaterial, bool onlyObjects = false);
 
 	bool FindIntersection(const math::Ray& ray, IntersectionQuery& query, bool onlyObjects = false);
@@ -138,9 +142,14 @@ protected:
 
 	void FindIntersectionInternal(const math::Ray& ray, ObjRef& outRef, math::Intersection& outNearest, const math::Material*& outMaterial, bool onlyObjects);
 
-	DirectX::XMFLOAT3 ComputeColor(const math::Ray& castedRay, const DirectX::XMVECTOR& cameraPos);
+	DirectX::XMVECTOR ComputeColor(const math::Ray& castedRay, const DirectX::XMVECTOR& cameraPos);
+
+	DirectX::XMVECTOR AdjustExposure(const DirectX::XMVECTOR& color);
+
+	DirectX::XMVECTOR AcesHDRtoLDR(const DirectX::XMVECTOR& hdr);
 
 private:
+	float m_EV100;
 	std::vector<Sphere> m_Spheres;
 	std::vector<Plane> m_Planes;
 	std::vector<DirectionLight> m_DirLights;

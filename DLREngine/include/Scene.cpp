@@ -168,10 +168,6 @@ DirectX::XMVECTOR Scene::SpotLight::Illuminate(Scene& scene, const DirectX::XMVE
 	return math::SpotLight::Illuminate(toLightDir, toLightDist, toCameraDir, pixelNormal, material);
 }
 
-Scene::Scene()
-{
-}
-
 void Scene::FindIntersectionInternal(const math::Ray& ray, ObjRef& outRef, math::Intersection& outNearest, const math::Material*& outMaterial, bool onlyObjects)
 {
 	for (auto& obj : m_Planes)
@@ -266,18 +262,24 @@ bool Scene::Render(MainWindow& win, Camera& camera)
 			DirectX::XMStoreFloat3(&p, cameraPos);
 
 			math::Ray r(p, d);
-			DirectX::XMFLOAT3 col = ComputeColor(r, camera.Position());
+			DirectX::XMVECTOR col = ComputeColor(r, camera.Position());
+			col = AdjustExposure(col);
+			col = AcesHDRtoLDR(col);
+			DirectX::XMVectorScale(col, 1.0f / powf(2, 2.2f));
+
+			DirectX::XMFLOAT3 color;
+			DirectX::XMStoreFloat3(&color, col);
 
 			int index = y * width + x;
-			pixels[index] = (int)(col.x * 255.9f) << 16;
-			pixels[index] |= (int)(col.y * 255.9f) << 8;
-			pixels[index] |= (int)(col.z * 255.9f) << 0;
+			pixels[index] = (int)(color.x * 255.9f) << 16;
+			pixels[index] |= (int)(color.y * 255.9f) << 8;
+			pixels[index] |= (int)(color.z * 255.9f) << 0;
 		}
 	}
 	return true;
 }
 
-DirectX::XMFLOAT3 Scene::ComputeColor(const math::Ray& ray, const DirectX::XMVECTOR& cameraPos)
+DirectX::XMVECTOR Scene::ComputeColor(const math::Ray& ray, const DirectX::XMVECTOR& cameraPos)
 {
 	math::Intersection rec;
 	rec.Reset();
@@ -288,7 +290,7 @@ DirectX::XMFLOAT3 Scene::ComputeColor(const math::Ray& ray, const DirectX::XMVEC
 	FindIntersectionInternal(ray, ref, rec, materialPtr, false);
 
 	if (ref.type == IntersectedType::Light)
-		return materialPtr->albedo;
+		return DirectX::XMLoadFloat3(&materialPtr->albedo);
 
 	if (ref.type != IntersectedType::NUM)
 	{
@@ -312,10 +314,10 @@ DirectX::XMFLOAT3 Scene::ComputeColor(const math::Ray& ray, const DirectX::XMVEC
 		for (auto& spotLight : m_SpotLights)
 			sum = DirectX::XMVectorAdd(sum, spotLight.Illuminate(*this, pixelToCamera, pixelPos, pixelNormal, matVec));
 
-		sum = DirectX::XMVectorClamp(sum, DirectX::XMVectorZero(), DirectX::XMVectorReplicate(1.0f));
+		//sum = DirectX::XMVectorClamp(sum, DirectX::XMVectorZero(), DirectX::XMVectorReplicate(1.0f));
 		DirectX::XMStoreFloat3(&color, sum);
 		
-		return color;
+		return sum;
 	}
 
 	DirectX::XMFLOAT3 unit;
@@ -326,5 +328,24 @@ DirectX::XMFLOAT3 Scene::ComputeColor(const math::Ray& ray, const DirectX::XMVEC
 	float r = it + t * 0.5f;
 	float g = it + t * 0.7f;
 	float b = it + t * 1.0f;
-	return DirectX::XMFLOAT3(r, g, b);
+	return DirectX::XMVectorSet(r, g, b, 0);
 }
+
+DirectX::XMVECTOR Scene::AdjustExposure(const DirectX::XMVECTOR& color)
+{
+	float LMax = (78.0f / (0.65f * 100.0f)) * powf(2.0f, m_EV100);
+	return DirectX::XMVectorMultiply(color, DirectX::XMVectorReplicate(1.0f / LMax));
+}
+
+DirectX::XMVECTOR Scene::AcesHDRtoLDR(const DirectX::XMVECTOR& hdr)
+{
+	static const DirectX::XMMATRIX m1 = DirectX::XMMatrixSet(0.59719f, 0.07600f, 0.02840f, 0.0f, 0.35458f, 0.90834f, 0.13383f, 0.0f, 0.04823f, 0.01566f, 0.83777f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+	static const DirectX::XMMATRIX m2 = DirectX::XMMatrixSet(1.60475f, -0.10208, -0.00327f, 0.0f, -0.53108f, 1.10813, -0.07276f, 0.0f, -0.07367f, -0.00605, 1.07602f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+
+	DirectX::XMVECTOR v = DirectX::XMVector3Transform(hdr, m1);
+	DirectX::XMVECTOR a = DirectX::XMVectorSubtract(DirectX::XMVectorMultiply(v, DirectX::XMVectorAdd(v, DirectX::XMVectorReplicate(0.0245786f))), DirectX::XMVectorReplicate(0.000090537f));
+	DirectX::XMVECTOR b = DirectX::XMVectorAdd(DirectX::XMVectorMultiply(v, DirectX::XMVectorAdd(DirectX::XMVectorMultiply(v, DirectX::XMVectorReplicate(0.983729f)), 
+		DirectX::XMVectorReplicate(0.4329510f))), DirectX::XMVectorReplicate(0.238081f));
+	DirectX::XMVECTOR ldr = DirectX::XMVectorClamp(DirectX::XMVector3Transform(DirectX::XMVectorDivide(a, b), m2), DirectX::XMVectorZero(), DirectX::XMVectorReplicate(1.0f));
+	return ldr;
+}	

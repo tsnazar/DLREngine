@@ -12,6 +12,7 @@ namespace
 
 	const float VELOCITY = 1.0f;
 	const float ROTATION_SPEED = 0.5f;
+	const float EXPOSURE_DELTA = 1.0f;
 	const float FOV = 0.5f;
 	const float ZNEAR = 100.0f;
 	const float ZFAR = 0.1f;
@@ -33,10 +34,10 @@ void Controller::InitScene()
 	m_Scene.AddCubeToScene(math::Transform({ 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { -3.0f, 2.0f, 3.0f }), purple);
 	m_Scene.AddPlaneToScene(DirectX::XMFLOAT3(0, -1, 0), DirectX::XMFLOAT3(0, 1, 0), green);
 
-	m_Scene.AddDirLightToScene(DirectX::XMFLOAT3(0.0f, -1.0f, 5.0f), DirectX::XMFLOAT3(0.3f, 0.5f, 0.5f));
-	m_Scene.AddSpotLightToScene(DirectX::XMFLOAT3(0.0f, 4.0f, 5.0f), DirectX::XMFLOAT3(0.0f, -1.0f, 0.0f), DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), 2.0f, 0.5f, 0.6f);
+	//m_Scene.AddDirLightToScene(DirectX::XMFLOAT3(0.0f, -1.0f, 5.0f), DirectX::XMFLOAT3(0.3f, 0.5f, 0.5f));
+	m_Scene.AddSpotLightToScene(DirectX::XMFLOAT3(0.0f, 4.0f, 5.0f), DirectX::XMFLOAT3(0.0f, -1.0f, 0.0f), DirectX::XMFLOAT3(10.0f, 10.0f, 10.0f), 2.0f, 0.5f, 0.6f);
 	m_Scene.AddPointLightToScene(DirectX::XMFLOAT3(2.0f, 2.0f, 2.0f), DirectX::XMFLOAT3(0.5f, 1.0f, 0.5f), 2.0f);
-	m_Scene.AddPointLightToScene(DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f), 2.0f);
+	m_Scene.AddPointLightToScene(DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), DirectX::XMFLOAT3(5.0f, 0.0f, 0.0f), 2.0f);
 }
 
 void Controller::InitCamera()
@@ -58,6 +59,7 @@ void Controller::ProcessInput(float delta)
 {
 	DirectX::XMFLOAT3 offset = { 0, 0, 0 };
 	DirectX::XMFLOAT3 ang = { 0, 0, 0 };
+	float EV100 = m_Scene.GetEV100();
 
 	if (m_Keys[size_t(Keys::KEY_A)])
 		offset.x = -VELOCITY * delta;
@@ -76,6 +78,11 @@ void Controller::ProcessInput(float delta)
 		ang.z = ROTATION_SPEED * delta;
 	if (m_Keys[size_t(Keys::KEY_E)])
 		ang.z = -ROTATION_SPEED * delta;
+
+	if (m_Keys[size_t(Keys::KEY_OEM_PLUS)])
+		EV100 += EXPOSURE_DELTA * delta;
+	if(m_Keys[size_t(Keys::KEY_OEM_MINUS)])
+		EV100 -= EXPOSURE_DELTA * delta;
 
 	if (m_Keys[size_t(Keys::KEY_LMB)])
 	{
@@ -144,6 +151,7 @@ void Controller::ProcessInput(float delta)
 		m_Mover = nullptr;
 	}
 
+	m_Scene.SetEV100(EV100);
 	MoveCamera(offset, ang);
 }
 
