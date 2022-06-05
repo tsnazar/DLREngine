@@ -33,7 +33,7 @@ void Camera::SetWorldAngles(float pitch, float yaw, float roll)
 void Camera::SetWorldOffset(const DirectX::XMFLOAT3& offset)
 {
 	m_UpdatedMatrices = false;
-	Position() = DirectX::XMLoadFloat3(&offset);
+	Position() = DirectX::XMVectorSet(offset.x, offset.y, offset.z, 1.0f);
 }
 
 void Camera::AddRelativeOffset(const DirectX::XMFLOAT3& offset)

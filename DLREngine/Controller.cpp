@@ -2,14 +2,6 @@
 
 namespace
 {
-	const SHORT VK_A = 0x41;
-	const SHORT VK_D = 0x44;
-	const SHORT VK_E = 0x45;
-	const SHORT VK_Q = 0x51;
-	const SHORT VK_S = 0x53;
-	const SHORT VK_W = 0x57;
-	const SHORT VK_PRESSED = 0x8000;
-
 	const float VELOCITY = 1.0f;
 	const float ROTATION_SPEED = 0.5f;
 	const float EXPOSURE_DELTA = 1.0f;
@@ -17,27 +9,26 @@ namespace
 	const float ZNEAR = 100.0f;
 	const float ZFAR = 0.1f;
 
-	const math::Material red({ 1,0,0 }, { 0,0,0 }, 64.0f, 0.5f); // temp materials
-	const math::Material green({ 0,1,0 }, { 0,0,0 }, 16.0f, 0.7f); // temp materials
-	const math::Material blue({ 0,0,1 }, { 0,0,0 }, 32.0f, 0.7f); // temp materials
-	const math::Material azure({ 0.0f , 1.0f , 0.5f }, { 0,0,0 }, 32.0f, 0.3f); // temp materials
-	const math::Material purple({ 0.4f , 0.0f , 0.8f }, { 0,0,0 }, 128.0f, 0.5f); // temp materials
+	const math::Material red({ 1.0f, 0.0f, 0.0f }, { 0,0,0 }, {0.77f, 0.78f, 0.78f}, 1.0f, 1.0f); // temp materials
+	const math::Material green({ 0,1,0 }, { 0,0,0 }, { 0.05f, 0.05f, 0.05f }, 0.0f, 0.8f); // temp materials
+	const math::Material blue({ 0,0,1 }, { 0,0,0 }, { 0.05f, 0.05f, 0.05f }, 0.0f, 0.8f); // temp materials
+	const math::Material azure({ 0.0f , 1.0f , 0.5f }, { 0.05f, 0.05f, 0.05f }, { 0,0,0 }, 0.0f, 0.3f); // temp materials
+	const math::Material purple({ 0.4f , 0.0f , 0.8f }, { 0.05f, 0.05f, 0.05f }, { 0,0,0 }, 0.0f, 0.5f); // temp materials
 }
 
 Controller::Controller(Scene& scene, Camera& camera, MainWindow& window) :m_Scene(scene), m_Camera(camera), m_Window(window), m_Keys{ 0 }{}
 
 void Controller::InitScene()
 {
-	m_Scene.AddSphereToScene(DirectX::XMFLOAT3(0, 0, 2.0f), 0.5f, red);
-	m_Scene.AddSphereToScene(DirectX::XMFLOAT3(0, 0, -2.0f), 0.5f, azure);
-	m_Scene.AddCubeToScene(math::Transform({ 0.5f, 0.5f, 0.5f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 5.0f }), blue);
-	m_Scene.AddCubeToScene(math::Transform({ 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { -3.0f, 2.0f, 3.0f }), purple);
 	m_Scene.AddPlaneToScene(DirectX::XMFLOAT3(0, -1, 0), DirectX::XMFLOAT3(0, 1, 0), green);
 
-	//m_Scene.AddDirLightToScene(DirectX::XMFLOAT3(0.0f, -1.0f, 5.0f), DirectX::XMFLOAT3(0.3f, 0.5f, 0.5f));
-	m_Scene.AddSpotLightToScene(DirectX::XMFLOAT3(0.0f, 4.0f, 5.0f), DirectX::XMFLOAT3(0.0f, -1.0f, 0.0f), DirectX::XMFLOAT3(10.0f, 10.0f, 10.0f), 2.0f, 0.5f, 0.6f);
-	m_Scene.AddPointLightToScene(DirectX::XMFLOAT3(2.0f, 2.0f, 2.0f), DirectX::XMFLOAT3(0.5f, 1.0f, 0.5f), 2.0f);
-	m_Scene.AddPointLightToScene(DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f), DirectX::XMFLOAT3(5.0f, 0.0f, 0.0f), 2.0f);
+	for (size_t x = 0; x < 10; ++x)
+		for (size_t y = 0; y < 10; ++y)
+			m_Scene.AddSphereToScene(DirectX::XMFLOAT3(x, y, 2), 0.5f, math::Material({ 1.00f, 0.77f, 0.28f }, { 0,0,0 }, { 0.04f, 0.04f, 0.04f }, x * 0.1f + 0.005f, y * 0.1f + 0.005f));
+
+	m_Scene.AddPointLightToScene(DirectX::XMFLOAT3(5.0f, 5.0f, -2.0f), DirectX::XMFLOAT3(1000.0f, 1000.0f, 1000.0f), 0.5f);
+	
+	m_Camera.SetWorldOffset({ 5.0f, 5.0f, -15.f });
 }
 
 void Controller::InitCamera()
@@ -60,6 +51,9 @@ void Controller::ProcessInput(float delta)
 	DirectX::XMFLOAT3 offset = { 0, 0, 0 };
 	DirectX::XMFLOAT3 ang = { 0, 0, 0 };
 	float EV100 = m_Scene.GetEV100();
+
+	if (m_Keys[size_t(Keys::KEY_R)])
+		m_Scene.ReflectionsOnOff();
 
 	if (m_Keys[size_t(Keys::KEY_A)])
 		offset.x = -VELOCITY * delta;

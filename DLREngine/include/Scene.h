@@ -13,6 +13,7 @@
 #include "math/IObjectMover.h"
 #include "Camera.h"
 #include "Transform.h"
+#include "ParallelExecutor.h"
 
 class Scene
 {
@@ -52,7 +53,7 @@ public:
 		math::Mesh* mesh;
 
 		MeshInstance(const math::Transform& transform, const math::Material& material, math::Mesh* mesh)
-			: transform(transform) , material(material), mesh(mesh) {}
+			: transform(transform), material(material), mesh(mesh) {}
 		bool Intersect(const math::Ray& ray, ObjRef& outRef, math::Intersection& record, const math::Material*& outMaterial);
 	};
 
@@ -62,41 +63,43 @@ public:
 
 		DirectionLight() {}
 
-		DirectionLight(DirectX::XMFLOAT3 direction, DirectX::XMFLOAT3 intensity) :math::DirectionLight(direction, intensity), material(intensity, intensity, 0.0f, 0.0f) {}
+		DirectionLight(DirectX::XMFLOAT3 direction, DirectX::XMFLOAT3 intensity) :math::DirectionLight(direction, intensity), material(intensity, intensity, intensity, 0.0f, 0.0f) {}
 
 		bool Intersect(const math::Ray& ray, ObjRef& outRef, math::Intersection& record, const math::Material*& outMaterial);
 
 		DirectX::XMVECTOR Illuminate(Scene& scene, const DirectX::XMVECTOR& toCameraDir, const DirectX::XMVECTOR& pixelPos,
-			const DirectX::XMVECTOR& pixelNormal, const math::MaterialVectorized& material);
+			const DirectX::XMVECTOR& pixelNormal, const DirectX::XMVECTOR& NdotV, const math::MaterialVectorized& material);
 	};
 
 	struct PointLight : public math::PointLight
 	{
 		math::Material material;
+		float radius;
 
 		PointLight() {}
 
-		PointLight(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 intensity, float radius) :math::PointLight(position, intensity, radius), material(intensity, intensity, 0.0f, 0.0f) {}
+		PointLight(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 intensity, float radius) :math::PointLight(position, intensity), material(intensity, intensity, intensity, 0.0f, 0.0f), radius(radius) {}
 
 		bool Intersect(const math::Ray& ray, ObjRef& outRef, math::Intersection& record, const math::Material*& outMaterial);
 
 		DirectX::XMVECTOR Illuminate(Scene& scene, const DirectX::XMVECTOR& toCameraDir, const DirectX::XMVECTOR& pixelPos,
-			const DirectX::XMVECTOR& pixelNormal, const math::MaterialVectorized& material);
+			const DirectX::XMVECTOR& pixelNormal, const DirectX::XMVECTOR& NdotV, const math::MaterialVectorized& material);
 	};
 
 	struct SpotLight : public math::SpotLight
 	{
 		math::Material material;
+		float radius;
 
 		SpotLight() {}
 
 		SpotLight(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 direction, DirectX::XMFLOAT3 intensity, float radius, float innerRad, float outerRad)
-			: math::SpotLight(position, direction, intensity, radius, innerRad, outerRad), material(intensity, intensity, 0.0f, 0.0f) {}
+			: math::SpotLight(position, direction, intensity, innerRad, outerRad), material(intensity, intensity, intensity, 0.0f, 0.0f), radius(radius) {}
 
 		bool Intersect(const math::Ray& ray, ObjRef& outRef, math::Intersection& record, const math::Material*& outMaterial);
 
 		DirectX::XMVECTOR Illuminate(Scene& scene, const DirectX::XMVECTOR& toCameraDir, const DirectX::XMVECTOR& pixelPos,
-			const DirectX::XMVECTOR& pixelNormal, const math::MaterialVectorized& material);
+			const DirectX::XMVECTOR& pixelNormal, const DirectX::XMVECTOR& NdotV, const math::MaterialVectorized& material);
 	};
 
 	struct IntersectionQuery
@@ -108,31 +111,45 @@ public:
 	};
 
 public:
-	Scene(float EV100 = 2.0f) : m_EV100(EV100) {};
+	Scene(float EV100 = 2.0f, bool reflections = false) : m_EV100(EV100), m_Reflections(reflections) {};
 
 	bool Render(MainWindow& win, Camera& camera);
 
 	void AddSphereToScene(const DirectX::XMFLOAT3& pos, float radius, const math::Material& material)
-		{ m_Spheres.emplace_back(pos, radius, material); }
+	{
+		m_Spheres.emplace_back(pos, radius, material);
+	}
 
 	void AddPlaneToScene(const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& normal, const math::Material& material)
-		{ m_Planes.emplace_back(pos, normal, material); }
-	
-	void AddCubeToScene(const math::Transform& transform, const math::Material& material) 
-		{ m_Meshes.emplace_back(transform, material, &m_CubeMesh);}
+	{
+		m_Planes.emplace_back(pos, normal, material);
+	}
 
-	void AddDirLightToScene(const DirectX::XMFLOAT3& dir, const DirectX::XMFLOAT3& intensity) 
-		{ m_DirLights.emplace_back(dir, intensity); }
+	void AddCubeToScene(const math::Transform& transform, const math::Material& material)
+	{
+		m_Meshes.emplace_back(transform, material, &m_CubeMesh);
+	}
+
+	void AddDirLightToScene(const DirectX::XMFLOAT3& dir, const DirectX::XMFLOAT3& intensity)
+	{
+		m_DirLights.emplace_back(dir, intensity);
+	}
 
 	void AddPointLightToScene(const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& intensity, float lightRadius)
-		{ m_PointLights.emplace_back(pos, intensity, lightRadius); }
+	{
+		m_PointLights.emplace_back(pos, intensity, lightRadius);
+	}
 
-	void AddSpotLightToScene(const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& dir, const DirectX::XMFLOAT3& intensity, float lightRadius, float innerRad, float outerRad) 
-		{ m_SpotLights.emplace_back(pos, dir, intensity, lightRadius, innerRad, outerRad); }
+	void AddSpotLightToScene(const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& dir, const DirectX::XMFLOAT3& intensity, float lightRadius, float innerRad, float outerRad)
+	{
+		m_SpotLights.emplace_back(pos, dir, intensity, lightRadius, innerRad, outerRad);
+	}
 
 	void SetEV100(float EV100) { m_EV100 = EV100; }
 
 	float GetEV100() { return m_EV100; }
+
+	void ReflectionsOnOff() { m_Reflections = !m_Reflections; }
 
 	bool FindIntersection(const math::Ray& ray, math::Intersection& outNearest, const math::Material*& outMaterial, bool onlyObjects = false);
 
@@ -142,14 +159,15 @@ protected:
 
 	void FindIntersectionInternal(const math::Ray& ray, ObjRef& outRef, math::Intersection& outNearest, const math::Material*& outMaterial, bool onlyObjects);
 
-	DirectX::XMVECTOR ComputeColor(const math::Ray& castedRay, const DirectX::XMVECTOR& cameraPos);
+	DirectX::XMVECTOR ComputeLighting(const math::Ray& castedRay, const DirectX::XMVECTOR& cameraPos, int depth);
 
-	DirectX::XMVECTOR AdjustExposure(const DirectX::XMVECTOR& color);
+	DirectX::XMVECTOR AdjustExposure(const DirectX::XMVECTOR& color, float EV100);
 
 	DirectX::XMVECTOR AcesHDRtoLDR(const DirectX::XMVECTOR& hdr);
 
 private:
 	float m_EV100;
+	bool m_Reflections;
 	std::vector<Sphere> m_Spheres;
 	std::vector<Plane> m_Planes;
 	std::vector<DirectionLight> m_DirLights;
@@ -157,4 +175,5 @@ private:
 	std::vector<SpotLight> m_SpotLights;
 	std::vector<MeshInstance> m_Meshes;
 	math::Mesh m_CubeMesh = math::Mesh::createCube();
+	ParallelExecutor m_Executor {(std::max)(1u, std::thread::hardware_concurrency() / 2)};
 };
