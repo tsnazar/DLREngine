@@ -159,7 +159,7 @@
     <ClCompile Include="include\Camera.cpp" />
     <ClCompile Include="include\Scene.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="math\lights\BRDF.cpp" />
+    <ClCompile Include="math\lights\Lighting.cpp" />
     <ClCompile Include="math\lights\DirectionLight.cpp" />
     <ClCompile Include="math\geometry\Plane.cpp" />
     <ClCompile Include="math\lights\PointLight.cpp" />
@@ -180,7 +180,7 @@
     <ClInclude Include="decorators\math\TransformMover.h" />
     <ClInclude Include="decorators\math\Vector3Mover.h" />
     <ClInclude Include="math\geometry\Mesh.h" />
-    <ClInclude Include="math\lights\BRDF.h" />
+    <ClInclude Include="math\lights\Lighting.h" />
     <ClInclude Include="math\lights\DirectionLight.h" />
     <ClInclude Include="math\Intersection.h" />
     <ClInclude Include="math\Material.h" />

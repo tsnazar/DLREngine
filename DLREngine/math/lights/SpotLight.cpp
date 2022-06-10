@@ -1,5 +1,5 @@
 #include "SpotLight.h"
-#include "BRDF.h"
+#include "Lighting.h"
 
 DirectX::XMVECTOR math::SpotLight::Illuminate(const DirectX::XMVECTOR& toLightDir, const DirectX::XMVECTOR& toLightDist, const DirectX::XMVECTOR& toCameraDir,
 	const DirectX::XMVECTOR& pixelNormal, const DirectX::XMVECTOR& NdotV, const math::MaterialVectorized& material)
@@ -16,19 +16,19 @@ DirectX::XMVECTOR math::SpotLight::Illuminate(const DirectX::XMVECTOR& toLightDi
 
 	DirectX::XMVECTOR NdotL = DirectX::XMVectorMax(DirectX::XMVector3Dot(pixelNormal, toLightDir), DirectX::XMVectorZero());
 	DirectX::XMVECTOR NdotH = DirectX::XMVectorMax(DirectX::XMVector3Dot(pixelNormal, halfWay), DirectX::XMVectorZero());
+	DirectX::XMVECTOR HdotL = DirectX::XMVectorMax(DirectX::XMVector3Dot(toLightDir, halfWay), DirectX::XMVectorZero());
 
 	DirectX::XMVECTOR FL = fresnel(material.f0, NdotL);
-	DirectX::XMVECTOR FH = fresnel(material.f0, NdotH);
+	DirectX::XMVECTOR FH = fresnel(material.f0, HdotL);
 
 	DirectX::XMVECTOR D = ggx(DirectX::XMVectorMultiply(material.roughness, material.roughness), NdotH);
 	DirectX::XMVECTOR G = smith(DirectX::XMVectorMultiply(material.roughness, material.roughness), NdotV, NdotH);
 
-	DirectX::XMVECTOR numerator = D * G * FH;
-	DirectX::XMVECTOR denominator = DirectX::XMVectorReplicate(4.0f) * NdotV * NdotL + DirectX::XMVectorReplicate(0.0001f);
-	DirectX::XMVECTOR spec = numerator / denominator;
+	DirectX::XMVECTOR solidAngle = DirectX::XMVectorReplicate(1.0f) -
+		(DirectX::XMVectorSqrt(toLightDist * toLightDist - DirectX::XMVectorReplicate(radius) * DirectX::XMVectorReplicate(radius))) / toLightDist;
 
-	DirectX::XMVECTOR diff = DirectX::XMVectorSubtract(DirectX::XMVectorReplicate(1.0f), FL);
-	diff *= (DirectX::XMVectorReplicate(1.0f) - material.metalic);
+	DirectX::XMVECTOR spec = brdfCookTorrance(FH, D, G, NdotV, NdotL, solidAngle);
+	DirectX::XMVECTOR diff = brdfLambert(material.albedo, material.metalic, FL);
 
-	return (diff * material.albedo / DirectX::XM_PI + spec) * lightColor * NdotL;
+	return (diff * solidAngle + spec) * lightColor * NdotL;
 }

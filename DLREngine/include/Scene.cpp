@@ -7,7 +7,6 @@
 #include "math/SphereMover.h"
 #include "math/TransformMover.h"
 #include "math/Vector3Mover.h"
-#include "lights/BRDF.h"
 
 namespace
 {
@@ -138,11 +137,7 @@ DirectX::XMVECTOR Scene::PointLight::Illuminate(Scene& scene, const DirectX::XMV
 	if (visibility)
 		return DirectX::XMVectorZero();
 
-	// (1-cos(2*asin(radius/distance_to_light)))
-	DirectX::XMVECTOR solidAngle = DirectX::XMVectorSubtract(DirectX::XMVectorReplicate(1.0f),
-		DirectX::XMVectorCos(DirectX::XMVectorScale(DirectX::XMVectorASin(DirectX::XMVectorDivide(DirectX::XMVectorReplicate(radius), toLightDist)), 2.0f))); 
-
-	return DirectX::XMVectorMultiply(math::PointLight::Illuminate(toLightDir, toLightDist, toCameraDir, pixelNormal, NdotV, material), solidAngle);
+	return math::PointLight::Illuminate(toLightDir, toLightDist, toCameraDir, pixelNormal, NdotV, material);
 }
 
 bool Scene::SpotLight::Intersect(const math::Ray& ray, ObjRef& outRef, math::Intersection& outNearest, const math::Material*& outMaterial)
@@ -179,11 +174,7 @@ DirectX::XMVECTOR Scene::SpotLight::Illuminate(Scene& scene, const DirectX::XMVE
 	if (visibility)
 		return DirectX::XMVectorZero();
 
-	// (1-cos(2*asin(radius/distance_to_light)))
-	DirectX::XMVECTOR solidAngle = DirectX::XMVectorSubtract(DirectX::XMVectorReplicate(1.0f), 
-		DirectX::XMVectorCos(DirectX::XMVectorScale(DirectX::XMVectorASin(DirectX::XMVectorDivide(DirectX::XMVectorReplicate(radius), toLightDist)), 2.0f)));
-
-	return DirectX::XMVectorMultiply(math::SpotLight::Illuminate(toLightDir, toLightDist, toCameraDir, pixelNormal, NdotV, material), solidAngle);
+	return math::SpotLight::Illuminate(toLightDir, toLightDist, toCameraDir, pixelNormal, NdotV, material);
 }
 
 void Scene::FindIntersectionInternal(const math::Ray& ray, ObjRef& outRef, math::Intersection& outNearest, const math::Material*& outMaterial, bool onlyObjects)
@@ -253,6 +244,9 @@ bool Scene::FindIntersection(const math::Ray& ray, IntersectionQuery& query, boo
 
 bool Scene::Render(MainWindow& win, Camera& camera)
 {
+	if (m_GlobalIllumination && m_Rendered)
+		return true;
+
 	int width = win.GetImageWidth();
 	int height = win.GetImageHeight();
 	
@@ -280,8 +274,8 @@ bool Scene::Render(MainWindow& win, Camera& camera)
 
 		math::Ray r(p, d);
 		DirectX::XMVECTOR col = ComputeLighting(r, camera.Position(), MAX_DEPTH);
-		col = AdjustExposure(col, m_EV100);
-		col = AcesHDRtoLDR(col);
+		col = math::adjustExposure(col, m_EV100);
+		col = math::acesHDRtoLDR(col);
 		DirectX::XMVectorPow(col, GAMMA_CORRECTION);
 
 		DirectX::XMFLOAT3 color;
@@ -294,6 +288,7 @@ bool Scene::Render(MainWindow& win, Camera& camera)
 	};
 
 	m_Executor.Execute(func, width * height, 20);
+	m_Rendered = true;
 
 	return true;
 }
@@ -309,7 +304,10 @@ DirectX::XMVECTOR Scene::ComputeLighting(const math::Ray& ray, const DirectX::XM
 	ObjRef ref = { nullptr, IntersectedType::NUM };
 	const math::Material* materialPtr = nullptr;
 	
-	FindIntersectionInternal(ray, ref, rec, materialPtr, false);
+	if(depth != MAX_DEPTH)
+		FindIntersectionInternal(ray, ref, rec, materialPtr, true);
+	else
+		FindIntersectionInternal(ray, ref, rec, materialPtr, false);
 
 	if (ref.type == IntersectedType::Light)
 	{
@@ -317,27 +315,17 @@ DirectX::XMVECTOR Scene::ComputeLighting(const math::Ray& ray, const DirectX::XM
 		return DirectX::XMVectorScale(DirectX::XMVectorDivide(lightColor, findMaxComponent(lightColor)), LIGHT_COLOR_STRENGTH);
 	}
 
-	DirectX::XMFLOAT3 unit;
-	DirectX::XMStoreFloat3(&unit, DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&ray.direction)));
-	float t = 0.5 * (unit.y + 1.0);
-	float it = 1.0 - t;
-
-	float r = it + t * 0.5f;
-	float g = it + t * 0.7f;
-	float b = it + t * 1.0f;
-	DirectX::XMVECTOR ambient = DirectX::XMVectorSet(r, g, b, 0);
-
 	if (ref.type != IntersectedType::NUM)
 	{
-		DirectX::XMVECTOR pixelPos, pixelNormal, pixelToCamera, NdotV, sum;
+		DirectX::XMVECTOR pixelPos, pixelNormal, pixelToCamera, NdotV, sum, ambient;
 		math::MaterialVectorized matVec = materialPtr->Vectorize();
-
-		matVec.f0 = math::mix(matVec.f0, matVec.albedo, matVec.metalic);
 
 		pixelPos = DirectX::XMLoadFloat3(&rec.pos);
 		pixelNormal = DirectX::XMLoadFloat3(&rec.normal);
 		pixelToCamera = DirectX::XMVectorNegate(DirectX::XMLoadFloat3(&ray.direction));
 		NdotV = DirectX::XMVectorMax(DirectX::XMVector3Dot(pixelNormal, pixelToCamera), DirectX::XMVectorZero());
+		
+		ambient = (m_GlobalIllumination && depth == MAX_DEPTH) ? CalculateGlobal(pixelNormal, pixelPos, cameraPos) : CalculateAmbient(pixelNormal);
 
 		sum = DirectX::XMVectorMultiply(matVec.albedo, ambient);
 		sum = DirectX::XMVectorMultiply(sum, DirectX::XMVectorSubtract(DirectX::XMVectorReplicate(1.0f), matVec.metalic));
@@ -373,24 +361,41 @@ DirectX::XMVECTOR Scene::ComputeLighting(const math::Ray& ray, const DirectX::XM
 		return sum;
 	}
 
-	return ambient;
+	return CalculateAmbient(DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&ray.direction)));
 }
 
-DirectX::XMVECTOR Scene::AdjustExposure(const DirectX::XMVECTOR& color, float EV100)
+DirectX::XMVECTOR Scene::CalculateAmbient(const DirectX::XMVECTOR& dir)
 {
-	float LMax = (78.0f / (0.65f * 100.0f)) * powf(2.0f, EV100);
-	return DirectX::XMVectorMultiply(color, DirectX::XMVectorReplicate(1.0f / LMax));
+	using namespace DirectX;
+	DirectX::XMVECTOR t = XMVectorReplicate(0.5f) * (XMVectorSplatY(dir) + XMVectorReplicate(1.0f));
+	DirectX::XMVECTOR it = XMVectorReplicate(1.0f) - t;
+	return it + (t * XMVectorSet(0.5f, 0.7f, 1.0f, 0.0f));
 }
 
-DirectX::XMVECTOR Scene::AcesHDRtoLDR(const DirectX::XMVECTOR& hdr)
+DirectX::XMVECTOR Scene::CalculateGlobal(const DirectX::XMVECTOR& dir, const DirectX::XMVECTOR& pos, const DirectX::XMVECTOR& cameraPos)
 {
-	const DirectX::XMMATRIX m1 = DirectX::XMMatrixSet(0.59719f, 0.07600f, 0.02840f, 0.0f, 0.35458f, 0.90834f, 0.13383f, 0.0f, 0.04823f, 0.01566f, 0.83777f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-	const DirectX::XMMATRIX m2 = DirectX::XMMatrixSet(1.60475f, -0.10208, -0.00327f, 0.0f, -0.53108f, 1.10813, -0.07276f, 0.0f, -0.07367f, -0.00605, 1.07602f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+	DirectX::XMVECTOR b1, b2;
+	DirectX::XMMATRIX transform;
 
-	DirectX::XMVECTOR v = DirectX::XMVector3Transform(hdr, m1);
-	DirectX::XMVECTOR a = DirectX::XMVectorSubtract(DirectX::XMVectorMultiply(v, DirectX::XMVectorAdd(v, DirectX::XMVectorReplicate(0.0245786f))), DirectX::XMVectorReplicate(0.000090537f));
-	DirectX::XMVECTOR b = DirectX::XMVectorAdd(DirectX::XMVectorMultiply(v, DirectX::XMVectorAdd(DirectX::XMVectorMultiply(v, DirectX::XMVectorReplicate(0.983729f)), 
-		DirectX::XMVectorReplicate(0.4329510f))), DirectX::XMVectorReplicate(0.238081f));
-	DirectX::XMVECTOR ldr = DirectX::XMVectorClamp(DirectX::XMVector3Transform(DirectX::XMVectorDivide(a, b), m2), DirectX::XMVectorZero(), DirectX::XMVectorReplicate(1.0f));
-	return ldr;
-}	
+	DirectX::XMVECTOR ambient = DirectX::XMVectorZero();
+
+	math::branchlessONB(dir, b1, b2);
+
+	transform.r[0] = b1;
+	transform.r[1] = b2;
+	transform.r[2] = dir;
+	transform.r[3] = DirectX::XMVectorSet(0, 0, 0, 1);
+
+	for (unsigned int i = 0; i < m_HemisphereSamples.size(); ++i)
+	{
+		DirectX::XMVECTOR dir = DirectX::XMVector3Transform(m_HemisphereSamples[i], transform);
+
+		math::Ray ray;
+		DirectX::XMStoreFloat3(&ray.origin, DirectX::XMVectorAdd(pos, DirectX::XMVectorScale(dir, MIRROR_BIAS)));
+		DirectX::XMStoreFloat3(&ray.direction, dir);
+
+		ambient = DirectX::XMVectorAdd(ambient, ComputeLighting(ray, cameraPos, MAX_DEPTH - 1));
+	}
+
+	return DirectX::XMVectorScale(ambient, 1.0f / m_HemisphereSamples.size());
+}

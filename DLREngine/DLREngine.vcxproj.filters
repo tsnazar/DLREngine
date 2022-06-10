@@ -70,7 +70,7 @@
     <ClCompile Include="platform\windows\MainWindow.cpp">
       <Filter>Platform\Windows</Filter>
     </ClCompile>
-    <ClCompile Include="math\lights\BRDF.cpp">
+    <ClCompile Include="math\lights\Lighting.cpp">
       <Filter>Math\Lights</Filter>
     </ClCompile>
     <ClCompile Include="include\ParallelExecutor.cpp">
@@ -141,7 +141,7 @@
     <ClInclude Include="Controller.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="math\lights\BRDF.h">
+    <ClInclude Include="math\lights\Lighting.h">
       <Filter>Math\Lights</Filter>
     </ClInclude>
     <ClInclude Include="include\ParallelExecutor.h">

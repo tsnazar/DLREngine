@@ -13,7 +13,7 @@ namespace
 class Controller
 {
 public:
-	enum class Keys { KEY_LMB = 0x01, KEY_RMB = 0x02, KEY_CONTROL = 0x11, KEY_SPACE = 0x20, KEY_A = 0x41, KEY_D = 0x44, KEY_E = 0x45, KEY_Q = 0x51, KEY_R = 0x52, KEY_S = 0x53, KEY_W = 0x57, KEY_OEM_PLUS = 0xBB, KEY_OEM_MINUS = 0xBD};
+	enum class Keys { KEY_LMB = 0x01, KEY_RMB = 0x02, KEY_SHIFT = 0x10, KEY_CONTROL = 0x11, KEY_SPACE = 0x20, KEY_A = 0x41, KEY_D = 0x44, KEY_E = 0x45, KEY_G = 0x47, KEY_Q = 0x51, KEY_R = 0x52, KEY_S = 0x53, KEY_W = 0x57, KEY_OEM_PLUS = 0xBB, KEY_OEM_MINUS = 0xBD};
 public:
 	Controller(Scene& scene, Camera& camera, MainWindow& window);
 
@@ -33,6 +33,9 @@ private:
 	Camera& m_Camera;
 	MainWindow& m_Window;
 	bool m_Keys[NUM];
+
+	int m_MouseWheelDelta = 0;
+	float m_CameraVelocity = 5.0f;
 
 	bool m_FirstMoveLB = true;
 	int m_LastXLB = 0, m_LastYLB = 0;
