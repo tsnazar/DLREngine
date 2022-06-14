@@ -6,7 +6,6 @@ namespace
 	const int MOUSEWHEEL_THRESHOLD = 120;
 	const float VELOCITY_ACCELERATION_FACTOR = 5.0f;
 	const float VELOCITY_INC_DEC_FACTOR = 1.1f;
-	const float ROTATION_SPEED = 0.5f;
 	const float EXPOSURE_DELTA = 1.0f;
 	const float FOV = 1.0472f; // 60 degrees
 	const float ZNEAR = 100.0f;
@@ -17,7 +16,10 @@ namespace
 	const math::Material purple({ 0.4f , 0.0f , 0.8f }, { 0, 0, 0 }, { 0.04f, 0.04f, 0.04f }, 0.0f, 0.3f); // temp materials
 }
 
-Controller::Controller(Scene& scene, Camera& camera, MainWindow& window) :m_Scene(scene), m_Camera(camera), m_Window(window), m_Keys{ 0 }{}
+Controller::Controller(Scene& scene, Camera& camera, MainWindow& window) :m_Scene(scene), m_Camera(camera), m_Window(window), m_Keys{ 0 }
+{
+	m_RotationSpeed = 360.0f / window.GetImageWidth();
+}
 
 void Controller::InitScene()
 {
@@ -125,8 +127,8 @@ void Controller::ProcessInput(float delta)
 			m_LastYLB = pos.y;
 		}
 
-		ang.x = (pos.x - m_LastXLB) * DirectX::XM_PI / 180.0f * ROTATION_SPEED * delta;
-		ang.y = (pos.y - m_LastYLB) * DirectX::XM_PI / 180.0f * ROTATION_SPEED * delta;
+		ang.x = (pos.x - m_LastXLB) * DirectX::XM_PI / 180.0f * m_RotationSpeed * delta;
+		ang.y = (pos.y - m_LastYLB) * DirectX::XM_PI / 180.0f * m_RotationSpeed * delta;
 	}
 	else
 	{
@@ -193,6 +195,7 @@ LRESULT Controller::ProcessEvents(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 		int width = m_Window.GetImageWidth();
 		int height = m_Window.GetImageHeight();
 
+		m_RotationSpeed = 360.0f / width;
 		m_Camera.SetPerspective(FOV, (float)width / (float)height, ZNEAR, ZFAR);
 		return 0;
 	}

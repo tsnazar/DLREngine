@@ -36,6 +36,7 @@ private:
 
 	int m_MouseWheelDelta = 0;
 	float m_CameraVelocity = 5.0f;
+	float m_RotationSpeed;
 
 	bool m_FirstMoveLB = true;
 	int m_LastXLB = 0, m_LastYLB = 0;
