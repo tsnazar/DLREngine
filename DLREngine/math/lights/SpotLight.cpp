@@ -24,8 +24,10 @@ DirectX::XMVECTOR math::SpotLight::Illuminate(const DirectX::XMVECTOR& toLightDi
 	DirectX::XMVECTOR D = ggx(DirectX::XMVectorMultiply(material.roughness, material.roughness), NdotH);
 	DirectX::XMVECTOR G = smith(DirectX::XMVectorMultiply(material.roughness, material.roughness), NdotV, NdotH);
 
-	DirectX::XMVECTOR solidAngle = DirectX::XMVectorReplicate(1.0f) -
-		(DirectX::XMVectorSqrt(toLightDist * toLightDist - DirectX::XMVectorReplicate(radius) * DirectX::XMVectorReplicate(radius))) / toLightDist;
+	//DirectX::XMVECTOR solidAngle = DirectX::XMVectorReplicate(1.0f) -
+		//(DirectX::XMVectorSqrt(toLightDist * toLightDist - DirectX::XMVectorReplicate(radius) * DirectX::XMVectorReplicate(radius))) / toLightDist;
+
+	XMVECTOR solidAngle = XMVectorReplicate(1.0f) - XMVectorSqrt(XMVectorReplicate(1.0f) - (XMVectorReplicate(radius) * XMVectorReplicate(radius)) / (toLightDist * toLightDist));
 
 	DirectX::XMVECTOR spec = brdfCookTorrance(FH, D, G, NdotV, NdotL, solidAngle);
 	DirectX::XMVECTOR diff = brdfLambert(material.albedo, material.metalic, FL);

@@ -15,6 +15,6 @@ namespace math
 	DirectX::XMVECTOR approximateClosestSphereDir(bool& intersects, const DirectX::XMVECTOR& reflectionDir, const DirectX::XMVECTOR& sphereCos,
 		const DirectX::XMVECTOR& sphereRelPos, const DirectX::XMVECTOR& sphereDir, const DirectX::XMVECTOR& sphereDist, const DirectX::XMVECTOR& sphereRadius);
 	void clampDirToHorizon(DirectX::XMVECTOR& dir, DirectX::XMVECTOR& NdotD, const DirectX::XMVECTOR& normal, const DirectX::XMVECTOR& minNdotD);
-	void hemisphereUniformDistribution(std::vector<DirectX::XMVECTOR>& outVec, unsigned int numberOfPoints);
+	void hemisphereUniformDistribution(std::vector<DirectX::XMVECTOR>& outVec, uint32_t numberOfPoints);
 	void branchlessONB(const DirectX::XMVECTOR& n, DirectX::XMVECTOR& outB1, DirectX::XMVECTOR& outB2);
 }
