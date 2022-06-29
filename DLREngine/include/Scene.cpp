@@ -368,7 +368,6 @@ XMVECTOR Scene::ComputeLighting(const math::Ray& ray, const XMVECTOR& cameraPos,
 
 XMVECTOR Scene::CalculateAmbient(const XMVECTOR& dir)
 {
-	using namespace DirectX;
 	XMVECTOR t = XMVectorReplicate(0.5f) * (XMVectorSplatY(dir) + XMVectorReplicate(1.0f));
 	XMVECTOR it = XMVectorReplicate(1.0f) - t;
 	return it + (t * XMVectorSet(0.5f, 0.7f, 1.0f, 0.0f));

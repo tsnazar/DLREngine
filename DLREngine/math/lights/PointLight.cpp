@@ -7,9 +7,6 @@ XMVECTOR math::PointLight::Illuminate(const XMVECTOR& toLightDir, const XMVECTOR
 {
 	using namespace DirectX;
 	XMVECTOR lightColor = XMLoadFloat3(&intensity);
-	
-	//XMVECTOR solidAngle = (XMVectorReplicate(1.0f) -
-		//(XMVectorSqrt(toLightDist * toLightDist - XMVectorReplicate(radius) * XMVectorReplicate(radius))) / toLightDist);
 
 	XMVECTOR solidAngle = XMVectorReplicate(1.0f) - XMVectorSqrt(XMVectorReplicate(1.0f) - (XMVectorReplicate(radius) * XMVectorReplicate(radius)) / (toLightDist * toLightDist));
 
@@ -21,7 +18,7 @@ XMVECTOR math::PointLight::Illuminate(const XMVECTOR& toLightDir, const XMVECTOR
 	XMVECTOR NdotD = XMVector3Dot(closestPointDir, pixelNormal);
 	math::clampDirToHorizon(closestPointDir, NdotD, pixelNormal, XMVectorZero());
 
-	XMVECTOR halfWay = XMVector3Normalize(XMVectorAdd(closestPointDir, toCameraDir));
+	XMVECTOR halfWay = XMVector3Normalize(XMVectorAdd(toLightDir, toCameraDir));
 
 	XMVECTOR NdotL = XMVectorMax(XMVector3Dot(pixelNormal, toLightDir), XMVectorZero());
 	XMVECTOR NdotH = XMVectorMax(XMVector3Dot(pixelNormal, halfWay), XMVectorZero());
@@ -36,9 +33,8 @@ XMVECTOR math::PointLight::Illuminate(const XMVECTOR& toLightDir, const XMVECTOR
 	XMVECTOR spec = brdfCookTorrance(FH, D, G, NdotV, NdotD, solidAngle);
 	XMVECTOR diff = brdfLambert(material.albedo, material.metalic, FL);
 
-	return (diff * solidAngle + spec) * lightColor * NdotL;
+	return (diff * solidAngle * NdotL + spec * NdotD) * lightColor ;
 }
-
 
  //without closestSphereDir
 //XMVECTOR math::PointLight::Illuminate(const XMVECTOR& toLightDir, const XMVECTOR& toLightDist, const XMVECTOR& toCameraDir,
