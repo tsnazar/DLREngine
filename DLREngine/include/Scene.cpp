@@ -16,7 +16,6 @@ namespace
 	const float MIRROR_BIAS = 0.0005f;
 	const float LIGHT_REP_RADIUS = 0.1f;
 	const float SCENE_REFLECTION_MAX_ROUGHNESS = 0.1f;
-	const float LIGHT_COLOR_STRENGTH = 10.0f;
 	const int MAX_DEPTH = 20;
 	const XMVECTOR GAMMA_CORRECTION = XMVectorReplicate(1.0f / 2.2f);
 }

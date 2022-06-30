@@ -18,9 +18,9 @@ XMVECTOR math::SpotLight::Illuminate(const XMVECTOR& toLightDir, const XMVECTOR&
 	squareRadius *= squareRadius;
 	XMVECTOR squareDistance = toLightDist * toLightDist;
 
-	XMVECTOR solidAngle = XMVectorReplicate(1.0f) - XMVectorSqrt(XMVectorReplicate(1.0f) - squareRadius / squareDistance);
+	XMVECTOR angularCos = XMVectorSqrt(XMVectorReplicate(1.0f) - squareRadius / squareDistance);
 
-	XMVECTOR angularCos = XMVectorReplicate(1.0f) - (XMVectorReplicate(2.0f) * squareRadius) / squareDistance;
+	XMVECTOR solidAngle = XMVectorReplicate(1.0f) - angularCos;
 
 	bool ints;
 	XMVECTOR reflection = XMVectorAdd(XMVectorNegate(toCameraDir), XMVectorScale(XMVectorMultiply(pixelNormal, NdotV), 2.0f));
