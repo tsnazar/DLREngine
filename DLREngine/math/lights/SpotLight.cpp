@@ -7,7 +7,6 @@ XMVECTOR math::SpotLight::Illuminate(const XMVECTOR& toLightDir, const XMVECTOR&
 	const XMVECTOR& pixelNormal, const XMVECTOR& NdotV, const math::MaterialVectorized& material)
 {
 	XMVECTOR lightColor = XMLoadFloat3(&intensity);
-	XMVECTOR halfWay = XMVector3Normalize(XMVectorAdd(toLightDir, toCameraDir));
 
 	XMVECTOR theta = XMVector3Dot(toLightDir, XMVectorNegate(XMLoadFloat3(&direction)));
 	XMVECTOR epsilon = XMVectorReplicate(cosInnerRad - cosOuterRad);
@@ -15,15 +14,21 @@ XMVECTOR math::SpotLight::Illuminate(const XMVECTOR& toLightDir, const XMVECTOR&
 
 	lightColor = XMVectorMultiply(lightColor, intensity);
 
-	XMVECTOR solidAngle = XMVectorReplicate(1.0f) - XMVectorSqrt(XMVectorReplicate(1.0f) - (XMVectorReplicate(radius) * XMVectorReplicate(radius)) / (toLightDist * toLightDist));
+	XMVECTOR squareRadius = XMVectorReplicate(radius);
+	squareRadius *= squareRadius;
+	XMVECTOR squareDistance = toLightDist * toLightDist;
 
-	XMVECTOR angularDiameter = 2.0f * (XMVectorReplicate(1.0f) - solidAngle);
+	XMVECTOR solidAngle = XMVectorReplicate(1.0f) - XMVectorSqrt(XMVectorReplicate(1.0f) - squareRadius / squareDistance);
+
+	XMVECTOR angularCos = XMVectorReplicate(1.0f) - (XMVectorReplicate(2.0f) * squareRadius) / squareDistance;
 
 	bool ints;
 	XMVECTOR reflection = XMVectorAdd(XMVectorNegate(toCameraDir), XMVectorScale(XMVectorMultiply(pixelNormal, NdotV), 2.0f));
-	XMVECTOR closestPointDir = math::approximateClosestSphereDir(ints, reflection, angularDiameter, toLightDir * toLightDist, toLightDir, toLightDist, XMLoadFloat(&radius));
+	XMVECTOR closestPointDir = math::approximateClosestSphereDir(ints, reflection, angularCos, toLightDir * toLightDist, toLightDir, toLightDist, XMLoadFloat(&radius));
 	XMVECTOR NdotD = XMVector3Dot(closestPointDir, pixelNormal);
 	math::clampDirToHorizon(closestPointDir, NdotD, pixelNormal, XMVectorZero());
+
+	XMVECTOR halfWay = XMVector3Normalize(XMVectorAdd(closestPointDir, toCameraDir));
 
 	XMVECTOR NdotL = XMVectorMax(XMVector3Dot(pixelNormal, toLightDir), XMVectorZero());
 	XMVECTOR NdotH = XMVectorMax(XMVector3Dot(pixelNormal, halfWay), XMVectorZero());
@@ -47,7 +52,6 @@ XMVECTOR math::SpotLight::Illuminate(const XMVECTOR& toLightDir, const XMVECTOR&
 //{
 //	XMVECTOR lightColor = XMLoadFloat3(&intensity);
 //	XMVECTOR halfWay = XMVector3Normalize(XMVectorAdd(toLightDir, toCameraDir));
-//	XMVECTOR halfWay = XMVector3Normalize(toLightDir + toCameraDir);
 // 
 //	XMVECTOR theta = XMVector3Dot(toLightDir, XMVectorNegate(XMLoadFloat3(&direction)));
 //	XMVECTOR epsilon = XMVectorReplicate(cosInnerRad - cosOuterRad);

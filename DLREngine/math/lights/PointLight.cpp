@@ -5,20 +5,23 @@ using namespace DirectX;
 XMVECTOR math::PointLight::Illuminate(const XMVECTOR& toLightDir, const XMVECTOR& toLightDist, const XMVECTOR& toCameraDir,
 	const XMVECTOR& pixelNormal, const XMVECTOR& NdotV, const math::MaterialVectorized& material)
 {
-	using namespace DirectX;
 	XMVECTOR lightColor = XMLoadFloat3(&intensity);
 
-	XMVECTOR solidAngle = XMVectorReplicate(1.0f) - XMVectorSqrt(XMVectorReplicate(1.0f) - (XMVectorReplicate(radius) * XMVectorReplicate(radius)) / (toLightDist * toLightDist));
+	XMVECTOR squareRadius = XMVectorReplicate(radius);
+	squareRadius *= squareRadius;
+	XMVECTOR squareDistance = toLightDist * toLightDist;
 
-	XMVECTOR angularDiameter = 2.0f * (XMVectorReplicate(1.0f) - solidAngle);
+	XMVECTOR solidAngle = XMVectorReplicate(1.0f) - XMVectorSqrt(XMVectorReplicate(1.0f) - squareRadius / squareDistance);
+
+	XMVECTOR angularCos = XMVectorReplicate(1.0f) - (XMVectorReplicate(2.0f) * squareRadius) / squareDistance;
 
 	bool ints;
 	XMVECTOR reflection = XMVectorAdd(XMVectorNegate(toCameraDir), XMVectorScale(XMVectorMultiply(pixelNormal, NdotV), 2.0f));
-	XMVECTOR closestPointDir = math::approximateClosestSphereDir(ints, reflection, angularDiameter, toLightDir * toLightDist, toLightDir, toLightDist, XMLoadFloat(&radius));
+	XMVECTOR closestPointDir = math::approximateClosestSphereDir(ints, reflection, angularCos, toLightDir * toLightDist, toLightDir, toLightDist, XMLoadFloat(&radius));
 	XMVECTOR NdotD = XMVector3Dot(closestPointDir, pixelNormal);
 	math::clampDirToHorizon(closestPointDir, NdotD, pixelNormal, XMVectorZero());
 
-	XMVECTOR halfWay = XMVector3Normalize(XMVectorAdd(toLightDir, toCameraDir));
+	XMVECTOR halfWay = XMVector3Normalize(XMVectorAdd(closestPointDir, toCameraDir));
 
 	XMVECTOR NdotL = XMVectorMax(XMVector3Dot(pixelNormal, toLightDir), XMVectorZero());
 	XMVECTOR NdotH = XMVectorMax(XMVector3Dot(pixelNormal, halfWay), XMVectorZero());
@@ -33,7 +36,7 @@ XMVECTOR math::PointLight::Illuminate(const XMVECTOR& toLightDir, const XMVECTOR
 	XMVECTOR spec = brdfCookTorrance(FH, D, G, NdotV, NdotD, solidAngle);
 	XMVECTOR diff = brdfLambert(material.albedo, material.metalic, FL);
 
-	return (diff * solidAngle * NdotL + spec * NdotD) * lightColor ;
+	return (diff * solidAngle * NdotL + spec * NdotD) * lightColor;
 }
 
  //without closestSphereDir

@@ -312,10 +312,7 @@ XMVECTOR Scene::ComputeLighting(const math::Ray& ray, const XMVECTOR& cameraPos,
 		FindIntersectionInternal(ray, ref, rec, materialPtr, false);
 
 	if (ref.type == IntersectedType::Light)
-	{
-		XMVECTOR lightColor = XMLoadFloat3(&materialPtr->emission);
-		return XMVectorScale(XMVectorDivide(lightColor, findMaxComponent(lightColor)), LIGHT_COLOR_STRENGTH);
-	}
+		return XMLoadFloat3(&materialPtr->emission);
 
 	if (ref.type != IntersectedType::NUM)
 	{

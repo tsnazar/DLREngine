@@ -38,8 +38,8 @@ void Controller::InitScene()
 			m_Scene.AddSphereToScene(DirectX::XMFLOAT3(x, 1, z), 0.5f, math::Material(albedo, { 0,0,0 }, f0, metal, roughness));
 		}
 
-	m_Scene.AddPointLightToScene(DirectX::XMFLOAT3(5.0f, 7.0f, 5.0f), DirectX::XMFLOAT3(1500.0f, 1500.0f, 1500.0f), 0.5f);
-	//m_Scene.AddSpotLightToScene(DirectX::XMFLOAT3(5.0f, 7.0f, 5.0f), DirectX::XMFLOAT3(0, -1, 0), DirectX::XMFLOAT3(1500.0f, 1500.0f, 1500.0f), 0.5f, 0.6f, 0.8f);
+	//m_Scene.AddPointLightToScene(DirectX::XMFLOAT3(5.0f, 7.0f, 5.0f), DirectX::XMFLOAT3(1000.0f, 1000.0f, 1000.0f), 0.5f);
+	m_Scene.AddSpotLightToScene(DirectX::XMFLOAT3(5.0f, 7.0f, 5.0f), DirectX::XMFLOAT3(0, -1, 0), DirectX::XMFLOAT3(1500.0f, 1500.0f, 1500.0f), 0.5f, 0.6f, 0.8f);
 	//m_Scene.AddDirLightToScene({ 0, -1, 0 }, { 1000.0f, 1000.0f, 1000.0f }, 0.01f);
 	
 	m_Camera.SetWorldOffset({ 4.0f, 10.0f, -1.0f });
