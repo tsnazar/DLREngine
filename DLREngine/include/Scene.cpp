@@ -274,7 +274,7 @@ bool Scene::Render(MainWindow& win, Camera& camera)
 		XMStoreFloat3(&p, cameraPos);
 
 		math::Ray r(p, d);
-		XMVECTOR col = ComputeLighting(r, camera.Position(), MAX_DEPTH);
+		XMVECTOR col = ComputeLighting(r, MAX_DEPTH);
 		col = math::adjustExposure(col, m_EV100);
 		col = math::acesHDRtoLDR(col);
 		XMVectorPow(col, GAMMA_CORRECTION);
@@ -294,7 +294,7 @@ bool Scene::Render(MainWindow& win, Camera& camera)
 	return true;
 }
 
-XMVECTOR Scene::ComputeLighting(const math::Ray& ray, const XMVECTOR& cameraPos, int depth)
+XMVECTOR Scene::ComputeLighting(const math::Ray& ray, int depth)
 {
 	if (depth == 0)
 		return XMVectorZero();
@@ -323,7 +323,7 @@ XMVECTOR Scene::ComputeLighting(const math::Ray& ray, const XMVECTOR& cameraPos,
 		pixelToCamera = XMVectorNegate(XMLoadFloat3(&ray.direction));
 		NdotV = XMVectorMax(XMVector3Dot(pixelNormal, pixelToCamera), XMVectorZero());
 		
-		ambient = (m_GlobalIllumination && depth == MAX_DEPTH) ? CalculateGlobal(pixelNormal, pixelPos, cameraPos) : CalculateAmbient(pixelNormal);
+		ambient = (m_GlobalIllumination && depth == MAX_DEPTH) ? CalculateGlobal(pixelNormal, pixelPos) : CalculateAmbient(pixelNormal);
 
 		sum = XMVectorMultiply(matVec.albedo, ambient);
 		sum = XMVectorMultiply(sum, XMVectorSubtract(XMVectorReplicate(1.0f), matVec.metalic));
@@ -347,7 +347,7 @@ XMVECTOR Scene::ComputeLighting(const math::Ray& ray, const XMVECTOR& cameraPos,
 			XMStoreFloat3(&reflectanceRay.origin, XMVectorAdd(pixelPos, XMVectorScale(reflection, MIRROR_BIAS)));
 			XMStoreFloat3(&reflectanceRay.direction, reflection);
 
-			XMVECTOR addEnergy = ComputeLighting(reflectanceRay, cameraPos, depth - 1);
+			XMVECTOR addEnergy = ComputeLighting(reflectanceRay, depth - 1);
 			addEnergy = XMVectorMultiply(addEnergy, math::fresnel(matVec.f0, XMVector3Dot(reflection, pixelNormal)));
 
 			float sceneReflectionFading = 1.f - (std::min)(1.f, materialPtr->roughness / SCENE_REFLECTION_MAX_ROUGHNESS);
@@ -369,19 +369,19 @@ XMVECTOR Scene::CalculateAmbient(const XMVECTOR& dir)
 	return it + (t * XMVectorSet(0.5f, 0.7f, 1.0f, 0.0f));
 }
 
-XMVECTOR Scene::CalculateGlobal(const XMVECTOR& dir, const XMVECTOR& pos, const XMVECTOR& cameraPos)
+XMVECTOR Scene::CalculateGlobal(const XMVECTOR& dir, const XMVECTOR& pos)
 {
 	XMVECTOR b1, b2;
 	XMMATRIX transform;
 
 	XMVECTOR ambient = XMVectorZero();
 
-	math::branchlessONB(dir, b1, b2);
+	math::basisFromDir(b1, b2, dir);
 
 	transform.r[0] = b1;
 	transform.r[1] = b2;
 	transform.r[2] = dir;
-	transform.r[3] = XMVectorSet(0, 0, 0, 1);
+	transform.r[3] = XMVectorSet(0, 0, 0, 0);
 
 	for (unsigned int i = 0; i < m_HemisphereSamples.size(); ++i)
 	{
@@ -391,7 +391,7 @@ XMVECTOR Scene::CalculateGlobal(const XMVECTOR& dir, const XMVECTOR& pos, const 
 		XMStoreFloat3(&ray.origin, XMVectorAdd(pos, XMVectorScale(rayDir, MIRROR_BIAS)));
 		XMStoreFloat3(&ray.direction, rayDir);
 
-		ambient = XMVectorAdd(ambient, ComputeLighting(ray, cameraPos, MAX_DEPTH - 1));
+		ambient = XMVectorAdd(ambient, ComputeLighting(ray, 1));
 	}
 
 	return XMVectorScale(ambient, XM_2PI / m_HemisphereSamples.size());

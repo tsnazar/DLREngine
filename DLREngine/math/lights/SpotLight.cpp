@@ -24,21 +24,21 @@ XMVECTOR math::SpotLight::Illuminate(const XMVECTOR& toLightDir, const XMVECTOR&
 
 	bool ints;
 	XMVECTOR reflection = XMVectorAdd(XMVectorNegate(toCameraDir), XMVectorScale(XMVectorMultiply(pixelNormal, NdotV), 2.0f));
-	XMVECTOR closestPointDir = math::approximateClosestSphereDir(ints, reflection, angularCos, toLightDir * toLightDist, toLightDir, toLightDist, XMLoadFloat(&radius));
+	XMVECTOR closestPointDir = math::approximateClosestSphereDir(ints, reflection, angularCos, toLightDir * toLightDist, toLightDir, toLightDist, XMVectorReplicate(radius));
 	XMVECTOR NdotD = XMVector3Dot(closestPointDir, pixelNormal);
-	math::clampDirToHorizon(closestPointDir, NdotD, pixelNormal, XMVectorZero());
+	math::clampDirToHorizon(closestPointDir, NdotD, pixelNormal, math::MIN_DOT);
 
 	XMVECTOR halfWay = XMVector3Normalize(XMVectorAdd(closestPointDir, toCameraDir));
 
-	XMVECTOR NdotL = XMVectorMax(XMVector3Dot(pixelNormal, toLightDir), XMVectorZero());
-	XMVECTOR NdotH = XMVectorMax(XMVector3Dot(pixelNormal, halfWay), XMVectorZero());
-	XMVECTOR HdotL = XMVectorMax(XMVector3Dot(closestPointDir, halfWay), XMVectorZero());
+	XMVECTOR NdotL = XMVectorMax(XMVector3Dot(pixelNormal, toLightDir), math::MIN_DOT);
+	XMVECTOR NdotH = XMVectorMax(XMVector3Dot(pixelNormal, halfWay), math::MIN_DOT);
+	XMVECTOR HdotL = XMVectorMax(XMVector3Dot(closestPointDir, halfWay), math::MIN_DOT);
 
 	XMVECTOR FL = fresnel(material.f0, NdotL);
 	XMVECTOR FH = fresnel(material.f0, HdotL);
 
 	XMVECTOR D = ggx(XMVectorMultiply(material.roughness, material.roughness), NdotH);
-	XMVECTOR G = smith(XMVectorMultiply(material.roughness, material.roughness), NdotV, NdotH);
+	XMVECTOR G = smith(XMVectorMultiply(material.roughness, material.roughness), NdotV, NdotD);
 
 	XMVECTOR spec = brdfCookTorrance(FH, D, G, NdotV, NdotD, solidAngle);
 	XMVECTOR diff = brdfLambert(material.albedo, material.metalic, FL);

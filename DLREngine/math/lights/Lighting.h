@@ -4,6 +4,7 @@
 
 namespace math
 {
+	const DirectX::XMVECTOR MIN_DOT = DirectX::XMVectorReplicate(0.005f);
 	DirectX::XMVECTOR fresnel(const DirectX::XMVECTOR& F0, const DirectX::XMVECTOR& NdotL);
 	DirectX::XMVECTOR smith(const DirectX::XMVECTOR& rough2, DirectX::XMVECTOR NdotV, DirectX::XMVECTOR NdotL);
 	DirectX::XMVECTOR ggx(const DirectX::XMVECTOR& rough2, const DirectX::XMVECTOR& NdotH, float lightAngleSin = 0, float lightAngleCos = 1);
@@ -17,4 +18,5 @@ namespace math
 	void clampDirToHorizon(DirectX::XMVECTOR& dir, DirectX::XMVECTOR& NdotD, const DirectX::XMVECTOR& normal, const DirectX::XMVECTOR& minNdotD);
 	void hemisphereUniformDistribution(std::vector<DirectX::XMVECTOR>& outVec, uint32_t numberOfPoints);
 	void branchlessONB(const DirectX::XMVECTOR& n, DirectX::XMVECTOR& outB1, DirectX::XMVECTOR& outB2);
+	void basisFromDir(DirectX::XMVECTOR& right, DirectX::XMVECTOR& top, const DirectX::XMVECTOR& dir);
 }

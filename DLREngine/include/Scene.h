@@ -110,7 +110,7 @@ public:
 	};
 
 public:
-	Scene(unsigned int numGLSamples = 500, float EV100 = 2.0f, bool reflections = false) : m_EV100(EV100), m_Reflections(reflections)
+	Scene(unsigned int numGLSamples = 100, float EV100 = 2.0f, bool reflections = false) : m_EV100(EV100), m_Reflections(reflections)
 	{
 		math::hemisphereUniformDistribution(m_HemisphereSamples, numGLSamples);
 	};
@@ -165,11 +165,11 @@ protected:
 
 	void FindIntersectionInternal(const math::Ray& ray, ObjRef& outRef, math::Intersection& outNearest, const math::Material*& outMaterial, bool onlyObjects);
 
-	DirectX::XMVECTOR ComputeLighting(const math::Ray& castedRay, const DirectX::XMVECTOR& cameraPos, int depth);
+	DirectX::XMVECTOR ComputeLighting(const math::Ray& castedRay, int depth);
 
 	DirectX::XMVECTOR CalculateAmbient(const DirectX::XMVECTOR& dir);
 
-	DirectX::XMVECTOR CalculateGlobal(const DirectX::XMVECTOR& dir, const DirectX::XMVECTOR& pos, const DirectX::XMVECTOR& cameraPos);
+	DirectX::XMVECTOR CalculateGlobal(const DirectX::XMVECTOR& dir, const DirectX::XMVECTOR& pos);
 
 private:
 	float m_EV100;

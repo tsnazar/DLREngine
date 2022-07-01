@@ -1,9 +1,11 @@
 #include "Lighting.h"
+#include <algorithm>
 using namespace DirectX;
 
 namespace math
 {
 	const float GOLDEN_RATIO = (1.f + sqrtf(5.f)) / 2.f;
+	
 
 	XMVECTOR fresnel(const XMVECTOR& F0, const XMVECTOR& NdotL)
 	{
@@ -67,7 +69,7 @@ namespace math
 
 		intersects = XMVectorGetX(XMVectorGreaterOrEqual(RdotS, sphereCos));
 		if (intersects) return reflectionDir;
-		if(XMVectorGetX(XMVectorLess(RdotS, XMVectorZero()))) return sphereDir;
+		if(XMVectorGetX(RdotS) < 0.0f) return sphereDir;
 
 		XMVECTOR closestPointDir = XMVector3Normalize(reflectionDir * sphereDist * RdotS - sphereRelPos);
 		return XMVector3Normalize(sphereRelPos + sphereRadius * closestPointDir);
@@ -106,6 +108,20 @@ namespace math
 		const float a = -1.0f / (sign + z);
 		const float b = x * y * a;
 		outB1 = XMVectorSet(1.0f + sign * x * x * a, sign * b, -sign * x, 0.0f);
-		outB2 = XMVectorSet(-b, -sign - y * y * a, y, 0.0f);
+		outB2 = XMVectorSet(b, sign + y * y * a, -y, 0.0f);
+	}
+
+	void basisFromDir(XMVECTOR& right, XMVECTOR& top, const XMVECTOR& dir)
+	{
+		float x = XMVectorGetX(dir);
+		float y = XMVectorGetY(dir);
+		float z = XMVectorGetZ(dir);
+
+		float k = 1.0 / std::max(1.0f + z, 0.00001f);
+		float a = y * k;
+		float b = y * a;
+		float c = -x * a;
+		right = XMVectorSet(z + b, c, -x, 0.0f);
+		top = XMVectorSet(c, 1.0 - b, -y, 0.0f);
 	}
 }
