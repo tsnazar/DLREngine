@@ -3,6 +3,7 @@
 #include <memory>
 #include <limits>
 #include <algorithm>
+#include "lights/Lighting.h"
 
 #include "math/SphereMover.h"
 #include "math/TransformMover.h"
@@ -323,7 +324,7 @@ XMVECTOR Scene::ComputeLighting(const math::Ray& ray, int depth)
 		pixelToCamera = XMVectorNegate(XMLoadFloat3(&ray.direction));
 		NdotV = XMVectorMax(XMVector3Dot(pixelNormal, pixelToCamera), XMVectorZero());
 		
-		ambient = (m_GlobalIllumination && depth == MAX_DEPTH) ? CalculateGlobal(pixelNormal, pixelPos) : CalculateAmbient(pixelNormal);
+		ambient = (m_GlobalIllumination && depth == MAX_DEPTH) ? CalculateGlobal(pixelNormal, pixelPos, pixelToCamera, matVec, NdotV) : CalculateAmbient(pixelNormal);
 
 		sum = XMVectorMultiply(matVec.albedo, ambient);
 		sum = XMVectorMultiply(sum, XMVectorSubtract(XMVectorReplicate(1.0f), matVec.metalic));
@@ -368,13 +369,13 @@ XMVECTOR Scene::CalculateAmbient(const XMVECTOR& dir)
 	XMVECTOR it = XMVectorReplicate(1.0f) - t;
 	return it + (t * XMVectorSet(0.5f, 0.7f, 1.0f, 0.0f));
 }
-
-XMVECTOR Scene::CalculateGlobal(const XMVECTOR& dir, const XMVECTOR& pos)
+DirectX::XMVECTOR Scene::CalculateGlobal(const DirectX::XMVECTOR& dir, const DirectX::XMVECTOR& pos, const DirectX::XMVECTOR& cameraDir, const math::MaterialVectorized& material, const DirectX::XMVECTOR& NdotV)
 {
 	XMVECTOR b1, b2;
 	XMMATRIX transform;
 
 	XMVECTOR ambient = XMVectorZero();
+	XMVECTOR solidAngle = XMVectorReplicate(XM_2PI / m_HemisphereSamples.size());
 
 	math::basisFromDir(b1, b2, dir);
 
@@ -391,8 +392,24 @@ XMVECTOR Scene::CalculateGlobal(const XMVECTOR& dir, const XMVECTOR& pos)
 		XMStoreFloat3(&ray.origin, XMVectorAdd(pos, XMVectorScale(rayDir, MIRROR_BIAS)));
 		XMStoreFloat3(&ray.direction, rayDir);
 
-		ambient = XMVectorAdd(ambient, ComputeLighting(ray, 1));
+		XMVECTOR halfWay = XMVector3Normalize(XMVectorAdd(rayDir, cameraDir));
+
+		XMVECTOR NdotL = XMVectorMax(XMVector3Dot(dir, rayDir), math::MIN_DOT);
+		XMVECTOR NdotH = XMVectorMax(XMVector3Dot(dir, halfWay), math::MIN_DOT);
+		XMVECTOR HdotL = XMVectorMax(XMVector3Dot(rayDir, halfWay), math::MIN_DOT);
+
+		XMVECTOR FL = math::fresnel(material.f0, NdotL);
+		XMVECTOR FH = math::fresnel(material.f0, HdotL);
+
+		XMVECTOR D = math::ggx(XMVectorMultiply(material.roughness, material.roughness), NdotH);
+		XMVECTOR G = math::smith(XMVectorMultiply(material.roughness, material.roughness), NdotV, NdotL);
+
+		XMVECTOR spec = math::brdfCookTorrance(FH, D, G, NdotV, NdotL, XMVectorReplicate(1));
+		XMVECTOR diff = math::brdfLambert(material.albedo, material.metalic, FL);
+
+		ambient = XMVectorAdd(ambient, (diff + spec) * NdotL * ComputeLighting(ray, 1));
 	}
 
 	return XMVectorScale(ambient, XM_2PI / m_HemisphereSamples.size());
+	//return ambient;
 }

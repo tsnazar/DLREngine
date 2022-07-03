@@ -169,7 +169,7 @@ protected:
 
 	DirectX::XMVECTOR CalculateAmbient(const DirectX::XMVECTOR& dir);
 
-	DirectX::XMVECTOR CalculateGlobal(const DirectX::XMVECTOR& dir, const DirectX::XMVECTOR& pos);
+	DirectX::XMVECTOR CalculateGlobal(const DirectX::XMVECTOR& dir, const DirectX::XMVECTOR& pos, const DirectX::XMVECTOR& cameraPos, const math::MaterialVectorized& material, const DirectX::XMVECTOR& NdotV);
 
 private:
 	float m_EV100;
