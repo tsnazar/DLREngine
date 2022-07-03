@@ -407,9 +407,8 @@ DirectX::XMVECTOR Scene::CalculateGlobal(const DirectX::XMVECTOR& dir, const Dir
 		XMVECTOR spec = math::brdfCookTorrance(FH, D, G, NdotV, NdotL, XMVectorReplicate(1));
 		XMVECTOR diff = math::brdfLambert(material.albedo, material.metalic, FL);
 
-		ambient = XMVectorAdd(ambient, (diff + spec) * NdotL * ComputeLighting(ray, 1));
+		ambient = XMVectorAdd(ambient, (diff + spec) * NdotL * ComputeLighting(ray, MAX_DEPTH-1));
 	}
 
 	return XMVectorScale(ambient, XM_2PI / m_HemisphereSamples.size());
-	//return ambient;
 }

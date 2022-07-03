@@ -110,7 +110,7 @@ public:
 	};
 
 public:
-	Scene(unsigned int numGLSamples = 100, float EV100 = 2.0f, bool reflections = false) : m_EV100(EV100), m_Reflections(reflections)
+	Scene(unsigned int numGLSamples = 2000, float EV100 = 2.0f, bool reflections = false) : m_EV100(EV100), m_Reflections(reflections)
 	{
 		math::hemisphereUniformDistribution(m_HemisphereSamples, numGLSamples);
 	};

@@ -13,7 +13,8 @@ XMVECTOR math::PointLight::Illuminate(const XMVECTOR& toLightDir, const XMVECTOR
 
 	XMVECTOR angularCos = XMVectorSqrt(XMVectorReplicate(1.0f) - squareRadius / squareDistance);
 
-	XMVECTOR solidAngle = XMVectorReplicate(1.0f) - XMVectorSqrt(XMVectorReplicate(1.0f) - squareRadius / squareDistance);
+	squareDistance = XMVectorMax(squareDistance, squareRadius);
+	XMVECTOR solidAngle = XMVectorReplicate(1.0f) - angularCos;
 
 	bool ints;
 	XMVECTOR reflection = XMVectorAdd(XMVectorNegate(toCameraDir), XMVectorScale(XMVectorMultiply(pixelNormal, NdotV), 2.0f));
