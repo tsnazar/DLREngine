@@ -10,6 +10,7 @@ namespace
 	const float FOV = 1.0472f; // 60 degrees
 	const float ZNEAR = 100.0f;
 	const float ZFAR = 0.1f;
+	const float FRAME_DURATION = 1.f / 60.f;
 
 	const math::Material green({ 0,1,0 }, { 0,0,0 }, { 0.04f, 0.04f, 0.04f }, 0.0f, 0.8f); // temp materials
 	const math::Material blue({ 0,0,1 }, { 0,0,0 }, { 0.04f, 0.04f, 0.04f }, 0.0f, 0.8f); // temp materials
@@ -23,24 +24,24 @@ Controller::Controller(Scene& scene, Camera& camera, MainWindow& window) :m_Scen
 
 void Controller::InitScene()
 {
-	m_Scene.AddPlaneToScene(DirectX::XMFLOAT3(0, -1, 0), DirectX::XMFLOAT3(0, 1, 0), green);
-	m_Scene.AddCubeToScene(math::Transform({ 0.5f, 0.5f, 0.5f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { -1.0f, 1.0f, 5.0f }), blue);
-	m_Scene.AddCubeToScene(math::Transform({ 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { -3.0f, 2.0f, 3.0f }), purple);
+	//m_Scene.AddPlaneToScene(DirectX::XMFLOAT3(0, -1, 0), DirectX::XMFLOAT3(0, 1, 0), green);
+	//m_Scene.AddCubeToScene(math::Transform({ 0.5f, 0.5f, 0.5f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { -1.0f, 1.0f, 5.0f }), blue);
+	//m_Scene.AddCubeToScene(math::Transform({ 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 0.0f, 0.0f }, { -3.0f, 2.0f, 3.0f }), purple);
 
-	DirectX::XMFLOAT3 f0, albedo{ 1.00f, 0.77f, 0.28f };
-	
-	for (size_t x = 0; x < 10; ++x)
-		for (size_t z = 0; z < 10; ++z)
-		{
-			float metal = x * 0.1f + 0.005f;
-			float roughness = z * 0.1f + 0.005f;
-			DirectX::XMStoreFloat3(&f0, math::mix(DirectX::XMVectorReplicate(0.04f), DirectX::XMLoadFloat3(&albedo), DirectX::XMVectorReplicate(metal)));
-			m_Scene.AddSphereToScene(DirectX::XMFLOAT3(x, 1, z), 0.5f, math::Material(albedo, { 0,0,0 }, f0, metal, roughness));
-		}
+	//DirectX::XMFLOAT3 f0, albedo{ 1.00f, 0.77f, 0.28f };
+	//
+	//for (size_t x = 0; x < 10; ++x)
+	//	for (size_t z = 0; z < 10; ++z)
+	//	{
+	//		float metal = x * 0.1f + 0.005f;
+	//		float roughness = z * 0.1f + 0.005f;
+	//		DirectX::XMStoreFloat3(&f0, math::mix(DirectX::XMVectorReplicate(0.04f), DirectX::XMLoadFloat3(&albedo), DirectX::XMVectorReplicate(metal)));
+	//		m_Scene.AddSphereToScene(DirectX::XMFLOAT3(x, 1, z), 0.5f, math::Material(albedo, { 0,0,0 }, f0, metal, roughness));
+	//	}
 
-	m_Scene.AddPointLightToScene(DirectX::XMFLOAT3(5.0f, 7.0f, 5.0f), DirectX::XMFLOAT3(1000.0f, 1000.0f, 1000.0f), 0.5f);
-	//m_Scene.AddSpotLightToScene(DirectX::XMFLOAT3(5.0f, 7.0f, 5.0f), DirectX::XMFLOAT3(0, -1, 0), DirectX::XMFLOAT3(1500.0f, 1500.0f, 1500.0f), 0.5f, 0.6f, 0.8f);
-	//m_Scene.AddDirLightToScene({ 0, -1, 0 }, { 1000.0f, 1000.0f, 1000.0f }, 0.01f);
+	//m_Scene.AddPointLightToScene(DirectX::XMFLOAT3(5.0f, 7.0f, 5.0f), DirectX::XMFLOAT3(1000.0f, 1000.0f, 1000.0f), 0.5f);
+	////m_Scene.AddSpotLightToScene(DirectX::XMFLOAT3(5.0f, 7.0f, 5.0f), DirectX::XMFLOAT3(0, -1, 0), DirectX::XMFLOAT3(1500.0f, 1500.0f, 1500.0f), 0.5f, 0.6f, 0.8f);
+	////m_Scene.AddDirLightToScene({ 0, -1, 0 }, { 1000.0f, 1000.0f, 1000.0f }, 0.01f);
 	
 	m_Camera.SetWorldOffset({ 4.0f, 10.0f, -1.0f });
 	m_Camera.SetWorldAngles(FOV, 0.0f, 0.0f);
@@ -237,7 +238,42 @@ LRESULT Controller::ProcessEvents(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 
 void Controller::Draw()
 {
-	m_Scene.Render(m_Window, m_Camera);
+	//m_Scene.Render(m_Window, m_Camera);
 	m_Window.Flush();
 }
 
+WPARAM Controller::Run()
+{
+	MSG msg;
+
+	auto prevFrame = std::chrono::steady_clock::now();
+	bool run = true;
+	while (run)
+	{
+		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+
+			if (msg.message == WM_QUIT)
+			{
+				run = false;
+				break;
+			}
+		}
+		auto currentFrame = std::chrono::steady_clock::now();
+		auto delta = std::chrono::duration<float>(currentFrame - prevFrame).count();
+
+		if (delta >= FRAME_DURATION)
+		{
+			prevFrame = currentFrame;
+			ProcessInput(delta);
+			Draw();
+			std::cout << delta << std::endl;
+		}
+
+		std::this_thread::yield();
+	}
+
+	return msg.wParam;
+}

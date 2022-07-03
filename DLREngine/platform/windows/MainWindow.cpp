@@ -1,5 +1,11 @@
 #include "MainWindow.h"
 
+#include <DirectXMath.h>
+
+#define ALWAYS_ASSERT(expr)\
+	if(!expr)\
+		__debugbreak()\
+
 MainWindow::~MainWindow()
 {
 	if (m_HDC)
@@ -23,12 +29,64 @@ HWND MainWindow::Create(int x, int y, RECT wr, LPCTSTR pszTitle, DWORD dwStyle, 
 
 	m_Pixels.resize(m_ImageWidth * m_ImageHeight);
 
+	InitSwapchain();
+	InitBackbuffer();
+
 	return m_HandleWnd;
+}
+
+void MainWindow::InitSwapchain()
+{
+	DXGI_SWAP_CHAIN_DESC1 desc;
+
+	ZeroMemory(&desc, sizeof(DXGI_SWAP_CHAIN_DESC1));
+
+	desc.AlphaMode = DXGI_ALPHA_MODE::DXGI_ALPHA_MODE_UNSPECIFIED;
+	desc.BufferCount = 2;
+	desc.BufferUsage = DXGI_USAGE_BACK_BUFFER | DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	desc.Flags = 0;
+	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+	desc.Scaling = DXGI_SCALING_NONE;
+	desc.Stereo = false;
+	desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+
+	HRESULT result = engine::s_Factory->CreateSwapChainForHwnd(engine::s_Device, m_HandleWnd, &desc, NULL, NULL, m_Swapchain.reset());
+	//ALWAYS_ASSERT(result >= 0);
+}
+
+void MainWindow::InitBackbuffer()
+{
+	if (m_Backbuffer.valid())
+	{
+		m_Backbuffer.release();
+		m_Swapchain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
+	}
+
+	ID3D11Texture2D* pTextureInterface = nullptr;
+	HRESULT result = m_Swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pTextureInterface);
+	//ALWAYS_ASSERT(result >= 0);
+
+	engine::s_Device->CreateRenderTargetView(pTextureInterface, NULL, m_Backbuffer.reset());
+	pTextureInterface->Release();
+
+	engine::s_Devcon->OMSetRenderTargets(1, m_Backbuffer.ptrAdr(), NULL);
+	
+	D3D11_VIEWPORT viewport;
+	ZeroMemory(&viewport, sizeof(D3D11_VIEWPORT));
+
+	viewport.TopLeftX = 0;
+	viewport.TopLeftY = 0;
+	viewport.Width = m_ImageWidth;
+	viewport.Height = m_ImageHeight;
+
+	engine::s_Devcon->RSSetViewports(1, &viewport);
 }
 
 void MainWindow::Flush()
 {
-	StretchDIBits(m_HDC,
+	/*StretchDIBits(m_HDC,
 		0,
 		0,
 		m_ClientWidth,
@@ -40,7 +98,15 @@ void MainWindow::Flush()
 		m_Pixels.data(),
 		&m_BMI,
 		DIB_RGB_COLORS,
-		SRCCOPY);
+		SRCCOPY);*/
+	float color[4] = { 0.0f, 0.2f, 0.4f, 1.0f };
+	engine::s_Devcon->ClearRenderTargetView(m_Backbuffer, color);
+
+	// do 3D rendering on the back buffer here
+
+	// switch the back buffer and the front buffer
+	m_Swapchain->Present(0, 0);
+
 }
 
 LRESULT MainWindow::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -70,6 +136,8 @@ LRESULT MainWindow::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 		m_BMI.bmiHeader.biWidth = m_ImageWidth;
 		m_BMI.bmiHeader.biHeight = m_ImageHeight;
 		m_Pixels.resize(m_ImageWidth * m_ImageHeight);
+
+		InitBackbuffer();
 	}
 	}
 

@@ -1,5 +1,6 @@
 #pragma once
 #include "BaseWindow.h"
+#include "Globals.h"
 #include <vector>
 #include <functional>
 
@@ -10,6 +11,10 @@ public:
 	virtual ~MainWindow();
 
 	virtual HWND Create(int x, int y, RECT wr, LPCTSTR pszTitle, DWORD dwStyle, DWORD dwStyleEx, HMENU pszMenu, HINSTANCE hInstance, HWND hwndParent) override;
+
+	void InitSwapchain();
+
+	void InitBackbuffer();
 
 	void Flush();
 
@@ -36,6 +41,10 @@ private:
 	
 	std::function<LRESULT(HWND, UINT, WPARAM, LPARAM)> m_EventCallback = nullptr;
 	
+	engine::DxResPtr<IDXGISwapChain1> m_Swapchain;
+	engine::DxResPtr<ID3D11RenderTargetView> m_Backbuffer;
+	D3D11_TEXTURE2D_DESC m_BackbufferDesc;
+
 	std::vector<int32_t> m_Pixels;
 };
 

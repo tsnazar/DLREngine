@@ -28,6 +28,8 @@ public:
 	LRESULT ProcessEvents(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 	void Draw();
+
+	WPARAM Run();
 private:
 	Scene& m_Scene;
 	Camera& m_Camera;

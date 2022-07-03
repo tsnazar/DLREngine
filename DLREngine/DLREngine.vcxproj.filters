@@ -76,6 +76,12 @@
     <ClCompile Include="include\ParallelExecutor.cpp">
       <Filter>Include</Filter>
     </ClCompile>
+    <ClCompile Include="render\d3d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="render\Globals.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="decorators\math\TransformMover.h">
@@ -147,5 +153,8 @@
     <ClInclude Include="include\ParallelExecutor.h">
       <Filter>Include</Filter>
     </ClInclude>
+    <ClInclude Include="render\d3d.h" />
+    <ClInclude Include="render\DxRes.h" />
+    <ClInclude Include="render\Globals.h" />
   </ItemGroup>
 </Project>
