@@ -4,6 +4,8 @@
 class Camera
 {
 public:
+	Camera(bool roll = false) : m_RollEnabled(roll) {}
+
 	void SetPerspective(float fov, float aspect, float near, float far);
 
 	DirectX::XMMATRIX GetProj() const { return m_Proj; }
@@ -43,5 +45,6 @@ private:
 	DirectX::XMVECTOR m_Rotation = DirectX::XMQuaternionIdentity();
 
 	bool m_UpdatedMatrices = false;
+	bool m_RollEnabled = false;
 };
 

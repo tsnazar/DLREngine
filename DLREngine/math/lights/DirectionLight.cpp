@@ -1,17 +1,25 @@
 #include "DirectionLight.h"
+#include "Lighting.h"
+using namespace DirectX;
 
-DirectX::XMVECTOR math::DirectionLight::Illuminate(const DirectX::XMVECTOR& toLightDir, const DirectX::XMVECTOR& toCameraDir,
-	const DirectX::XMVECTOR& pixelNormal, const math::MaterialVectorized& material)
+XMVECTOR math::DirectionLight::Illuminate(const XMVECTOR& toLightDir, const XMVECTOR& toCameraDir,
+	const XMVECTOR& pixelNormal, const XMVECTOR& NdotV, const math::MaterialVectorized& material)
 {
-	DirectX::XMVECTOR lightColor = DirectX::XMLoadFloat3(&intensity);
-	DirectX::XMVECTOR halfWay = DirectX::XMVector3Normalize(DirectX::XMVectorAdd(toLightDir, toCameraDir));
+	XMVECTOR lightColor = XMLoadFloat3(&intensity);
+	XMVECTOR halfWay = XMVector3Normalize(toLightDir + toCameraDir);
 
-	DirectX::XMVECTOR diff = DirectX::XMVectorMax(DirectX::XMVector3Dot(pixelNormal, toLightDir), DirectX::XMVectorZero());
-	diff = DirectX::XMVectorMultiply(diff, material.albedo);
+	XMVECTOR NdotL = XMVectorMax(XMVector3Dot(pixelNormal, toLightDir), XMVectorZero());
+	XMVECTOR NdotH = XMVectorMax(XMVector3Dot(pixelNormal, halfWay), XMVectorZero());
+	XMVECTOR HdotL = XMVectorMax(XMVector3Dot(toLightDir, halfWay), XMVectorZero());
 
-	DirectX::XMVECTOR spec = DirectX::XMVectorMax(DirectX::XMVector3Dot(pixelNormal, halfWay), DirectX::XMVectorZero());
-	spec = DirectX::XMVectorPow(spec, material.glossiness);
-	spec = DirectX::XMVectorMultiply(spec, material.specular);
+	XMVECTOR FL = fresnel(material.f0, NdotL);
+	XMVECTOR FH = fresnel(material.f0, HdotL);
 
-	return DirectX::XMVectorMultiply(DirectX::XMVectorAdd(spec, diff), lightColor);
+	XMVECTOR D = ggx(XMVectorMultiply(material.roughness, material.roughness), NdotH);
+	XMVECTOR G = smith(XMVectorMultiply(material.roughness, material.roughness), NdotV, NdotH);
+
+	XMVECTOR spec = brdfCookTorrance(FH, D, G, NdotV, NdotL, XMVectorReplicate(solidAngle));
+	XMVECTOR diff = brdfLambert(material.albedo, material.metalic, FL);
+
+	return (diff * solidAngle + spec) * lightColor * NdotL;
 }

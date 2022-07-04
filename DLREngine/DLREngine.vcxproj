@@ -159,6 +159,7 @@
     <ClCompile Include="include\Camera.cpp" />
     <ClCompile Include="include\Scene.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="math\lights\Lighting.cpp" />
     <ClCompile Include="math\lights\DirectionLight.cpp" />
     <ClCompile Include="math\geometry\Plane.cpp" />
     <ClCompile Include="math\lights\PointLight.cpp" />
@@ -166,6 +167,7 @@
     <ClCompile Include="math\lights\SpotLight.cpp" />
     <ClCompile Include="math\geometry\Triangle.cpp" />
     <ClCompile Include="math\geometry\Mesh.cpp" />
+    <ClCompile Include="include\ParallelExecutor.cpp" />
     <ClCompile Include="platform\windows\BaseWindow.cpp" />
     <ClCompile Include="platform\windows\MainWindow.cpp" />
   </ItemGroup>
@@ -178,6 +180,7 @@
     <ClInclude Include="decorators\math\TransformMover.h" />
     <ClInclude Include="decorators\math\Vector3Mover.h" />
     <ClInclude Include="math\geometry\Mesh.h" />
+    <ClInclude Include="math\lights\Lighting.h" />
     <ClInclude Include="math\lights\DirectionLight.h" />
     <ClInclude Include="math\Intersection.h" />
     <ClInclude Include="math\Material.h" />
@@ -188,6 +191,7 @@
     <ClInclude Include="math\lights\SpotLight.h" />
     <ClInclude Include="math\Transform.h" />
     <ClInclude Include="math\geometry\Triangle.h" />
+    <ClInclude Include="include\ParallelExecutor.h" />
     <ClInclude Include="platform\windows\BaseWindow.h" />
     <ClInclude Include="platform\windows\MainWindow.h" />
     <ClInclude Include="platform\windows\winapi.hpp" />

@@ -33,7 +33,7 @@ void Camera::SetWorldAngles(float pitch, float yaw, float roll)
 void Camera::SetWorldOffset(const DirectX::XMFLOAT3& offset)
 {
 	m_UpdatedMatrices = false;
-	Position() = DirectX::XMLoadFloat3(&offset);
+	Position() = DirectX::XMVectorSet(offset.x, offset.y, offset.z, 1.0f);
 }
 
 void Camera::AddRelativeOffset(const DirectX::XMFLOAT3& offset)
@@ -47,9 +47,16 @@ void Camera::AddRelativeOffset(const DirectX::XMFLOAT3& offset)
 void Camera::AddRelativeAngles(const DirectX::XMFLOAT3& angles)
 {
 	m_UpdatedMatrices = false;
-	m_Rotation = DirectX::XMQuaternionMultiply(m_Rotation, DirectX::XMQuaternionRotationAxis(Forward(), angles.z));
-	m_Rotation = DirectX::XMQuaternionMultiply(m_Rotation, DirectX::XMQuaternionRotationAxis(Right(), angles.y));
-	m_Rotation = DirectX::XMQuaternionMultiply(m_Rotation, DirectX::XMQuaternionRotationAxis(Up(), angles.x));
+	if (m_RollEnabled)
+	{
+		m_Rotation = DirectX::XMQuaternionMultiply(m_Rotation, DirectX::XMQuaternionRotationAxis(Forward(), angles.z));
+		m_Rotation = DirectX::XMQuaternionMultiply(m_Rotation, DirectX::XMQuaternionRotationAxis(Right(), angles.y));
+		m_Rotation = DirectX::XMQuaternionMultiply(m_Rotation, DirectX::XMQuaternionRotationAxis(Up(), angles.x));
+	}
+	else {
+		m_Rotation = DirectX::XMQuaternionMultiply(m_Rotation, DirectX::XMQuaternionRotationAxis(Right(), angles.y));
+		m_Rotation = DirectX::XMQuaternionMultiply(m_Rotation, DirectX::XMQuaternionRotationAxis(DirectX::XMVectorSet(0.f, 1.f, 0.f, 0.f), angles.x));
+	}
 	m_Rotation = DirectX::XMQuaternionNormalize(m_Rotation);
 }
 
