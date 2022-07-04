@@ -2,9 +2,7 @@
 
 #include <DirectXMath.h>
 
-#define ALWAYS_ASSERT(expr)\
-	if(!expr)\
-		__debugbreak()\
+#include "Debug.h"
 
 MainWindow::~MainWindow()
 {
@@ -16,18 +14,6 @@ HWND MainWindow::Create(int x, int y, RECT wr, LPCTSTR pszTitle, DWORD dwStyle, 
 {
 	BaseWindow::Create(x, y, wr, pszTitle, dwStyle, dwStyleEx, pszMenu, hInstance, hwndParent);
 	m_HDC = GetDC(m_HandleWnd);
-
-	m_ImageWidth = m_ClientWidth / m_ResolutionDecreaseCoef;
-	m_ImageHeight = m_ClientHeight / m_ResolutionDecreaseCoef;
-
-	m_BMI.bmiHeader.biSize = sizeof(m_BMI);
-	m_BMI.bmiHeader.biWidth = m_ImageWidth;
-	m_BMI.bmiHeader.biHeight = m_ImageHeight;
-	m_BMI.bmiHeader.biPlanes = 1;
-	m_BMI.bmiHeader.biBitCount = 32;
-	m_BMI.bmiHeader.biCompression = BI_RGB;
-
-	m_Pixels.resize(m_ImageWidth * m_ImageHeight);
 
 	InitSwapchain();
 	InitBackbuffer();
@@ -53,7 +39,7 @@ void MainWindow::InitSwapchain()
 	desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 
 	HRESULT result = engine::s_Factory->CreateSwapChainForHwnd(engine::s_Device, m_HandleWnd, &desc, NULL, NULL, m_Swapchain.reset());
-	//ALWAYS_ASSERT(result >= 0);
+	ALWAYS_ASSERT(SUCCEEDED(result));
 }
 
 void MainWindow::InitBackbuffer()
@@ -66,7 +52,7 @@ void MainWindow::InitBackbuffer()
 
 	ID3D11Texture2D* pTextureInterface = nullptr;
 	HRESULT result = m_Swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pTextureInterface);
-	//ALWAYS_ASSERT(result >= 0);
+	ALWAYS_ASSERT(SUCCEEDED(result));
 
 	engine::s_Device->CreateRenderTargetView(pTextureInterface, NULL, m_Backbuffer.reset());
 	pTextureInterface->Release();
@@ -78,35 +64,21 @@ void MainWindow::InitBackbuffer()
 
 	viewport.TopLeftX = 0;
 	viewport.TopLeftY = 0;
-	viewport.Width = m_ImageWidth;
-	viewport.Height = m_ImageHeight;
+	viewport.Width = m_ClientWidth;
+	viewport.Height = m_ClientHeight;
 
 	engine::s_Devcon->RSSetViewports(1, &viewport);
 }
 
+void MainWindow::ClearColor(const float color[4])
+{
+	engine::s_Devcon->ClearRenderTargetView(m_Backbuffer, color);
+	engine::s_Devcon->OMSetRenderTargets(1, m_Backbuffer.ptrAdr(), NULL);
+}
+
 void MainWindow::Flush()
 {
-	/*StretchDIBits(m_HDC,
-		0,
-		0,
-		m_ClientWidth,
-		m_ClientHeight,
-		0,
-		0,
-		m_ImageWidth,
-		m_ImageHeight,
-		m_Pixels.data(),
-		&m_BMI,
-		DIB_RGB_COLORS,
-		SRCCOPY);*/
-	float color[4] = { 0.0f, 0.2f, 0.4f, 1.0f };
-	engine::s_Devcon->ClearRenderTargetView(m_Backbuffer, color);
-
-	// do 3D rendering on the back buffer here
-
-	// switch the back buffer and the front buffer
 	m_Swapchain->Present(0, 0);
-
 }
 
 LRESULT MainWindow::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -129,13 +101,6 @@ LRESULT MainWindow::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 		GetClientRect(m_HandleWnd, &rt);
 		m_ClientWidth = rt.right - rt.left;
 		m_ClientHeight = rt.bottom - rt.top;
-
-		m_ImageWidth = m_ClientWidth / m_ResolutionDecreaseCoef;
-		m_ImageHeight = m_ClientHeight / m_ResolutionDecreaseCoef;
-
-		m_BMI.bmiHeader.biWidth = m_ImageWidth;
-		m_BMI.bmiHeader.biHeight = m_ImageHeight;
-		m_Pixels.resize(m_ImageWidth * m_ImageHeight);
 
 		InitBackbuffer();
 	}

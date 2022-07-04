@@ -16,14 +16,12 @@ public:
 
 	void InitBackbuffer();
 
+	void ClearColor(const float color[4]);
+
 	void Flush();
 
-	inline std::vector<int32_t>& GetPixels(){ return m_Pixels; }
-	
 	void BindEventCallback(std::function<LRESULT(HWND, UINT, WPARAM, LPARAM)> f) { m_EventCallback = f; }
 
-	int GetImageWidth() const { return m_ImageWidth; }
-	int GetImageHeight() const { return m_ImageHeight; }
 protected:
 	virtual LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) override;
 	
@@ -33,11 +31,11 @@ protected:
 private:
 	HDC m_HDC;
 	
-	BITMAPINFO m_BMI;
+	//BITMAPINFO m_BMI;
 
-	int m_ImageWidth, m_ImageHeight;
+	//int m_ImageWidth, m_ImageHeight;
 	
-	unsigned int m_ResolutionDecreaseCoef = 2.0f;
+	//unsigned int m_ResolutionDecreaseCoef = 2.0f;
 	
 	std::function<LRESULT(HWND, UINT, WPARAM, LPARAM)> m_EventCallback = nullptr;
 	
@@ -45,6 +43,6 @@ private:
 	engine::DxResPtr<ID3D11RenderTargetView> m_Backbuffer;
 	D3D11_TEXTURE2D_DESC m_BackbufferDesc;
 
-	std::vector<int32_t> m_Pixels;
+	//std::vector<int32_t> m_Pixels;
 };
 

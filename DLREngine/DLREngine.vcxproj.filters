@@ -82,6 +82,12 @@
     <ClCompile Include="render\Globals.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="render\Shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="render\InputLayout.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="decorators\math\TransformMover.h">
@@ -156,5 +162,12 @@
     <ClInclude Include="render\d3d.h" />
     <ClInclude Include="render\DxRes.h" />
     <ClInclude Include="render\Globals.h" />
+    <ClInclude Include="render\Shader.h" />
+    <ClInclude Include="include\Debug.h" />
+    <ClInclude Include="render\Vertex.h" />
+    <ClInclude Include="render\InputLayout.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\shader.shader" />
   </ItemGroup>
 </Project>

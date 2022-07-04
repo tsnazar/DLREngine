@@ -44,7 +44,4 @@ private:
 	int m_LastXLB = 0, m_LastYLB = 0;
 
 	bool m_FirstMoveRB = true;
-	math::Intersection m_Inter;
-
-	std::unique_ptr<IObjectMover> m_Mover = nullptr;
 };

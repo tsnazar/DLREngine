@@ -23,10 +23,13 @@ void initConsole()
 
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nShowCmd)
 {
+
 	initConsole();
 
 	engine::Globals glob;
 	glob.InitD3D();
+
+	
 
 	Scene scene;
 	Camera camera;
@@ -34,6 +37,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	MainWindow window;
 	window.Create(0, 0, { 0, 0, 300, 300 }, L"MainWindow", WS_OVERLAPPEDWINDOW, NULL, NULL, hInstance, NULL);
 	window.Show(nShowCmd);
+
+	//engine::s_Device->CreateInputLayout()
 
 	Controller controller(scene, camera, window);
 	controller.InitScene();
