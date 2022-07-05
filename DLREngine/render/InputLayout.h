@@ -9,19 +9,6 @@
 
 namespace engine
 {
-	struct VertexAttribute
-	{
-		VertexAttribute(const std::string& name, const uint32_t location, const uint32_t binding, const uint32_t format, const uint32_t offset)
-			: name(name), location(location), binding(binding), format(format), offset(offset) {}
-
-		std::string name;
-		uint32_t location;
-		uint32_t binding;
-		uint32_t format;
-		uint32_t offset;
-	};
-
-
 	class InputLayout
 	{
 	public:

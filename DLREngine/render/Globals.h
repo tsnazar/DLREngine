@@ -7,6 +7,7 @@ namespace engine
 	class Globals
 	{
 	public:
+		~Globals();
 		void InitD3D();
 	private:
 		DxResPtr<IDXGIFactory> m_Factory;
