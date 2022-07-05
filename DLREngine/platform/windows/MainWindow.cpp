@@ -46,8 +46,11 @@ void MainWindow::InitBackbuffer()
 {
 	if (m_Backbuffer.valid())
 	{
+		uint32_t width = m_ClientWidth != 0 ? m_ClientWidth : 8;
+		uint32_t height = m_ClientHeight != 0 ? m_ClientHeight : 8;
+
 		m_Backbuffer.release();
-		m_Swapchain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
+		m_Swapchain->ResizeBuffers(0, width, height, DXGI_FORMAT_UNKNOWN, 0);
 	}
 
 	ID3D11Texture2D* pTextureInterface = nullptr;
