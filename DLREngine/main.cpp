@@ -28,7 +28,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 	engine::Globals glob;
 	glob.InitD3D();
-	
+
 	Scene scene;
 	Camera camera;
 	
@@ -43,7 +43,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	std::function<LRESULT(HWND, UINT, WPARAM, LPARAM)> f = std::bind(&Controller::ProcessEvents, &controller, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
 	window.BindEventCallback(f);
 
-	WPARAM result = controller.Run();
+	WPARAM res = controller.Run();
 
-	return result;
+	return res;
 }

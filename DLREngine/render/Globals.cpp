@@ -13,8 +13,8 @@ namespace engine
 {
 	Globals::~Globals()
 	{
-		HRESULT result = m_Devdebug->ReportLiveDeviceObjects(D3D11_RLDO_SUMMARY | D3D11_RLDO_DETAIL);
-		ALWAYS_ASSERT(SUCCEEDED(result));
+		//HRESULT result = m_Devdebug->ReportLiveDeviceObjects(D3D11_RLDO_SUMMARY | D3D11_RLDO_DETAIL);
+		//ALWAYS_ASSERT(SUCCEEDED(result));
 	}
 
 	void Globals::InitD3D()
@@ -59,5 +59,6 @@ namespace engine
 		s_Factory = m_Factory5.ptr();
 		s_Device = m_Device5.ptr();
 		s_Devcon = m_Devcon4.ptr();
+		s_Debug = m_Devdebug.ptr();
 	}
 }

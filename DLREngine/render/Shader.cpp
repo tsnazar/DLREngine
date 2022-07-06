@@ -12,7 +12,7 @@ namespace engine
 	{
 		DxResPtr<ID3D10Blob> VS, PS, error;
 
-		UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
+		UINT flags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 		std::wstring stemp = std::wstring(filepath.begin(), filepath.end());
 
 		HRESULT result = D3DCompileFromFile(stemp.c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, "vs_main", "vs_5_0", flags, 0, VS.reset(), error.reset());
@@ -26,7 +26,6 @@ namespace engine
 		}
 
 		result = D3DCompileFromFile(stemp.c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, "ps_main", "ps_5_0", flags, 0, PS.reset(), error.reset());
-		//ALWAYS_ASSERT(SUCCEEDED(result));
 		if (FAILED(result)) {
 			if (error.valid()) {
 				OutputDebugStringA((char*)error->GetBufferPointer());

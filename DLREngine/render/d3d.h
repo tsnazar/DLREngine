@@ -12,4 +12,5 @@ namespace engine
 	extern ID3D11Device5* s_Device;
 	extern ID3D11DeviceContext4* s_Devcon;
 	extern IDXGIFactory5* s_Factory;
+	extern ID3D11Debug* s_Debug;
 }

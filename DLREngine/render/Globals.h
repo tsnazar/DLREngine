@@ -8,6 +8,7 @@ namespace engine
 	{
 	public:
 		~Globals();
+
 		void InitD3D();
 	private:
 		DxResPtr<IDXGIFactory> m_Factory;
