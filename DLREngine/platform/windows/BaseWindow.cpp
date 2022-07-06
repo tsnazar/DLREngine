@@ -28,9 +28,7 @@ LRESULT BaseWindow::s_WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 	}
 	
 	if (pThis)
-	{
 		return pThis->WindowProc(hWnd, message, wParam, lParam);
-	}
 
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }

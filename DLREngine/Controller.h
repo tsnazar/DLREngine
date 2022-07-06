@@ -28,6 +28,8 @@ public:
 	LRESULT ProcessEvents(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 	void Draw();
+
+	WPARAM Run();
 private:
 	Scene& m_Scene;
 	Camera& m_Camera;
@@ -42,7 +44,4 @@ private:
 	int m_LastXLB = 0, m_LastYLB = 0;
 
 	bool m_FirstMoveRB = true;
-	math::Intersection m_Inter;
-
-	std::unique_ptr<IObjectMover> m_Mover = nullptr;
 };
