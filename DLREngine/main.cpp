@@ -13,6 +13,8 @@
 #include "Controller.h"
 #include "Globals.h"
 
+#include "Application.h"
+
 
 void initConsole()
 {
@@ -29,7 +31,11 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	engine::Globals glob;
 	glob.InitD3D();
 
-	Scene scene;
+
+	engine::Application* app = new engine::Application(hInstance, nShowCmd);
+	app->Run();
+	delete app;
+	/*Scene scene;
 	Camera camera;
 	
 	MainWindow window;
@@ -43,7 +49,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	std::function<LRESULT(HWND, UINT, WPARAM, LPARAM)> f = std::bind(&Controller::ProcessEvents, &controller, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
 	window.BindEventCallback(f);
 
-	WPARAM res = controller.Run();
+	WPARAM res = controller.Run();*/
 
-	return res;
+	return 0;
 }

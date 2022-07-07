@@ -20,16 +20,19 @@ namespace
 	const XMVECTOR GAMMA_CORRECTION = XMVectorReplicate(1.0f / 2.2f);
 }
 
-static XMVECTOR findMaxComponent(const XMVECTOR& vec)
+namespace engine
 {
-	return XMVectorReplicate((std::max)((std::max)(XMVectorGetX(vec), XMVectorGetY(vec)), XMVectorGetZ(vec)));
-}
+	static XMVECTOR findMaxComponent(const XMVECTOR& vec)
+	{
+		return XMVectorReplicate((std::max)((std::max)(XMVectorGetX(vec), XMVectorGetY(vec)), XMVectorGetZ(vec)));
+	}
 
-bool Scene::Render(MainWindow& win, Camera& camera)
-{
-	m_Shader.SetShaders();
-	m_Buffer.SetBuffer();
-	engine::s_Devcon->Draw(m_Buffer.GetVertexCount(), 0);
+	bool Scene::Render(MainWindow& win)
+	{
+		m_Shader.SetShaders();
+		m_Buffer.SetBuffer();
+		engine::s_Devcon->Draw(m_Buffer.GetVertexCount(), 0);
 
-	return true;
+		return true;
+	}
 }

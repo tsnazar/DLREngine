@@ -3,46 +3,55 @@
 #include "Globals.h"
 #include <vector>
 #include <functional>
+#include "KeyCodes.h"
+#include "Event.h"
 
-class MainWindow : public BaseWindow
+namespace engine
 {
-public:
-	MainWindow() = default;
-	virtual ~MainWindow();
+	namespace
+	{
+		const short NUM = 256;
+	}
 
-	virtual HWND Create(int x, int y, RECT wr, LPCTSTR pszTitle, DWORD dwStyle, DWORD dwStyleEx, HMENU pszMenu, HINSTANCE hInstance, HWND hwndParent) override;
+	class MainWindow : public BaseWindow
+	{
+	public:
+		MainWindow() = default;
+		virtual ~MainWindow();
 
-	void InitSwapchain();
+		virtual HWND Create(int x, int y, RECT wr, LPCTSTR pszTitle, DWORD dwStyle, DWORD dwStyleEx, HMENU pszMenu, HINSTANCE hInstance, HWND hwndParent) override;
 
-	void InitBackbuffer();
+		void InitSwapchain();
 
-	void ClearColor(const float color[4]);
+		void InitBackbuffer();
 
-	void Flush();
+		void ClearColor(const float color[4]);
 
-	void BindEventCallback(std::function<LRESULT(HWND, UINT, WPARAM, LPARAM)> f) { m_EventCallback = f; }
+		void Flush();
 
-protected:
-	virtual LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) override;
+		bool PoolEvents();
+
+		void BindEventCallback(std::function<void(Event&)> f) { m_EventCallback = f; }
+
+		bool IsKeyPressed(KeyCode keycode) { return m_Keys[keycode]; }
+
+	protected:
+		virtual LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) override;
+
+		virtual void OnClassCreation(WNDCLASSEX& wcex) override;
+
+		virtual LPCTSTR ClassName() override;
 	
-	virtual void OnClassCreation(WNDCLASSEX& wcex) override;
-	
-	virtual LPCTSTR ClassName() override;
-private:
-	HDC m_HDC;
-	
-	//BITMAPINFO m_BMI;
+	private:
+		HDC m_HDC;
+		MSG m_Msg;
+		bool m_Keys[NUM];
 
-	//int m_ImageWidth, m_ImageHeight;
-	
-	//unsigned int m_ResolutionDecreaseCoef = 2.0f;
-	
-	std::function<LRESULT(HWND, UINT, WPARAM, LPARAM)> m_EventCallback = nullptr;
-	
-	engine::DxResPtr<IDXGISwapChain1> m_Swapchain;
-	engine::DxResPtr<ID3D11RenderTargetView> m_Backbuffer;
-	D3D11_TEXTURE2D_DESC m_BackbufferDesc;
+		std::function<void(Event&)> m_EventCallback = nullptr;
 
-	//std::vector<int32_t> m_Pixels;
-};
+		engine::DxResPtr<IDXGISwapChain1> m_Swapchain;
+		engine::DxResPtr<ID3D11RenderTargetView> m_Backbuffer;
+		D3D11_TEXTURE2D_DESC m_BackbufferDesc;
+	};
+}
 

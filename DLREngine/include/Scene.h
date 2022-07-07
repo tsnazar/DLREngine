@@ -8,21 +8,24 @@
 #include "Shader.h"
 #include "VertexBuffer.h"
 
-class Scene
+namespace engine
 {
-protected:
+	class Scene
+	{
+	protected:
 
-public:
+	public:
 
-public:
-	Scene() {};
+	public:
+		Scene() {};
 
-	bool Render(MainWindow& win, Camera& camera);
-	
-	engine::VertexBuffer<engine::VertexPosCol>& GetBuffer() { return m_Buffer; }
-	engine::Shader& GetShader() { return m_Shader; }
+		bool Render(MainWindow& win);
 
-private:
-	engine::Shader m_Shader;
-	engine::VertexBuffer<engine::VertexPosCol> m_Buffer;
-};
+		engine::VertexBuffer<engine::VertexPosCol>& GetBuffer() { return m_Buffer; }
+		engine::Shader& GetShader() { return m_Shader; }
+
+	private:
+		engine::Shader m_Shader;
+		engine::VertexBuffer<engine::VertexPosCol> m_Buffer;
+	};
+}

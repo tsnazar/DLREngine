@@ -88,6 +88,9 @@
     <ClCompile Include="render\InputLayout.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Application.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="decorators\math\TransformMover.h">
@@ -166,6 +169,13 @@
     <ClInclude Include="include\Debug.h" />
     <ClInclude Include="render\Vertex.h" />
     <ClInclude Include="render\InputLayout.h" />
+    <ClInclude Include="render\VertexBuffer.h" />
+    <ClInclude Include="events\Event.h" />
+    <ClInclude Include="events\ApplicationEvent.h" />
+    <ClInclude Include="events\KeyEvents.h" />
+    <ClInclude Include="include\KeyCodes.h" />
+    <ClInclude Include="events\MouseEvents.h" />
+    <ClInclude Include="Application.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\shader.shader" />
