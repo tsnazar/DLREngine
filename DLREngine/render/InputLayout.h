@@ -20,6 +20,4 @@ namespace engine
 	private:
 		DxResPtr<ID3D11InputLayout> m_Layout;
 	};
-
-	extern std::unordered_map<VertexType, std::shared_ptr<InputLayout>> s_Layouts;
 }

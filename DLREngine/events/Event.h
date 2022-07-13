@@ -6,6 +6,8 @@
 
 namespace engine
 {
+#define BIND_EVENT_FUNCTION(fn) std::bind(&fn, this, std::placeholders::_1)
+
 	enum class EventType
 	{
 		None, 
@@ -72,4 +74,5 @@ namespace engine
 	{
 		return os << e.ToString();
 	}
+
 }

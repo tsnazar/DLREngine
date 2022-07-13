@@ -96,7 +96,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)math;$(ProjectDir)platform;$(ProjectDir)decorators;$(ProjectDir)render;$(ProjectDir)events;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)math;$(ProjectDir)platform;$(ProjectDir)decorators;$(ProjectDir)render;$(ProjectDir)events;$(ProjectDir)utility;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -113,7 +113,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)math;$(ProjectDir)platform;$(ProjectDir)decorators;$(ProjectDir)render;$(ProjectDir)events;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)math;$(ProjectDir)platform;$(ProjectDir)decorators;$(ProjectDir)render;$(ProjectDir)events;$(ProjectDir)utility;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -130,7 +130,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)math;$(ProjectDir)platform;$(ProjectDir)decorators;$(ProjectDir)render;$(ProjectDir)events;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)math;$(ProjectDir)platform;$(ProjectDir)decorators;$(ProjectDir)render;$(ProjectDir)events;$(ProjectDir)utility;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -147,7 +147,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)math;$(ProjectDir)platform;$(ProjectDir)decorators;$(ProjectDir)render;$(ProjectDir)events;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)math;$(ProjectDir)platform;$(ProjectDir)decorators;$(ProjectDir)render;$(ProjectDir)events;$(ProjectDir)utility;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -160,7 +160,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
-    <ClCompile Include="Controller.cpp" />
+    <ClCompile Include="include\ResourceManager.cpp" />
+    <ClCompile Include="render\Texture2D.cpp" />
+    <ClCompile Include="utility\DDSTextureLoader.cpp" />
+    <ClCompile Include="include\CameraController.cpp" />
     <ClCompile Include="include\Camera.cpp" />
     <ClCompile Include="include\Scene.cpp" />
     <ClCompile Include="main.cpp" />
@@ -181,7 +184,10 @@
     <ClCompile Include="render\Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Controller.h" />
+    <ClInclude Include="include\ResourceManager.h" />
+    <ClInclude Include="render\Texture2D.h" />
+    <ClInclude Include="utility\DDSTextureLoader.h" />
+    <ClInclude Include="include\CameraController.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="events\ApplicationEvent.h" />
     <ClInclude Include="events\Event.h" />
@@ -189,8 +195,8 @@
     <ClInclude Include="events\MouseEvents.h" />
     <ClInclude Include="include\Camera.h" />
     <ClInclude Include="decorators\math\IObjectMover.h" />
-    <ClInclude Include="include\Debug.h" />
-    <ClInclude Include="include\KeyCodes.h" />
+    <ClInclude Include="utility\Debug.h" />
+    <ClInclude Include="events\KeyCodes.h" />
     <ClInclude Include="include\Scene.h" />
     <ClInclude Include="decorators\math\SphereMover.h" />
     <ClInclude Include="decorators\math\TransformMover.h" />
@@ -211,6 +217,7 @@
     <ClInclude Include="platform\windows\BaseWindow.h" />
     <ClInclude Include="platform\windows\MainWindow.h" />
     <ClInclude Include="platform\windows\winapi.hpp" />
+    <ClInclude Include="render\ConstantBuffer.h" />
     <ClInclude Include="render\d3d.h" />
     <ClInclude Include="render\DxRes.h" />
     <ClInclude Include="render\Globals.h" />
@@ -218,9 +225,6 @@
     <ClInclude Include="render\Shader.h" />
     <ClInclude Include="render\Vertex.h" />
     <ClInclude Include="render\VertexBuffer.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="shaders\shader.shader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

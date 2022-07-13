@@ -3,8 +3,6 @@
 
 namespace engine
 {
-	std::unordered_map<VertexType, std::shared_ptr<InputLayout>> s_Layouts;
-
 	bool InputLayout::Create(const VertexType& type, ID3D10Blob* const blob)
 	{
 		if (blob == nullptr)
@@ -15,9 +13,7 @@ namespace engine
 		std::vector<D3D11_INPUT_ELEMENT_DESC> attributes;
 
 		if (type == VertexType::Undefined)
-		{
 			return false;
-		}
 
 		if (type == VertexType::Pos)
 		{
@@ -31,6 +27,14 @@ namespace engine
 			{
 				{"POS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosCol, pos), D3D11_INPUT_PER_VERTEX_DATA, 0},
 				{"COL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosCol, col), D3D11_INPUT_PER_VERTEX_DATA, 0}
+			};
+		}
+		else if (type == VertexType::PosTex)
+		{
+			attributes =
+			{
+				{"POS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTex, pos), D3D11_INPUT_PER_VERTEX_DATA, 0},
+				{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(VertexPosTex, texCoord), D3D11_INPUT_PER_VERTEX_DATA, 0}
 			};
 		}
 

@@ -7,11 +7,9 @@
 #include <chrono>
 #include <iostream>
 
-#include "geometry/Ray.h"
-
 #include "windows/MainWindow.h"
-#include "Controller.h"
 #include "Globals.h"
+#include "ResourceManager.h"
 
 #include "Application.h"
 
@@ -25,31 +23,17 @@ void initConsole()
 
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nShowCmd)
 {
-
 	initConsole();
 
-	engine::Globals glob;
-	glob.InitD3D();
-
-
+	engine::Globals* glob = new engine::Globals;
+	engine::ResourceManager* manager = new engine::ResourceManager;
 	engine::Application* app = new engine::Application(hInstance, nShowCmd);
-	app->Run();
-	delete app;
-	/*Scene scene;
-	Camera camera;
 	
-	MainWindow window;
-	window.Create(0, 0, { 0, 0, 300, 300 }, L"MainWindow", WS_OVERLAPPEDWINDOW, NULL, NULL, hInstance, NULL);
-	window.Show(nShowCmd);
-
-	Controller controller(scene, camera, window);
-	controller.InitScene();
-	controller.InitCamera();
-
-	std::function<LRESULT(HWND, UINT, WPARAM, LPARAM)> f = std::bind(&Controller::ProcessEvents, &controller, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
-	window.BindEventCallback(f);
-
-	WPARAM res = controller.Run();*/
+	app->Run();
+	
+	delete app;
+	delete manager;
+	delete glob;
 
 	return 0;
 }

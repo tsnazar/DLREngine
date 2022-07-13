@@ -11,8 +11,25 @@ extern "C"
 
 namespace engine
 {
+	Globals* Globals::s_Instance = nullptr;
+
+	Globals::Globals()
+	{
+		if (s_Instance != nullptr)
+			ALWAYS_ASSERT(false);
+
+		s_Instance = this;
+		InitD3D();
+		InitConstants();
+	}
+
 	Globals::~Globals()
 	{
+		s_Instance = nullptr;
+		s_Device = nullptr;
+		s_Debug = nullptr;
+		s_Devcon = nullptr;
+		s_Factory = nullptr;
 		//HRESULT result = m_Devdebug->ReportLiveDeviceObjects(D3D11_RLDO_SUMMARY | D3D11_RLDO_DETAIL);
 		//ALWAYS_ASSERT(SUCCEEDED(result));
 	}
@@ -56,9 +73,42 @@ namespace engine
 		result = m_Device->QueryInterface(__uuidof(ID3D11Debug), (void**)m_Devdebug.reset());
 		ALWAYS_ASSERT(SUCCEEDED(result));
 
+		D3D11_SAMPLER_DESC sampDesc;
+		ZeroMemory(&sampDesc, sizeof(D3D11_SAMPLER_DESC));
+		sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+		sampDesc.MinLOD = 0;
+		sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+		result = m_Device->CreateSamplerState(&sampDesc, m_SamplerState.reset());
+		ALWAYS_ASSERT(SUCCEEDED(result));
+
 		s_Factory = m_Factory5.ptr();
 		s_Device = m_Device5.ptr();
 		s_Devcon = m_Devcon4.ptr();
 		s_Debug = m_Devdebug.ptr();
+	}
+
+	void Globals::InitConstants()
+	{
+		m_PerFrameBuffer.Create<PerFrame>(D3D11_USAGE_DYNAMIC, nullptr, 0);
+	}
+
+	void Globals::BindConstantsToVS()
+	{
+		m_PerFrameBuffer.BindToVS(0);
+	}
+
+	void Globals::UpdateConstants()
+	{
+		m_PerFrameBuffer.Update(&m_PerFrame, sizeof(PerFrame));
+	}
+
+	void Globals::BindSamplerToPS()
+	{
+		m_Devcon->PSSetSamplers(0, 1, m_SamplerState.ptrAdr());
 	}
 }

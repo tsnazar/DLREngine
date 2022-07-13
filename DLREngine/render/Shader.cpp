@@ -1,5 +1,6 @@
 #include "Shader.h"
 #include "Debug.h"
+#include "ResourceManager.h"
 
 namespace engine
 {
@@ -49,12 +50,15 @@ namespace engine
 			m_PixelShader.reset());
 		ALWAYS_ASSERT(SUCCEEDED(result));
 
-		if (s_Layouts.find(type) == s_Layouts.end())
+		/*if (type != VertexType::Undefined && s_Layouts.find(type) == s_Layouts.end())
 		{
 			auto& element = s_Layouts[type];
 			element = std::make_shared<InputLayout>();
 			element->Create(type, VS.ptr());
-		}
+		}*/
+
+		if (type != VertexType::Undefined)
+			ResourceManager::Get().LoadInputLayout(type, VS.ptr());
 	}
 
 	void Shader::SetShaders()

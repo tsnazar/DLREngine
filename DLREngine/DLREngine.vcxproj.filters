@@ -29,12 +29,18 @@
     <Filter Include="Include">
       <UniqueIdentifier>{b25288ec-1388-4f57-a2eb-ce615059871e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{4ac46afb-f5e9-4a56-bf01-517dc8806364}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Events">
+      <UniqueIdentifier>{1c5b399d-bfb8-4ec2-8192-045e03a8b402}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Render">
+      <UniqueIdentifier>{14bd57d5-c68c-4268-8959-bb7b81607f31}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Controller.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="math\geometry\Mesh.cpp">
@@ -76,20 +82,32 @@
     <ClCompile Include="include\ParallelExecutor.cpp">
       <Filter>Include</Filter>
     </ClCompile>
-    <ClCompile Include="render\d3d.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="render\Globals.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="render\Shader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="render\InputLayout.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Application.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utility\DDSTextureLoader.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="include\CameraController.cpp">
+      <Filter>Include</Filter>
+    </ClCompile>
+    <ClCompile Include="render\Texture2D.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="render\Shader.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="render\InputLayout.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="include\ResourceManager.cpp">
+      <Filter>Include</Filter>
+    </ClCompile>
+    <ClCompile Include="render\d3d.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="render\Globals.cpp">
+      <Filter>Render</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -153,31 +171,68 @@
     <ClInclude Include="platform\windows\winapi.hpp">
       <Filter>Platform\Windows</Filter>
     </ClInclude>
-    <ClInclude Include="Controller.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="math\lights\Lighting.h">
       <Filter>Math\Lights</Filter>
     </ClInclude>
     <ClInclude Include="include\ParallelExecutor.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="render\d3d.h" />
-    <ClInclude Include="render\DxRes.h" />
-    <ClInclude Include="render\Globals.h" />
-    <ClInclude Include="render\Shader.h" />
-    <ClInclude Include="include\Debug.h" />
-    <ClInclude Include="render\Vertex.h" />
-    <ClInclude Include="render\InputLayout.h" />
-    <ClInclude Include="render\VertexBuffer.h" />
-    <ClInclude Include="events\Event.h" />
-    <ClInclude Include="events\ApplicationEvent.h" />
-    <ClInclude Include="events\KeyEvents.h" />
-    <ClInclude Include="include\KeyCodes.h" />
-    <ClInclude Include="events\MouseEvents.h" />
-    <ClInclude Include="Application.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="shaders\shader.shader" />
+    <ClInclude Include="utility\Debug.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="utility\DDSTextureLoader.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CameraController.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="events\KeyEvents.h">
+      <Filter>Events</Filter>
+    </ClInclude>
+    <ClInclude Include="events\MouseEvents.h">
+      <Filter>Events</Filter>
+    </ClInclude>
+    <ClInclude Include="events\ApplicationEvent.h">
+      <Filter>Events</Filter>
+    </ClInclude>
+    <ClInclude Include="events\Event.h">
+      <Filter>Events</Filter>
+    </ClInclude>
+    <ClInclude Include="render\VertexBuffer.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="render\Vertex.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="render\Texture2D.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="render\Shader.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="render\InputLayout.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="render\ConstantBuffer.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ResourceManager.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="events\KeyCodes.h">
+      <Filter>Events</Filter>
+    </ClInclude>
+    <ClInclude Include="render\d3d.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="render\DxRes.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="render\Globals.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="Application.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

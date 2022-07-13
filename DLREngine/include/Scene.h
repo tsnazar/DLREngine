@@ -7,6 +7,8 @@
 #include "Camera.h"
 #include "Shader.h"
 #include "VertexBuffer.h"
+#include "Texture2D.h"
+#include "ConstantBuffer.h"
 
 namespace engine
 {
@@ -15,17 +17,20 @@ namespace engine
 	protected:
 
 	public:
-
+		struct FrustumCorners
+		{
+			DirectX::XMFLOAT4 pos[3];
+		};
 	public:
 		Scene() {};
 
-		bool Render(MainWindow& win);
+		bool Render(MainWindow& win, Camera& camera);
 
-		engine::VertexBuffer<engine::VertexPosCol>& GetBuffer() { return m_Buffer; }
-		engine::Shader& GetShader() { return m_Shader; }
+		engine::VertexBuffer& GetBuffer() { return m_Buffer; }
+		engine::ConstantBuffer& GetConstantBuffer() { return m_ConstantBuffer; }
 
 	private:
-		engine::Shader m_Shader;
-		engine::VertexBuffer<engine::VertexPosCol> m_Buffer;
+		engine::VertexBuffer m_Buffer;
+		engine::ConstantBuffer m_ConstantBuffer;
 	};
 }

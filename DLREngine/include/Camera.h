@@ -1,50 +1,58 @@
 #pragma once
 #include <DirectXMath.h>
 
-class Camera
+namespace engine
 {
-public:
-	Camera(bool roll = false) : m_RollEnabled(roll) {}
+	class Camera
+	{
+	public:
+		Camera(float fov, float aspect, float near, float far, bool roll = false) : m_RollEnabled(roll) { SetPerspective(fov, aspect, near, far); }
 
-	void SetPerspective(float fov, float aspect, float near, float far);
+		void SetPerspective(float fov, float aspect, float near, float far);
 
-	DirectX::XMMATRIX GetProj() const { return m_Proj; }
-	DirectX::XMMATRIX GetInvProj() const { return m_ProjInv; }
+		void SetRoll(bool roll) { m_RollEnabled = roll; }
 
-	DirectX::XMMATRIX GetViewProj() const { return m_ViewProj; }
-	DirectX::XMMATRIX GetInvViewProj() const { return m_ViewProjInv; }
+		DirectX::XMMATRIX GetProj() const { return m_Proj; }
+		DirectX::XMMATRIX GetInvProj() const { return m_ProjInv; }
 
-	DirectX::XMVECTOR Project(DirectX::XMVECTOR vec);
-	DirectX::XMVECTOR Unproject(DirectX::XMVECTOR vec);
+		DirectX::XMMATRIX GetView() const { return m_View; }
+		DirectX::XMMATRIX GetInvView() const { return m_ViewInv; }
 
-	void SetWorldAngles(float pitch, float yaw, float roll);
-	void SetWorldOffset(const DirectX::XMFLOAT3& offset);
+		DirectX::XMMATRIX GetViewProj() const { return m_ViewProj; }
+		DirectX::XMMATRIX GetInvViewProj() const { return m_ViewProjInv; }
 
-	void AddRelativeOffset(const DirectX::XMFLOAT3& offset);
-	void AddRelativeAngles(const DirectX::XMFLOAT3& angles);
+		DirectX::XMVECTOR Project(DirectX::XMVECTOR vec);
+		DirectX::XMVECTOR Unproject(DirectX::XMVECTOR vec);
 
-	void UpdateMatrices();
+		void SetWorldAngles(float pitch, float yaw, float roll);
+		void SetWorldOffset(const DirectX::XMFLOAT3& offset);
 
-	const DirectX::XMVECTOR& Right() const { return m_ViewInv.r[0]; }
-	const DirectX::XMVECTOR& Up() const { return m_ViewInv.r[1]; }
-	const DirectX::XMVECTOR& Forward() const { return m_ViewInv.r[2]; }
-	const DirectX::XMVECTOR& Position() const { return m_ViewInv.r[3]; }
+		void AddRelativeOffset(const DirectX::XMFLOAT3& offset);
+		void AddRelativeAngles(const DirectX::XMFLOAT3& angles);
 
-	DirectX::XMVECTOR& Position() { return m_ViewInv.r[3]; }
-	DirectX::XMVECTOR& Rotation() { return m_Rotation; }
+		void UpdateMatrices();
 
-private:
-	DirectX::XMMATRIX m_View = DirectX::XMMatrixIdentity();
-	DirectX::XMMATRIX m_Proj = DirectX::XMMatrixIdentity();
-	DirectX::XMMATRIX m_ViewProj = DirectX::XMMatrixIdentity();
+		const DirectX::XMVECTOR& Right() const { return m_ViewInv.r[0]; }
+		const DirectX::XMVECTOR& Up() const { return m_ViewInv.r[1]; }
+		const DirectX::XMVECTOR& Forward() const { return m_ViewInv.r[2]; }
+		const DirectX::XMVECTOR& Position() const { return m_ViewInv.r[3]; }
 
-	DirectX::XMMATRIX m_ViewInv = DirectX::XMMatrixIdentity();
-	DirectX::XMMATRIX m_ProjInv = DirectX::XMMatrixIdentity();
-	DirectX::XMMATRIX m_ViewProjInv = DirectX::XMMatrixIdentity();
+		DirectX::XMVECTOR& Position() { return m_ViewInv.r[3]; }
+		DirectX::XMVECTOR& Rotation() { return m_Rotation; }
 
-	DirectX::XMVECTOR m_Rotation = DirectX::XMQuaternionIdentity();
+	private:
+		DirectX::XMMATRIX m_View = DirectX::XMMatrixIdentity();
+		DirectX::XMMATRIX m_Proj = DirectX::XMMatrixIdentity();
+		DirectX::XMMATRIX m_ViewProj = DirectX::XMMatrixIdentity();
 
-	bool m_UpdatedMatrices = false;
-	bool m_RollEnabled = false;
-};
+		DirectX::XMMATRIX m_ViewInv = DirectX::XMMatrixIdentity();
+		DirectX::XMMATRIX m_ProjInv = DirectX::XMMatrixIdentity();
+		DirectX::XMMATRIX m_ViewProjInv = DirectX::XMMatrixIdentity();
+
+		DirectX::XMVECTOR m_Rotation = DirectX::XMQuaternionIdentity();
+
+		bool m_UpdatedMatrices = false;
+		bool m_RollEnabled = false;
+	};
+}
 

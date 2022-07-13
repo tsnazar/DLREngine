@@ -3,10 +3,7 @@
 #include <memory>
 #include <limits>
 #include <algorithm>
-
-#include "math/SphereMover.h"
-#include "math/TransformMover.h"
-#include "math/Vector3Mover.h"
+#include "ResourceManager.h"
 
 using namespace DirectX;
 
@@ -20,6 +17,7 @@ namespace
 	const XMVECTOR GAMMA_CORRECTION = XMVectorReplicate(1.0f / 2.2f);
 }
 
+
 namespace engine
 {
 	static XMVECTOR findMaxComponent(const XMVECTOR& vec)
@@ -27,11 +25,35 @@ namespace engine
 		return XMVectorReplicate((std::max)((std::max)(XMVectorGetX(vec), XMVectorGetY(vec)), XMVectorGetZ(vec)));
 	}
 
-	bool Scene::Render(MainWindow& win)
+	bool Scene::Render(MainWindow& win, Camera& camera)
 	{
-		m_Shader.SetShaders();
+		FrustumCorners f;
+		DirectX::XMVECTOR TL, TR, BL, xDir, yDir;
+		TL = camera.Unproject(DirectX::XMVectorSet(-1.0f, 1.0f, 1.0f, 1.0f)) - camera.Position();
+		TR = camera.Unproject(DirectX::XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f)) - camera.Position();
+		BL = camera.Unproject(DirectX::XMVectorSet(-1.0f, -1.0f, 1.0f, 1.0f)) - camera.Position();
+		xDir = TR - TL;
+		yDir = BL - TL;
+		DirectX::XMStoreFloat4(&(f.pos[0]), TL);
+		DirectX::XMStoreFloat4(&(f.pos[1]), xDir);
+		DirectX::XMStoreFloat4(&(f.pos[2]), yDir);
+
+		m_ConstantBuffer.Update<FrustumCorners>(&f, sizeof(FrustumCorners));
+		
+		Globals::Get().BindConstantsToVS();
+		Globals::Get().BindSamplerToPS();
+
+		ResourceManager::Get().GetShader("skybox").SetShaders();
+		ResourceManager::Get().GetTexture("skybox").BindToPS(0);
+		m_ConstantBuffer.BindToPS(0);
+		s_Devcon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		s_Devcon->IASetInputLayout(NULL);
+		s_Devcon->Draw(3, 0);
+
+		ResourceManager::Get().GetShader("shader").SetShaders();
+		ResourceManager::Get().GetTexture("container").BindToPS(0);
 		m_Buffer.SetBuffer();
-		engine::s_Devcon->Draw(m_Buffer.GetVertexCount(), 0);
+		s_Devcon->Draw(m_Buffer.GetVertexCount(), 0);
 
 		return true;
 	}

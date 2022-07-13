@@ -3,9 +3,13 @@
 #include <iostream>
 #include <thread>
 #include "KeyEvents.h"
+#include "ResourceManager.h"
 
 namespace
 {
+	const float FOV = 1.0472f; // 60 degrees
+	const float ZNEAR = 100.f;
+	const float ZFAR = 0.1f;
 	const float FRAME_DURATION = 1.f / 60.f;
 }
 
@@ -22,31 +26,59 @@ namespace engine
 
 		std::wstring stemp = std::wstring(name.begin(), name.end());
 
-		m_Window = std::unique_ptr<MainWindow>(new MainWindow());
 		//init window
+		m_Window = std::unique_ptr<MainWindow>(new MainWindow());
 		m_Window->Create(0, 0, { 0, 0, (long)width, (long)height }, stemp.c_str(), WS_OVERLAPPEDWINDOW, NULL, NULL, hInstance, NULL);
 		m_Window->Show(nShowCmd);
 
-		std::function<void(engine::Event&)> f = std::bind(&Application::OnEvent, this, std::placeholders::_1);
+		std::function<void(Event&)> f = std::bind(&Application::OnEvent, this, std::placeholders::_1);
 		m_Window->BindEventCallback(f);
 
-		m_Scene = std::unique_ptr<Scene>(new Scene());
 		//init scene
-		m_Scene->GetShader().LoadFromFile(engine::VertexType::PosCol, "shaders/shader.shader");
+		m_Scene = std::unique_ptr<Scene>(new Scene());
 
-		engine::VertexPosCol vertex_data_array[] = {
-			{DirectX::XMFLOAT3{0.0f,  0.5f,  0.0f}, DirectX::XMFLOAT4{1.0f, 0.0f, 0.0f, 1.0f}}, // point at top
-			{DirectX::XMFLOAT3{0.5f, -0.5f,  0.0f }, DirectX::XMFLOAT4{0.0f, 1.0f, 0.0f, 1.0f}}, // point at bottom-right
-			{DirectX::XMFLOAT3{-0.5f, -0.5f,  0.0f}, DirectX::XMFLOAT4{0.0f, 0.0f, 1.0f, 1.0f}}, // point at bottom-left
+		ResourceManager::Get().LoadShader("shader", VertexType::PosTex, "shaders/shader.hlsl");
+		ResourceManager::Get().LoadShader("skybox", VertexType::Undefined, "shaders/sky.hlsl");
+		ResourceManager::Get().LoadTexture2D("container", "./textures/container2.dds");
+		ResourceManager::Get().LoadCubemap("skybox", "./textures/cubemap.dds");
+
+		VertexPosTex vertexData[] = {
+			//back
+			{ DirectX::XMFLOAT3{-1.0f, -1.0f, -1.0f}, DirectX::XMFLOAT2{0.f, 1.f}}, { DirectX::XMFLOAT3{-1.0f, 1.0f, -1.0f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{1.0f, -1.0f, -1.0f}, DirectX::XMFLOAT2{1.f, 1.f}},
+			{ DirectX::XMFLOAT3{1.0f, 1.0f, -1.0f}, DirectX::XMFLOAT2{1.f, 0.f}}, { DirectX::XMFLOAT3{1.0f, -1.0f, -1.0f}, DirectX::XMFLOAT2{1.f, 1.f}}, { DirectX::XMFLOAT3{-1.0f, 1.0f, -1.0f}, DirectX::XMFLOAT2{0.f, 0.f}},
+			//front
+			{ DirectX::XMFLOAT3{1.0f, -1.0f, 1.0f}, DirectX::XMFLOAT2{0.0f, 1.0f}}, { DirectX::XMFLOAT3{1.0f, 1.0f, 1.0f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{-1.0f, -1.0f, 1.0f}, DirectX::XMFLOAT2{1.f, 1.f}},
+			{ DirectX::XMFLOAT3{-1.0f, 1.0f, 1.0f}, DirectX::XMFLOAT2{1.f, 0.f}}, { DirectX::XMFLOAT3{-1.0f, -1.0f, 1.0f}, DirectX::XMFLOAT2{1.f, 1.f}}, { DirectX::XMFLOAT3{1.0f, 1.0f, 1.0f}, DirectX::XMFLOAT2{0.f, 0.f}},
+			//right
+			{ DirectX::XMFLOAT3{1.0f, -1.0f, -1.0f}, DirectX::XMFLOAT2{0.f, 1.f}}, { DirectX::XMFLOAT3{1.0f, 1.0f, -1.0f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{1.0f, -1.0f, 1.0f}, DirectX::XMFLOAT2{1.f, 1.f}},
+			{ DirectX::XMFLOAT3{1.0f, -1.0f, 1.0f}, DirectX::XMFLOAT2{1.f, 1.f}}, { DirectX::XMFLOAT3{1.0f, 1.0f, -1.0f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{1.0f, 1.0f, 1.0f}, DirectX::XMFLOAT2{1.f, 0.f}},
+			//left
+			{ DirectX::XMFLOAT3{-1.0f, -1.0f, 1.0f}, DirectX::XMFLOAT2{0.f, 1.f}}, { DirectX::XMFLOAT3{-1.0f, 1.0f, 1.0f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{-1.0f, -1.0f, -1.0f}, DirectX::XMFLOAT2{1.f, 1.f}},
+			{ DirectX::XMFLOAT3{-1.0f, -1.0f, -1.0f}, DirectX::XMFLOAT2{1.f, 1.f}}, { DirectX::XMFLOAT3{-1.0f, 1.0f, 1.0f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{-1.0f, 1.0f, -1.0f}, DirectX::XMFLOAT2{1.f, 0.f}},
+			//bottom
+			{ DirectX::XMFLOAT3{-1.0f, -1.0f, 1.0f}, DirectX::XMFLOAT2{0.f, 1.f}}, { DirectX::XMFLOAT3{-1.0f, -1.0f, -1.0f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{1.0f, -1.0f, 1.0f}, DirectX::XMFLOAT2{1.f, 1.f}},
+			{ DirectX::XMFLOAT3{1.0f, -1.0f, 1.0f}, DirectX::XMFLOAT2{1.f, 1.f}}, { DirectX::XMFLOAT3{-1.0f, -1.0f, -1.0f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{1.0f, -1.0f, -1.0f}, DirectX::XMFLOAT2{1.f, 0.f}},
+			//top
+			{ DirectX::XMFLOAT3{-1.0f, 1.0f, -1.0f}, DirectX::XMFLOAT2{0.f, 1.f}}, { DirectX::XMFLOAT3{-1.0f, 1.0f, 1.0f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{1.0f, 1.0f, -1.0f}, DirectX::XMFLOAT2{1.f, 1.f}},
+			{ DirectX::XMFLOAT3{1.0f, 1.0f, -1.0f}, DirectX::XMFLOAT2{1.f, 1.f}}, { DirectX::XMFLOAT3{-1.0f, 1.0f, 1.0f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{1.0f, 1.0f, 1.0f}, DirectX::XMFLOAT2{1.f, 0.f}},
 		};
 
-		m_Scene->GetBuffer().Create(engine::VertexType::PosCol, vertex_data_array, 3);
+		m_Scene->GetBuffer().Create<VertexPosTex>(D3D11_USAGE_IMMUTABLE, vertexData, 36);
+
+		m_Scene->GetConstantBuffer().Create<Scene::FrustumCorners>(D3D11_USAGE_DYNAMIC, nullptr, 0);
+		
+		//init camera
+		m_CameraController = std::unique_ptr<CameraController>(new CameraController(FOV, (float)width/(float)height, ZNEAR, ZFAR));
+		m_CameraController->GetCamera().SetWorldOffset({0.f, 0.f, -5.f});
+	}
+
+	Application::~Application()
+	{
+		s_Instance = nullptr;
 	}
 
 	void Application::Run()
 	{
-		float color[4] = { 0.0f, 0.2f, 0.4f, 1.0f };
-
 		auto prevFrame = std::chrono::steady_clock::now();
 		bool run = true;
 		while (run)
@@ -59,23 +91,38 @@ namespace engine
 			if (delta >= FRAME_DURATION)
 			{
 				prevFrame = currentFrame;
-				m_Window->ClearColor(color);
-				m_Scene->Render(*m_Window);
-				m_Window->Flush();
+				OnUpdate(delta);
+				Render();
 				std::cout << delta << std::endl;
 			}
 
 			std::this_thread::yield();
 		}
-		
 	}
 	
 	void Application::OnEvent(Event& e)
 	{
-		auto f = [&](Event& e) { std::cout << e << std::endl; return true; };
+		m_CameraController->OnEvent(e);
+	}
+	
+	void Application::OnUpdate(float delta)
+	{
+		PerFrame& p = Globals::Get().GetPerFrameObj();
 
-		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<KeyPressedEvent>(f);
-		dispatcher.Dispatch<KeyReleasedEvent>(f);
+		m_CameraController->OnUpdate(delta);
+		
+		DirectX::XMStoreFloat4x4(&p.viewProj, DirectX::XMMatrixTranspose(m_CameraController->GetCamera().GetViewProj()));
+
+		Globals::Get().UpdateConstants();
+	}
+	
+	void Application::Render()
+	{
+		float color[4] = { 0.0f, 0.2f, 0.4f, 1.0f };
+
+		m_Window->ClearColor(color);
+
+		m_Scene->Render(*m_Window, m_CameraController->GetCamera());
+		m_Window->Flush();
 	}
 }
