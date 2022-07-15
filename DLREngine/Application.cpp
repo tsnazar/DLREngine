@@ -44,23 +44,23 @@ namespace engine
 
 		VertexPosTex vertexData[] = {
 			//back
-			{ DirectX::XMFLOAT3{-1.0f, -1.0f, -1.0f}, DirectX::XMFLOAT2{0.f, 1.f}}, { DirectX::XMFLOAT3{-1.0f, 1.0f, -1.0f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{1.0f, -1.0f, -1.0f}, DirectX::XMFLOAT2{1.f, 1.f}},
-			{ DirectX::XMFLOAT3{1.0f, 1.0f, -1.0f}, DirectX::XMFLOAT2{1.f, 0.f}}, { DirectX::XMFLOAT3{1.0f, -1.0f, -1.0f}, DirectX::XMFLOAT2{1.f, 1.f}}, { DirectX::XMFLOAT3{-1.0f, 1.0f, -1.0f}, DirectX::XMFLOAT2{0.f, 0.f}},
+			{ DirectX::XMFLOAT3{-0.5f, -0.5f, -0.5f}, DirectX::XMFLOAT2{0.f, 1.f}}, { DirectX::XMFLOAT3{-0.5f, 0.5f, -0.5f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{0.5f, -0.5f, -0.5f}, DirectX::XMFLOAT2{1.f, 1.f}},
+			{ DirectX::XMFLOAT3{0.5f, 0.5f, -0.5f}, DirectX::XMFLOAT2{1.f, 0.f}}, { DirectX::XMFLOAT3{0.5f, -0.5f, -0.5f}, DirectX::XMFLOAT2{1.f, 1.f}}, { DirectX::XMFLOAT3{-0.5f, 0.5f, -0.5f}, DirectX::XMFLOAT2{0.f, 0.f}},
 			//front
-			{ DirectX::XMFLOAT3{1.0f, -1.0f, 1.0f}, DirectX::XMFLOAT2{0.0f, 1.0f}}, { DirectX::XMFLOAT3{1.0f, 1.0f, 1.0f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{-1.0f, -1.0f, 1.0f}, DirectX::XMFLOAT2{1.f, 1.f}},
-			{ DirectX::XMFLOAT3{-1.0f, 1.0f, 1.0f}, DirectX::XMFLOAT2{1.f, 0.f}}, { DirectX::XMFLOAT3{-1.0f, -1.0f, 1.0f}, DirectX::XMFLOAT2{1.f, 1.f}}, { DirectX::XMFLOAT3{1.0f, 1.0f, 1.0f}, DirectX::XMFLOAT2{0.f, 0.f}},
+			{ DirectX::XMFLOAT3{0.5f, -0.5f, 0.5f}, DirectX::XMFLOAT2{0.0f, 1.f}}, { DirectX::XMFLOAT3{0.5f, 0.5f, 0.5f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{-0.5f, -0.5f, 0.5f}, DirectX::XMFLOAT2{1.f, 1.f}},
+			{ DirectX::XMFLOAT3{-0.5f, 0.5f, 0.5f}, DirectX::XMFLOAT2{1.f, 0.f}}, { DirectX::XMFLOAT3{-0.5f, -0.5f, 0.5f}, DirectX::XMFLOAT2{1.f, 1.f}}, { DirectX::XMFLOAT3{0.5f, 0.5f, 0.5f}, DirectX::XMFLOAT2{0.f, 0.f}},
 			//right
-			{ DirectX::XMFLOAT3{1.0f, -1.0f, -1.0f}, DirectX::XMFLOAT2{0.f, 1.f}}, { DirectX::XMFLOAT3{1.0f, 1.0f, -1.0f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{1.0f, -1.0f, 1.0f}, DirectX::XMFLOAT2{1.f, 1.f}},
-			{ DirectX::XMFLOAT3{1.0f, -1.0f, 1.0f}, DirectX::XMFLOAT2{1.f, 1.f}}, { DirectX::XMFLOAT3{1.0f, 1.0f, -1.0f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{1.0f, 1.0f, 1.0f}, DirectX::XMFLOAT2{1.f, 0.f}},
+			{ DirectX::XMFLOAT3{0.5f, -0.5f, -0.5f}, DirectX::XMFLOAT2{0.f, 1.f}}, { DirectX::XMFLOAT3{0.5f, 0.5f, -0.5f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{0.5f, -0.5f, 0.5f}, DirectX::XMFLOAT2{1.f, 1.f}},
+			{ DirectX::XMFLOAT3{0.5f, -0.5f, 0.5f}, DirectX::XMFLOAT2{1.f, 1.f}}, { DirectX::XMFLOAT3{0.5f, 0.5f, -0.5f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{0.5f, 0.5f, 0.5f}, DirectX::XMFLOAT2{1.f, 0.f}},
 			//left
-			{ DirectX::XMFLOAT3{-1.0f, -1.0f, 1.0f}, DirectX::XMFLOAT2{0.f, 1.f}}, { DirectX::XMFLOAT3{-1.0f, 1.0f, 1.0f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{-1.0f, -1.0f, -1.0f}, DirectX::XMFLOAT2{1.f, 1.f}},
-			{ DirectX::XMFLOAT3{-1.0f, -1.0f, -1.0f}, DirectX::XMFLOAT2{1.f, 1.f}}, { DirectX::XMFLOAT3{-1.0f, 1.0f, 1.0f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{-1.0f, 1.0f, -1.0f}, DirectX::XMFLOAT2{1.f, 0.f}},
+			{ DirectX::XMFLOAT3{-0.5f, -0.5f, 0.5f}, DirectX::XMFLOAT2{0.f, 1.f}}, { DirectX::XMFLOAT3{-0.5f, 0.5f, 0.5f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{-0.5f, -0.5f, -0.5f}, DirectX::XMFLOAT2{1.f, 1.f}},
+			{ DirectX::XMFLOAT3{-0.5f, -0.5f, -0.5f}, DirectX::XMFLOAT2{1.f, 1.f}}, { DirectX::XMFLOAT3{-0.5f, 0.5f, 0.5f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{-0.5f, 0.5f, -0.5f}, DirectX::XMFLOAT2{1.f, 0.f}},
 			//bottom
-			{ DirectX::XMFLOAT3{-1.0f, -1.0f, 1.0f}, DirectX::XMFLOAT2{0.f, 1.f}}, { DirectX::XMFLOAT3{-1.0f, -1.0f, -1.0f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{1.0f, -1.0f, 1.0f}, DirectX::XMFLOAT2{1.f, 1.f}},
-			{ DirectX::XMFLOAT3{1.0f, -1.0f, 1.0f}, DirectX::XMFLOAT2{1.f, 1.f}}, { DirectX::XMFLOAT3{-1.0f, -1.0f, -1.0f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{1.0f, -1.0f, -1.0f}, DirectX::XMFLOAT2{1.f, 0.f}},
+			{ DirectX::XMFLOAT3{-0.5f, -0.5f, 0.5f}, DirectX::XMFLOAT2{0.f, 1.f}}, { DirectX::XMFLOAT3{-0.5f, -0.5f, -0.5f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{0.5f, -0.5f, 0.5f}, DirectX::XMFLOAT2{1.f, 1.f}},
+			{ DirectX::XMFLOAT3{0.5f, -0.5f, 0.5f}, DirectX::XMFLOAT2{1.f, 1.f}}, { DirectX::XMFLOAT3{-0.5f, -0.5f, -0.5f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{0.5f, -0.5f, -0.5f}, DirectX::XMFLOAT2{1.f, 0.f}},
 			//top
-			{ DirectX::XMFLOAT3{-1.0f, 1.0f, -1.0f}, DirectX::XMFLOAT2{0.f, 1.f}}, { DirectX::XMFLOAT3{-1.0f, 1.0f, 1.0f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{1.0f, 1.0f, -1.0f}, DirectX::XMFLOAT2{1.f, 1.f}},
-			{ DirectX::XMFLOAT3{1.0f, 1.0f, -1.0f}, DirectX::XMFLOAT2{1.f, 1.f}}, { DirectX::XMFLOAT3{-1.0f, 1.0f, 1.0f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{1.0f, 1.0f, 1.0f}, DirectX::XMFLOAT2{1.f, 0.f}},
+			{ DirectX::XMFLOAT3{-0.5f, 0.5f, -0.5f}, DirectX::XMFLOAT2{0.f, 1.f}}, { DirectX::XMFLOAT3{-0.5f, 0.5f, 0.5f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{0.5f, 0.5f, -0.5f}, DirectX::XMFLOAT2{1.f, 1.f}},
+			{ DirectX::XMFLOAT3{0.5f, 0.5f, -0.5f}, DirectX::XMFLOAT2{1.f, 1.f}}, { DirectX::XMFLOAT3{-0.5f, 0.5f, 0.5f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{0.5f, 0.5f, 0.5f}, DirectX::XMFLOAT2{1.f, 0.f}},
 		};
 
 		m_Scene->GetBuffer().Create<VertexPosTex>(D3D11_USAGE_IMMUTABLE, vertexData, 36);
@@ -102,7 +102,30 @@ namespace engine
 	
 	void Application::OnEvent(Event& e)
 	{
+		EventDispatcher dispatcher(e);
+		
+		dispatcher.Dispatch<KeyPressedEvent>([](KeyPressedEvent& e)
+			{
+				switch (e.GetKeyCode())
+				{
+				case Key::ONE:
+					Globals::Get().SetCurrentSampler(1);
+					break;
+				case Key::TWO:
+					Globals::Get().SetCurrentSampler(2);
+					break;
+				case Key::THREE:
+					Globals::Get().SetCurrentSampler(3);
+					break;
+				case Key::FOUR:
+					Globals::Get().SetCurrentSampler(4);
+					break;
+				}
+				return true;
+			});
+
 		m_CameraController->OnEvent(e);
+
 	}
 	
 	void Application::OnUpdate(float delta)

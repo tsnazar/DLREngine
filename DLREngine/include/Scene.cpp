@@ -43,17 +43,17 @@ namespace engine
 		Globals::Get().BindConstantsToVS();
 		Globals::Get().BindSamplerToPS();
 
+		ResourceManager::Get().GetShader("shader").SetShaders();
+		ResourceManager::Get().GetTexture("container").BindToPS(0);
+		m_Buffer.SetBuffer();
+		s_Devcon->Draw(m_Buffer.GetVertexCount(), 0);
+
 		ResourceManager::Get().GetShader("skybox").SetShaders();
 		ResourceManager::Get().GetTexture("skybox").BindToPS(0);
 		m_ConstantBuffer.BindToPS(0);
 		s_Devcon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		s_Devcon->IASetInputLayout(NULL);
 		s_Devcon->Draw(3, 0);
-
-		ResourceManager::Get().GetShader("shader").SetShaders();
-		ResourceManager::Get().GetTexture("container").BindToPS(0);
-		m_Buffer.SetBuffer();
-		s_Devcon->Draw(m_Buffer.GetVertexCount(), 0);
 
 		return true;
 	}

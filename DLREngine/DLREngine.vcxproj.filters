@@ -234,5 +234,12 @@
     <ClInclude Include="Application.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="ecs\Types.h" />
+    <ClInclude Include="ecs\EntityManager.h" />
+    <ClInclude Include="ecs\ComponentArray.h" />
+    <ClInclude Include="ecs\ComponentManager.h" />
+    <ClInclude Include="ecs\SystemManager.h" />
+    <ClInclude Include="ecs\System.h" />
+    <ClInclude Include="ecs\Coordinator.h" />
   </ItemGroup>
 </Project>

@@ -75,7 +75,7 @@ namespace engine
 
 		D3D11_SAMPLER_DESC sampDesc;
 		ZeroMemory(&sampDesc, sizeof(D3D11_SAMPLER_DESC));
-		sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
 		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -83,7 +83,19 @@ namespace engine
 		sampDesc.MinLOD = 0;
 		sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
-		result = m_Device->CreateSamplerState(&sampDesc, m_SamplerState.reset());
+		result = m_Device->CreateSamplerState(&sampDesc, m_SamplerState1.reset());
+		ALWAYS_ASSERT(SUCCEEDED(result));
+
+		sampDesc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+		result = m_Device->CreateSamplerState(&sampDesc, m_SamplerState2.reset());
+		ALWAYS_ASSERT(SUCCEEDED(result));
+
+		sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		result = m_Device->CreateSamplerState(&sampDesc, m_SamplerState3.reset());
+		ALWAYS_ASSERT(SUCCEEDED(result));
+
+		sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+		result = m_Device->CreateSamplerState(&sampDesc, m_SamplerState4.reset());
 		ALWAYS_ASSERT(SUCCEEDED(result));
 
 		s_Factory = m_Factory5.ptr();
@@ -109,6 +121,18 @@ namespace engine
 
 	void Globals::BindSamplerToPS()
 	{
-		m_Devcon->PSSetSamplers(0, 1, m_SamplerState.ptrAdr());
+		if(m_CurrentSampler == 1)
+			m_Devcon->PSSetSamplers(0, 1, m_SamplerState1.ptrAdr());
+		else if(m_CurrentSampler == 2)
+			m_Devcon->PSSetSamplers(0, 1, m_SamplerState2.ptrAdr());
+		else if (m_CurrentSampler == 3)
+			m_Devcon->PSSetSamplers(0, 1, m_SamplerState3.ptrAdr());
+		else if (m_CurrentSampler == 4)
+			m_Devcon->PSSetSamplers(0, 1, m_SamplerState4.ptrAdr());
+	}
+
+	void Globals::SetCurrentSampler(int sampler)
+	{
+		m_CurrentSampler = sampler;
 	}
 }

@@ -33,6 +33,8 @@ namespace engine
 
 		void BindSamplerToPS();
 
+		void SetCurrentSampler(int sampler);
+
 		ConstantBuffer& GetPerFrameBuffer() { return m_PerFrameBuffer; }
 		PerFrame& GetPerFrameObj() { return m_PerFrame; }
 
@@ -44,7 +46,12 @@ namespace engine
 		DxResPtr<ID3D11DeviceContext> m_Devcon;
 		DxResPtr<ID3D11DeviceContext4> m_Devcon4;
 		DxResPtr<ID3D11Debug> m_Devdebug;
-		DxResPtr<ID3D11SamplerState> m_SamplerState;
+		DxResPtr<ID3D11SamplerState> m_SamplerState1;
+		DxResPtr<ID3D11SamplerState> m_SamplerState2;
+		DxResPtr<ID3D11SamplerState> m_SamplerState3;
+		DxResPtr<ID3D11SamplerState> m_SamplerState4;
+
+		int m_CurrentSampler = 1;
 
 		PerFrame m_PerFrame;
 		ConstantBuffer m_PerFrameBuffer;

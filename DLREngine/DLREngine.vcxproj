@@ -96,7 +96,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)math;$(ProjectDir)platform;$(ProjectDir)decorators;$(ProjectDir)render;$(ProjectDir)events;$(ProjectDir)utility;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)math;$(ProjectDir)platform;$(ProjectDir)decorators;$(ProjectDir)render;$(ProjectDir)events;$(ProjectDir)utility;$(ProjectDir)ecs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -113,7 +113,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)math;$(ProjectDir)platform;$(ProjectDir)decorators;$(ProjectDir)render;$(ProjectDir)events;$(ProjectDir)utility;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)math;$(ProjectDir)platform;$(ProjectDir)decorators;$(ProjectDir)render;$(ProjectDir)events;$(ProjectDir)utility;$(ProjectDir)ecs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -130,7 +130,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)math;$(ProjectDir)platform;$(ProjectDir)decorators;$(ProjectDir)render;$(ProjectDir)events;$(ProjectDir)utility;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)math;$(ProjectDir)platform;$(ProjectDir)decorators;$(ProjectDir)render;$(ProjectDir)events;$(ProjectDir)utility;$(ProjectDir)ecs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -147,7 +147,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)math;$(ProjectDir)platform;$(ProjectDir)decorators;$(ProjectDir)render;$(ProjectDir)events;$(ProjectDir)utility;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)math;$(ProjectDir)platform;$(ProjectDir)decorators;$(ProjectDir)render;$(ProjectDir)events;$(ProjectDir)utility;$(ProjectDir)ecs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -184,6 +184,13 @@
     <ClCompile Include="render\Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ecs\ComponentArray.h" />
+    <ClInclude Include="ecs\ComponentManager.h" />
+    <ClInclude Include="ecs\Coordinator.h" />
+    <ClInclude Include="ecs\EntityManager.h" />
+    <ClInclude Include="ecs\System.h" />
+    <ClInclude Include="ecs\SystemManager.h" />
+    <ClInclude Include="ecs\Types.h" />
     <ClInclude Include="include\ResourceManager.h" />
     <ClInclude Include="render\Texture2D.h" />
     <ClInclude Include="utility\DDSTextureLoader.h" />
