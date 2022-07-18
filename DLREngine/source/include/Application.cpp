@@ -146,9 +146,9 @@ namespace engine
 		BL = camera.Unproject(DirectX::XMVectorSet(-1.0f, -1.0f, 1.0f, 1.0f)) - camera.Position();
 		xDir = TR - TL;
 		yDir = BL - TL;
-		DirectX::XMStoreFloat4(&(p.pos[0]), TL);
-		DirectX::XMStoreFloat4(&(p.pos[1]), xDir);
-		DirectX::XMStoreFloat4(&(p.pos[2]), yDir);
+		DirectX::XMStoreFloat4(&(p.frustumCorners[0]), TL);
+		DirectX::XMStoreFloat4(&(p.frustumCorners[1]), xDir);
+		DirectX::XMStoreFloat4(&(p.frustumCorners[2]), yDir);
 
 		Globals::Get().UpdateConstants();
 	}

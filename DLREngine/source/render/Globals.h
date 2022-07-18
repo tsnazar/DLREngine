@@ -9,7 +9,7 @@ namespace engine
 	struct PerFrame
 	{
 		DirectX::XMFLOAT4X4 viewProj;
-		DirectX::XMFLOAT4 pos[3];
+		DirectX::XMFLOAT4 frustumCorners[3];
 	};
 
 	class Globals
