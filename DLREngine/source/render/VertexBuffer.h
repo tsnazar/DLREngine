@@ -4,7 +4,7 @@
 #include "Vertex.h"
 #include "Debug.h"
 #include "InputLayout.h"
-#include "ResourceManager.h"
+#include "ShaderManager.h"
 
 namespace engine
 {
@@ -37,6 +37,9 @@ namespace engine
 	template<typename T>
 	inline void VertexBuffer::Create(D3D11_USAGE usage, const T* data, const uint32_t vertexCount)
 	{
+		if (m_Buffer.valid())
+			m_Buffer.release();
+
 		m_VertexType = GetVertexTypeFromStruct<T>();
 		m_VertexCount = vertexCount;
 		m_Stride = sizeof(T);
@@ -57,11 +60,11 @@ namespace engine
 
 	inline void VertexBuffer::SetBuffer()
 	{
-		if (!ResourceManager::Get().InputLayoutExists(m_VertexType))
+		if (!ShaderManager::Get().InputLayoutExists(m_VertexType))
 			ALWAYS_ASSERT(false);
 
 		s_Devcon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		ResourceManager::Get().GetInputLayout(m_VertexType).SetInputLayout();
+		ShaderManager::Get().GetInputLayout(m_VertexType).SetInputLayout();
 		s_Devcon->IASetVertexBuffers(0, 1, m_Buffer.ptrAdr(), &m_Stride, &m_Offset);
 	}
 }

@@ -9,33 +9,30 @@ namespace engine
 	struct PerFrame
 	{
 		DirectX::XMFLOAT4X4 viewProj;
+		DirectX::XMFLOAT4 pos[3];
 	};
 
 	class Globals
 	{
 	public:
-		Globals();
-		~Globals();
+		static void Init();
 
-		Globals(const Globals&) = delete;
-		Globals& operator=(const Globals&) = delete;
-		Globals(Globals&&) = delete;
-		Globals& operator=(Globals&&) = delete;
+		static void Fini();
 
 		static Globals& Get() { return *s_Instance; }
 
 		void InitD3D();
-		void InitConstants();
 
-		void BindConstantsToVS();
+		void InitConstants();
+		
+		void Bind();
 		
 		void UpdateConstants();
-
-		void BindSamplerToPS();
 
 		void SetCurrentSampler(int sampler);
 
 		ConstantBuffer& GetPerFrameBuffer() { return m_PerFrameBuffer; }
+		
 		PerFrame& GetPerFrameObj() { return m_PerFrame; }
 
 	private:
@@ -55,7 +52,14 @@ namespace engine
 
 		PerFrame m_PerFrame;
 		ConstantBuffer m_PerFrameBuffer;
-	private:
+	protected:
+		Globals();
+
+		Globals(const Globals&) = delete;
+		Globals& operator=(const Globals&) = delete;
+		Globals(Globals&&) = delete;
+		Globals& operator=(Globals&&) = delete;
+
 		static Globals* s_Instance;
 	};
 }

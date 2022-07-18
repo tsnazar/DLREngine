@@ -27,6 +27,8 @@ namespace engine
 
 		void ClearColor(const float color[4]);
 
+		void BindRenderTarget();
+
 		void Flush();
 
 		bool PoolEvents();

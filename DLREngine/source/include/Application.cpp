@@ -3,7 +3,8 @@
 #include <iostream>
 #include <thread>
 #include "KeyEvents.h"
-#include "ResourceManager.h"
+#include "TextureManager.h"
+#include "ShaderManager.h"
 
 namespace
 {
@@ -37,10 +38,10 @@ namespace engine
 		//init scene
 		m_Scene = std::unique_ptr<Scene>(new Scene());
 
-		ResourceManager::Get().LoadShader("shader", VertexType::PosTex, "shaders/shader.hlsl");
-		ResourceManager::Get().LoadShader("skybox", VertexType::Undefined, "shaders/sky.hlsl");
-		ResourceManager::Get().LoadTexture2D("container", "./textures/container2.dds");
-		ResourceManager::Get().LoadCubemap("skybox", "./textures/cubemap.dds");
+		ShaderManager::Get().LoadShader("shader", VertexType::PosTex, "shaders/shader.hlsl");
+		ShaderManager::Get().LoadShader("skybox", VertexType::Undefined, "shaders/sky.hlsl");
+		TextureManager::Get().LoadTexture2D("container", "./textures/container2.dds");
+		TextureManager::Get().LoadCubemap("skybox", "./textures/cubemap.dds");
 
 		VertexPosTex vertexData[] = {
 			//back
@@ -65,7 +66,7 @@ namespace engine
 
 		m_Scene->GetBuffer().Create<VertexPosTex>(D3D11_USAGE_IMMUTABLE, vertexData, 36);
 
-		m_Scene->GetConstantBuffer().Create<Scene::FrustumCorners>(D3D11_USAGE_DYNAMIC, nullptr, 0);
+		m_Scene->GetSky().SetSky("skybox", "shaders/sky.hlsl", "./textures/cubemap.dds");
 		
 		//init camera
 		m_CameraController = std::unique_ptr<CameraController>(new CameraController(FOV, (float)width/(float)height, ZNEAR, ZFAR));
@@ -130,11 +131,24 @@ namespace engine
 	
 	void Application::OnUpdate(float delta)
 	{
+		using namespace DirectX;
 		PerFrame& p = Globals::Get().GetPerFrameObj();
 
 		m_CameraController->OnUpdate(delta);
+
+		Camera& camera = m_CameraController->GetCamera();
 		
-		DirectX::XMStoreFloat4x4(&p.viewProj, DirectX::XMMatrixTranspose(m_CameraController->GetCamera().GetViewProj()));
+		DirectX::XMStoreFloat4x4(&p.viewProj, DirectX::XMMatrixTranspose(camera.GetViewProj()));
+
+		DirectX::XMVECTOR TL, TR, BL, xDir, yDir;
+		TL = camera.Unproject(DirectX::XMVectorSet(-1.0f, 1.0f, 1.0f, 1.0f)) - camera.Position();
+		TR = camera.Unproject(DirectX::XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f)) - camera.Position();
+		BL = camera.Unproject(DirectX::XMVectorSet(-1.0f, -1.0f, 1.0f, 1.0f)) - camera.Position();
+		xDir = TR - TL;
+		yDir = BL - TL;
+		DirectX::XMStoreFloat4(&(p.pos[0]), TL);
+		DirectX::XMStoreFloat4(&(p.pos[1]), xDir);
+		DirectX::XMStoreFloat4(&(p.pos[2]), yDir);
 
 		Globals::Get().UpdateConstants();
 	}
@@ -144,6 +158,7 @@ namespace engine
 		float color[4] = { 0.0f, 0.2f, 0.4f, 1.0f };
 
 		m_Window->ClearColor(color);
+		m_Window->BindRenderTarget();
 
 		m_Scene->Render(*m_Window, m_CameraController->GetCamera());
 		m_Window->Flush();

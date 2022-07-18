@@ -32,6 +32,9 @@ namespace engine
 	template<typename T>
 	void ConstantBuffer::Create(D3D11_USAGE usage, const T* data, const uint32_t size)
 	{
+		if (m_Buffer.valid())
+			m_Buffer.release();
+
 		m_Size = size;
 
 		D3D11_BUFFER_DESC desc = { 0 };

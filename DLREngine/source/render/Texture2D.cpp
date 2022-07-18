@@ -4,7 +4,7 @@
 
 namespace engine
 {
-	void Texture2D::LoadFromFile(const std::string& filepath, uint32_t miscFlags, size_t maxsize, D3D11_USAGE usage, uint32_t bindFlags, uint32_t cpuAccessFlags, bool forceSRGB)
+	Texture2D& Texture2D::LoadFromFile(const std::string& filepath, uint32_t miscFlags, size_t maxsize, D3D11_USAGE usage, uint32_t bindFlags, uint32_t cpuAccessFlags, bool forceSRGB)
 	{
 		ALWAYS_ASSERT(s_Device != nullptr);
 		ALWAYS_ASSERT(s_Devcon != nullptr);
@@ -13,6 +13,8 @@ namespace engine
 
 		HRESULT result = DirectX::CreateDDSTextureFromFileEx(s_Device, stemp.c_str(), maxsize, usage, bindFlags, cpuAccessFlags, miscFlags, forceSRGB, nullptr, m_Texture.reset());
 		ALWAYS_ASSERT(SUCCEEDED(result));
+
+		return *this;
 	}
 
 	void Texture2D::BindToVS(uint32_t slot)

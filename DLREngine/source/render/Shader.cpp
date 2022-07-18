@@ -1,6 +1,6 @@
 #include "Shader.h"
 #include "Debug.h"
-#include "ResourceManager.h"
+#include "ShaderManager.h"
 
 namespace engine
 {
@@ -58,7 +58,7 @@ namespace engine
 		}*/
 
 		if (type != VertexType::Undefined)
-			ResourceManager::Get().LoadInputLayout(type, VS.ptr());
+			ShaderManager::Get().LoadInputLayout(type, VS.ptr());
 	}
 
 	void Shader::SetShaders()

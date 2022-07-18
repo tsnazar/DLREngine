@@ -74,21 +74,25 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)bin/$(Platform)/$(Configuration)/</OutDir>
     <IntDir>$(SolutionDir)bin/intermediates/$(Platform)/$(Configuration)/</IntDir>
+    <SourcePath>$(ProjectDir)source;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)bin/$(Platform)/$(Configuration)/</OutDir>
     <IntDir>$(SolutionDir)bin/intermediates/$(Platform)/$(Configuration)/</IntDir>
+    <SourcePath>$(ProjectDir)source;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)bin/$(Platform)/$(Configuration)/</OutDir>
     <IntDir>$(SolutionDir)bin/intermediates/$(Platform)/$(Configuration)/</IntDir>
+    <SourcePath>$(ProjectDir)source;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)bin/$(Platform)/$(Configuration)/</OutDir>
     <IntDir>$(SolutionDir)bin/intermediates/$(Platform)/$(Configuration)/</IntDir>
+    <SourcePath>$(ProjectDir)source;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -96,7 +100,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)math;$(ProjectDir)platform;$(ProjectDir)decorators;$(ProjectDir)render;$(ProjectDir)events;$(ProjectDir)utility;$(ProjectDir)ecs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)source\include;$(ProjectDir)source\math;$(ProjectDir)source\platform;$(ProjectDir)source\decorators;$(ProjectDir)source\render;$(ProjectDir)source\events;$(ProjectDir)source\utility;$(ProjectDir)source\ecs;$(ProjectDir)source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -113,7 +117,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)math;$(ProjectDir)platform;$(ProjectDir)decorators;$(ProjectDir)render;$(ProjectDir)events;$(ProjectDir)utility;$(ProjectDir)ecs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)source\include;$(ProjectDir)source\math;$(ProjectDir)source\platform;$(ProjectDir)source\decorators;$(ProjectDir)source\render;$(ProjectDir)source\events;$(ProjectDir)source\utility;$(ProjectDir)source\ecs;$(ProjectDir)source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -130,7 +134,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)math;$(ProjectDir)platform;$(ProjectDir)decorators;$(ProjectDir)render;$(ProjectDir)events;$(ProjectDir)utility;$(ProjectDir)ecs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)source\include;$(ProjectDir)source\math;$(ProjectDir)source\platform;$(ProjectDir)source\decorators;$(ProjectDir)source\render;$(ProjectDir)source\events;$(ProjectDir)source\utility;$(ProjectDir)source\ecs;$(ProjectDir)source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -147,7 +151,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)math;$(ProjectDir)platform;$(ProjectDir)decorators;$(ProjectDir)render;$(ProjectDir)events;$(ProjectDir)utility;$(ProjectDir)ecs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)source\include;$(ProjectDir)source\math;$(ProjectDir)source\platform;$(ProjectDir)source\decorators;$(ProjectDir)source\render;$(ProjectDir)source\events;$(ProjectDir)source\utility;$(ProjectDir)source\ecs;$(ProjectDir)source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -159,79 +163,85 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Application.cpp" />
-    <ClCompile Include="include\ResourceManager.cpp" />
-    <ClCompile Include="render\Texture2D.cpp" />
-    <ClCompile Include="utility\DDSTextureLoader.cpp" />
-    <ClCompile Include="include\CameraController.cpp" />
-    <ClCompile Include="include\Camera.cpp" />
-    <ClCompile Include="include\Scene.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="math\lights\Lighting.cpp" />
-    <ClCompile Include="math\lights\DirectionLight.cpp" />
-    <ClCompile Include="math\geometry\Plane.cpp" />
-    <ClCompile Include="math\lights\PointLight.cpp" />
-    <ClCompile Include="math\geometry\Sphere.cpp" />
-    <ClCompile Include="math\lights\SpotLight.cpp" />
-    <ClCompile Include="math\geometry\Triangle.cpp" />
-    <ClCompile Include="math\geometry\Mesh.cpp" />
-    <ClCompile Include="include\ParallelExecutor.cpp" />
-    <ClCompile Include="platform\windows\BaseWindow.cpp" />
-    <ClCompile Include="platform\windows\MainWindow.cpp" />
-    <ClCompile Include="render\d3d.cpp" />
-    <ClCompile Include="render\Globals.cpp" />
-    <ClCompile Include="render\InputLayout.cpp" />
-    <ClCompile Include="render\Shader.cpp" />
+    <ClCompile Include="source\render\Sky.cpp" />
+    <ClCompile Include="source\Engine.cpp" />
+    <ClCompile Include="source\include\Application.cpp" />
+    <ClCompile Include="source\include\ShaderManager.cpp" />
+    <ClCompile Include="source\render\Texture2D.cpp" />
+    <ClCompile Include="source\include\TextureManager.cpp" />
+    <ClCompile Include="source\utility\DDSTextureLoader.cpp" />
+    <ClCompile Include="source\include\CameraController.cpp" />
+    <ClCompile Include="source\include\Camera.cpp" />
+    <ClCompile Include="source\include\Scene.cpp" />
+    <ClCompile Include="source\main.cpp" />
+    <ClCompile Include="source\math\lights\Lighting.cpp" />
+    <ClCompile Include="source\math\lights\DirectionLight.cpp" />
+    <ClCompile Include="source\math\geometry\Plane.cpp" />
+    <ClCompile Include="source\math\lights\PointLight.cpp" />
+    <ClCompile Include="source\math\geometry\Sphere.cpp" />
+    <ClCompile Include="source\math\lights\SpotLight.cpp" />
+    <ClCompile Include="source\math\geometry\Triangle.cpp" />
+    <ClCompile Include="source\math\geometry\Mesh.cpp" />
+    <ClCompile Include="source\include\ParallelExecutor.cpp" />
+    <ClCompile Include="source\platform\windows\BaseWindow.cpp" />
+    <ClCompile Include="source\platform\windows\MainWindow.cpp" />
+    <ClCompile Include="source\render\d3d.cpp" />
+    <ClCompile Include="source\render\Globals.cpp" />
+    <ClCompile Include="source\render\InputLayout.cpp" />
+    <ClCompile Include="source\render\Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ecs\ComponentArray.h" />
-    <ClInclude Include="ecs\ComponentManager.h" />
-    <ClInclude Include="ecs\Coordinator.h" />
-    <ClInclude Include="ecs\EntityManager.h" />
-    <ClInclude Include="ecs\System.h" />
-    <ClInclude Include="ecs\SystemManager.h" />
-    <ClInclude Include="ecs\Types.h" />
-    <ClInclude Include="include\ResourceManager.h" />
-    <ClInclude Include="render\Texture2D.h" />
-    <ClInclude Include="utility\DDSTextureLoader.h" />
-    <ClInclude Include="include\CameraController.h" />
-    <ClInclude Include="Application.h" />
-    <ClInclude Include="events\ApplicationEvent.h" />
-    <ClInclude Include="events\Event.h" />
-    <ClInclude Include="events\KeyEvents.h" />
-    <ClInclude Include="events\MouseEvents.h" />
-    <ClInclude Include="include\Camera.h" />
-    <ClInclude Include="decorators\math\IObjectMover.h" />
-    <ClInclude Include="utility\Debug.h" />
-    <ClInclude Include="events\KeyCodes.h" />
-    <ClInclude Include="include\Scene.h" />
-    <ClInclude Include="decorators\math\SphereMover.h" />
-    <ClInclude Include="decorators\math\TransformMover.h" />
-    <ClInclude Include="decorators\math\Vector3Mover.h" />
-    <ClInclude Include="math\geometry\Mesh.h" />
-    <ClInclude Include="math\lights\Lighting.h" />
-    <ClInclude Include="math\lights\DirectionLight.h" />
-    <ClInclude Include="math\Intersection.h" />
-    <ClInclude Include="math\Material.h" />
-    <ClInclude Include="math\geometry\Plane.h" />
-    <ClInclude Include="math\lights\PointLight.h" />
-    <ClInclude Include="math\geometry\Ray.h" />
-    <ClInclude Include="math\geometry\Sphere.h" />
-    <ClInclude Include="math\lights\SpotLight.h" />
-    <ClInclude Include="math\Transform.h" />
-    <ClInclude Include="math\geometry\Triangle.h" />
-    <ClInclude Include="include\ParallelExecutor.h" />
-    <ClInclude Include="platform\windows\BaseWindow.h" />
-    <ClInclude Include="platform\windows\MainWindow.h" />
-    <ClInclude Include="platform\windows\winapi.hpp" />
-    <ClInclude Include="render\ConstantBuffer.h" />
-    <ClInclude Include="render\d3d.h" />
-    <ClInclude Include="render\DxRes.h" />
-    <ClInclude Include="render\Globals.h" />
-    <ClInclude Include="render\InputLayout.h" />
-    <ClInclude Include="render\Shader.h" />
-    <ClInclude Include="render\Vertex.h" />
-    <ClInclude Include="render\VertexBuffer.h" />
+    <ClInclude Include="source\render\Sky.h" />
+    <ClInclude Include="source\Engine.h" />
+    <ClInclude Include="source\ecs\ComponentArray.h" />
+    <ClInclude Include="source\ecs\ComponentManager.h" />
+    <ClInclude Include="source\ecs\Coordinator.h" />
+    <ClInclude Include="source\ecs\EntityManager.h" />
+    <ClInclude Include="source\ecs\System.h" />
+    <ClInclude Include="source\ecs\SystemManager.h" />
+    <ClInclude Include="source\ecs\Types.h" />
+    <ClInclude Include="source\include\ShaderManager.h" />
+    <ClInclude Include="source\render\Texture2D.h" />
+    <ClInclude Include="source\include\TextureManager.h" />
+    <ClInclude Include="source\utility\DDSTextureLoader.h" />
+    <ClInclude Include="source\include\CameraController.h" />
+    <ClInclude Include="source\include\Application.h" />
+    <ClInclude Include="source\events\ApplicationEvent.h" />
+    <ClInclude Include="source\events\Event.h" />
+    <ClInclude Include="source\events\KeyEvents.h" />
+    <ClInclude Include="source\events\MouseEvents.h" />
+    <ClInclude Include="source\include\Camera.h" />
+    <ClInclude Include="source\decorators\math\IObjectMover.h" />
+    <ClInclude Include="source\utility\Debug.h" />
+    <ClInclude Include="source\events\KeyCodes.h" />
+    <ClInclude Include="source\include\Scene.h" />
+    <ClInclude Include="source\decorators\math\SphereMover.h" />
+    <ClInclude Include="source\decorators\math\TransformMover.h" />
+    <ClInclude Include="source\decorators\math\Vector3Mover.h" />
+    <ClInclude Include="source\math\geometry\Mesh.h" />
+    <ClInclude Include="source\math\lights\Lighting.h" />
+    <ClInclude Include="source\math\lights\DirectionLight.h" />
+    <ClInclude Include="source\math\Intersection.h" />
+    <ClInclude Include="source\math\Material.h" />
+    <ClInclude Include="source\math\geometry\Plane.h" />
+    <ClInclude Include="source\math\lights\PointLight.h" />
+    <ClInclude Include="source\math\geometry\Ray.h" />
+    <ClInclude Include="source\math\geometry\Sphere.h" />
+    <ClInclude Include="source\math\lights\SpotLight.h" />
+    <ClInclude Include="source\math\Transform.h" />
+    <ClInclude Include="source\math\geometry\Triangle.h" />
+    <ClInclude Include="source\include\ParallelExecutor.h" />
+    <ClInclude Include="source\platform\windows\BaseWindow.h" />
+    <ClInclude Include="source\platform\windows\MainWindow.h" />
+    <ClInclude Include="source\platform\windows\winapi.hpp" />
+    <ClInclude Include="source\render\ConstantBuffer.h" />
+    <ClInclude Include="source\render\d3d.h" />
+    <ClInclude Include="source\render\DxRes.h" />
+    <ClInclude Include="source\render\Globals.h" />
+    <ClInclude Include="source\render\InputLayout.h" />
+    <ClInclude Include="source\render\Shader.h" />
+    <ClInclude Include="source\render\Vertex.h" />
+    <ClInclude Include="source\render\VertexBuffer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

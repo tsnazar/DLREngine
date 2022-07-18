@@ -15,23 +15,28 @@ namespace engine
 
 	Globals::Globals()
 	{
-		if (s_Instance != nullptr)
-			ALWAYS_ASSERT(false);
 
-		s_Instance = this;
-		InitD3D();
-		InitConstants();
 	}
 
-	Globals::~Globals()
+	void Globals::Init()
 	{
+		ALWAYS_ASSERT(s_Instance == nullptr);
+
+		s_Instance = new Globals();
+
+		s_Instance->InitD3D();
+		s_Instance->InitConstants();
+	}
+
+	void Globals::Fini()
+	{
+		ALWAYS_ASSERT(s_Instance != nullptr);
+		delete s_Instance;
 		s_Instance = nullptr;
 		s_Device = nullptr;
 		s_Debug = nullptr;
 		s_Devcon = nullptr;
 		s_Factory = nullptr;
-		//HRESULT result = m_Devdebug->ReportLiveDeviceObjects(D3D11_RLDO_SUMMARY | D3D11_RLDO_DETAIL);
-		//ALWAYS_ASSERT(SUCCEEDED(result));
 	}
 
 	void Globals::InitD3D()
@@ -109,26 +114,22 @@ namespace engine
 		m_PerFrameBuffer.Create<PerFrame>(D3D11_USAGE_DYNAMIC, nullptr, 0);
 	}
 
-	void Globals::BindConstantsToVS()
+	void Globals::Bind()
 	{
 		m_PerFrameBuffer.BindToVS(0);
-	}
-
-	void Globals::UpdateConstants()
-	{
-		m_PerFrameBuffer.Update(&m_PerFrame, sizeof(PerFrame));
-	}
-
-	void Globals::BindSamplerToPS()
-	{
-		if(m_CurrentSampler == 1)
+		if (m_CurrentSampler == 1)
 			m_Devcon->PSSetSamplers(0, 1, m_SamplerState1.ptrAdr());
-		else if(m_CurrentSampler == 2)
+		else if (m_CurrentSampler == 2)
 			m_Devcon->PSSetSamplers(0, 1, m_SamplerState2.ptrAdr());
 		else if (m_CurrentSampler == 3)
 			m_Devcon->PSSetSamplers(0, 1, m_SamplerState3.ptrAdr());
 		else if (m_CurrentSampler == 4)
 			m_Devcon->PSSetSamplers(0, 1, m_SamplerState4.ptrAdr());
+	}
+
+	void Globals::UpdateConstants()
+	{
+		m_PerFrameBuffer.Update(&m_PerFrame, sizeof(PerFrame));
 	}
 
 	void Globals::SetCurrentSampler(int sampler)

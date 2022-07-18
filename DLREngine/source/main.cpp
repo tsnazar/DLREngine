@@ -9,10 +9,9 @@
 
 #include "windows/MainWindow.h"
 #include "Globals.h"
-#include "ResourceManager.h"
 
 #include "Application.h"
-
+#include "Engine.h"
 
 void initConsole()
 {
@@ -25,15 +24,13 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 {
 	initConsole();
 
-	engine::Globals* glob = new engine::Globals;
-	engine::ResourceManager* manager = new engine::ResourceManager;
+	engine::Engine::Init();
 	engine::Application* app = new engine::Application(hInstance, nShowCmd);
 	
 	app->Run();
 	
 	delete app;
-	delete manager;
-	delete glob;
+	engine::Engine::Fini();
 
 	return 0;
 }

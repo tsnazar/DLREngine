@@ -12,7 +12,7 @@ namespace engine
 	public:
 		Texture2D() {}
 
-		void LoadFromFile(const std::string& filepath, uint32_t miscFlags = 0, size_t maxsize = 0, D3D11_USAGE usage = D3D11_USAGE_IMMUTABLE,
+		Texture2D& LoadFromFile(const std::string& filepath, uint32_t miscFlags = 0, size_t maxsize = 0, D3D11_USAGE usage = D3D11_USAGE_IMMUTABLE,
 							uint32_t bindFlags = D3D11_BIND_SHADER_RESOURCE, uint32_t cpuAccessFlags = 0, bool forceSRGB = false);
 
 		void BindToVS(uint32_t slot);

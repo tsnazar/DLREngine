@@ -43,7 +43,7 @@ namespace engine
 		}
 
 		template<typename T>
-		T& GetComponent()
+		T& GetComponent(Entity entity)
 		{
 			return GetComponentArray<T>()->GetData(entity);
 		}
@@ -64,7 +64,7 @@ namespace engine
 		{
 			const char* typeName = typeid(T).name();
 
-			ALWAYS_ASSERT(m_ComponentTypes.find(typeName) != m_ComponentType.end());
+			ALWAYS_ASSERT(m_ComponentTypes.find(typeName) != m_ComponentTypes.end());
 
 			return std::static_pointer_cast<ComponentArray<T>>(m_ComponentArrays[typeName]);
 		}

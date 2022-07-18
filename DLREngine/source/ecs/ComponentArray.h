@@ -19,7 +19,7 @@ namespace engine
 	public:
 		void InsertData(Entity entity, T component)
 		{
-			ALWAYS_ASSERT(m_EntityToIndexMap.find(entity) == m_EntityToIndex.end());
+			ALWAYS_ASSERT(m_EntityToIndex.find(entity) == m_EntityToIndex.end());
 
 			uint32_t newIndex = m_Size;
 			m_EntityToIndex[entity] = newIndex;

@@ -122,7 +122,10 @@ namespace engine
 	{
 		s_Devcon->ClearRenderTargetView(m_Backbuffer, color);
 		s_Devcon->ClearDepthStencilView(m_Depthbuffer.ptr(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 0.0f, 0);
-		
+	}
+
+	void MainWindow::BindRenderTarget()
+	{
 		s_Devcon->OMSetRenderTargets(1, m_Backbuffer.ptrAdr(), m_Depthbuffer.ptr());
 		s_Devcon->OMSetDepthStencilState(m_DepthState.ptr(), 0);
 	}
