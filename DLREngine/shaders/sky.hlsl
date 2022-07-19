@@ -1,10 +1,5 @@
 #include "globals.hlsl"
 
-//cbuffer Frustum : register(b1)
-//{
-//    float4 g_frustumCorners[3];
-//}
-
 struct VSQuadOut {
     float4 position : SV_Position;
     float3 dir: SampleDir;

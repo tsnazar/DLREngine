@@ -6,5 +6,5 @@ cbuffer PerFrame : register(b0)
 
 SamplerState g_sampler : SAMPLER: register(s0);
 
-float ZNEAR = 1.0f;
-float ZFAR = 0.0f;
+static const float ZNEAR = 1.0f;
+static const float ZFAR = 0.0f;

@@ -66,7 +66,7 @@ namespace engine
 
 		m_Scene->GetBuffer().Create<VertexPosTex>(D3D11_USAGE_IMMUTABLE, vertexData, 36);
 
-		m_Scene->GetSky().SetSky("skybox", "shaders/sky.hlsl", "./textures/cubemap.dds");
+		m_Scene->GetSky().SetSky("skybox", "./shaders/sky.hlsl", "./textures/cubemap.dds");
 		
 		//init camera
 		m_CameraController = std::unique_ptr<CameraController>(new CameraController(FOV, (float)width/(float)height, ZNEAR, ZFAR));
