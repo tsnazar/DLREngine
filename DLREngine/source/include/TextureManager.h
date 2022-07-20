@@ -20,7 +20,7 @@ namespace engine
 
 		Texture2D& GetTexture(const std::string name);
 	private:
-		using ContainerTextures = std::unordered_map<std::string, Texture2D>;
+		using ContainerTextures = std::unordered_map<std::string, std::unique_ptr<Texture2D>>;
 
 		ContainerTextures m_Textures;
 	protected:

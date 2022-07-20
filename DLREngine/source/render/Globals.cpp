@@ -30,6 +30,7 @@ namespace engine
 
 	void Globals::Fini()
 	{
+		//s_Device->ReportLiveDeviceObjects(D3D11_RLDO_SUMMARY | D3D11_RLDO_DETAIL);
 		ALWAYS_ASSERT(s_Instance != nullptr);
 		delete s_Instance;
 		s_Instance = nullptr;
@@ -88,19 +89,20 @@ namespace engine
 		sampDesc.MinLOD = 0;
 		sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
-		result = m_Device->CreateSamplerState(&sampDesc, m_SamplerState1.reset());
+		result = m_Device->CreateSamplerState(&sampDesc, m_SamplerStatePoint.reset());
 		ALWAYS_ASSERT(SUCCEEDED(result));
 
 		sampDesc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
-		result = m_Device->CreateSamplerState(&sampDesc, m_SamplerState2.reset());
+		result = m_Device->CreateSamplerState(&sampDesc, m_SamplerStateLinearMipPoint.reset());
 		ALWAYS_ASSERT(SUCCEEDED(result));
 
 		sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-		result = m_Device->CreateSamplerState(&sampDesc, m_SamplerState3.reset());
+		result = m_Device->CreateSamplerState(&sampDesc, m_SamplerStateLinear.reset());
 		ALWAYS_ASSERT(SUCCEEDED(result));
 
 		sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
-		result = m_Device->CreateSamplerState(&sampDesc, m_SamplerState4.reset());
+		sampDesc.MaxAnisotropy = D3D11_DEFAULT_MAX_ANISOTROPY;
+		result = m_Device->CreateSamplerState(&sampDesc, m_SamplerStateAnisotropic.reset());
 		ALWAYS_ASSERT(SUCCEEDED(result));
 
 		s_Factory = m_Factory5.ptr();
@@ -117,14 +119,17 @@ namespace engine
 	void Globals::Bind()
 	{
 		m_PerFrameBuffer.BindToVS(0);
+
 		if (m_CurrentSampler == 1)
-			m_Devcon->PSSetSamplers(0, 1, m_SamplerState1.ptrAdr());
+			m_Devcon->PSSetSamplers(0, 1, m_SamplerStatePoint.ptrAdr());
 		else if (m_CurrentSampler == 2)
-			m_Devcon->PSSetSamplers(0, 1, m_SamplerState2.ptrAdr());
+			m_Devcon->PSSetSamplers(0, 1, m_SamplerStateLinearMipPoint.ptrAdr());
 		else if (m_CurrentSampler == 3)
-			m_Devcon->PSSetSamplers(0, 1, m_SamplerState3.ptrAdr());
+			m_Devcon->PSSetSamplers(0, 1, m_SamplerStateLinear.ptrAdr());
 		else if (m_CurrentSampler == 4)
-			m_Devcon->PSSetSamplers(0, 1, m_SamplerState4.ptrAdr());
+			m_Devcon->PSSetSamplers(0, 1, m_SamplerStateAnisotropic.ptrAdr());
+
+		this->UpdateConstants();
 	}
 
 	void Globals::UpdateConstants()

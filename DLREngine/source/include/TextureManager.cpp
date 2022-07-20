@@ -28,9 +28,12 @@ namespace engine
 		ContainerTextures::iterator iter = m_Textures.find(name);
 
 		if (iter != m_Textures.end()) // texture with this name already exists
-			return iter->second;
+			return *(iter->second);
 
-		return m_Textures[name].LoadFromFile(filepath);
+		std::unique_ptr<Texture2D>& texture = m_Textures[name];
+		texture = std::make_unique<Texture2D>();
+
+		return texture->LoadFromFile(filepath);
 	}
 
 	Texture2D& TextureManager::LoadCubemap(const std::string& name, const std::string& filepath)
@@ -38,9 +41,12 @@ namespace engine
 		ContainerTextures::iterator iter = m_Textures.find(name);
 
 		if (iter != m_Textures.end()) // texture with this name already exists
-			return iter->second;
+			return *(iter->second);
 
-		return m_Textures[name].LoadFromFile(filepath, D3D11_RESOURCE_MISC_TEXTURECUBE);
+		std::unique_ptr<Texture2D>& texture = m_Textures[name];
+		texture = std::make_unique<Texture2D>();
+
+		return texture->LoadFromFile(filepath, D3D11_RESOURCE_MISC_TEXTURECUBE);
 	}
 	
 	bool TextureManager::TextureExists(const std::string& name)
@@ -57,6 +63,6 @@ namespace engine
 		if (iter == m_Textures.end()) // no texture with this name
 			ALWAYS_ASSERT(false);
 
-		return iter->second;
+		return *(iter->second);
 	}
 }

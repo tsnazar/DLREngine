@@ -29,9 +29,11 @@ namespace engine
 		ContainerShaders::iterator iter = m_Shaders.find(name);
 
 		if (iter != m_Shaders.end()) // shader  with this name already exists
-			return iter->second;
+			return *(iter->second);
 
-		m_Shaders[name].LoadFromFile(type, filepath);
+		std::unique_ptr<Shader>& shader = m_Shaders[name];
+		shader = std::make_unique<Shader>();
+		return shader->LoadFromFile(type, filepath);
 	}
 
 	void ShaderManager::LoadInputLayout(VertexType type, ID3D10Blob* blob)
@@ -39,7 +41,9 @@ namespace engine
 		if (InputLayoutExists(type)) // input  with this type already exists
 			return;
 
-		m_InputLayouts[type].Create(type, blob);
+		std::unique_ptr<InputLayout>& layout = m_InputLayouts[type];
+		layout = std::make_unique<InputLayout>();
+		layout->Create(type, blob);
 	}
 
 	bool ShaderManager::InputLayoutExists(VertexType type)
@@ -63,7 +67,7 @@ namespace engine
 		if (iter == m_InputLayouts.end()) // no texture with this name
 			ALWAYS_ASSERT(false);
 
-		return iter->second;
+		return *(iter->second);
 	}
 
 	Shader& ShaderManager::GetShader(const std::string& name)
@@ -73,7 +77,7 @@ namespace engine
 		if (iter == m_Shaders.end()) // no texture with this name
 			ALWAYS_ASSERT(false);
 
-		return iter->second;
+		return *(iter->second);
 	}
 
 }

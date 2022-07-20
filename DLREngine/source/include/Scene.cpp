@@ -28,7 +28,6 @@ namespace engine
 
 	bool Scene::Render(MainWindow& win, Camera& camera)
 	{
-		Globals::Get().Bind();
 
 		ShaderManager::Get().GetShader("shader").SetShaders();
 		TextureManager::Get().GetTexture("container").BindToPS(0);

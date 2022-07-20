@@ -9,7 +9,7 @@ namespace engine
 		LoadFromFile(type, filepath);
 	}
 
-	void Shader::LoadFromFile(const VertexType& type, const std::string& filepath)
+	Shader& Shader::LoadFromFile(const VertexType& type, const std::string& filepath)
 	{
 		DxResPtr<ID3D10Blob> VS, PS, error;
 
@@ -50,15 +50,10 @@ namespace engine
 			m_PixelShader.reset());
 		ALWAYS_ASSERT(SUCCEEDED(result));
 
-		/*if (type != VertexType::Undefined && s_Layouts.find(type) == s_Layouts.end())
-		{
-			auto& element = s_Layouts[type];
-			element = std::make_shared<InputLayout>();
-			element->Create(type, VS.ptr());
-		}*/
-
 		if (type != VertexType::Undefined)
 			ShaderManager::Get().LoadInputLayout(type, VS.ptr());
+
+		return *this;
 	}
 
 	void Shader::SetShaders()

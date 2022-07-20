@@ -13,7 +13,7 @@ namespace engine
 		Shader() {};
 		Shader(const VertexType& type, const std::string& filepath);
 		
-		void LoadFromFile(const VertexType& type, const std::string& filepath);
+		Shader& LoadFromFile(const VertexType& type, const std::string& filepath);
 
 		void SetShaders();
 	private:

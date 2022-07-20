@@ -43,10 +43,10 @@ namespace engine
 		DxResPtr<ID3D11DeviceContext> m_Devcon;
 		DxResPtr<ID3D11DeviceContext4> m_Devcon4;
 		DxResPtr<ID3D11Debug> m_Devdebug;
-		DxResPtr<ID3D11SamplerState> m_SamplerState1;
-		DxResPtr<ID3D11SamplerState> m_SamplerState2;
-		DxResPtr<ID3D11SamplerState> m_SamplerState3;
-		DxResPtr<ID3D11SamplerState> m_SamplerState4;
+		DxResPtr<ID3D11SamplerState> m_SamplerStatePoint;
+		DxResPtr<ID3D11SamplerState> m_SamplerStateLinearMipPoint;
+		DxResPtr<ID3D11SamplerState> m_SamplerStateLinear;
+		DxResPtr<ID3D11SamplerState> m_SamplerStateAnisotropic;
 
 		int m_CurrentSampler = 1;
 
