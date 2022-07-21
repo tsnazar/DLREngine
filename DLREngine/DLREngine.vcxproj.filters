@@ -29,145 +29,252 @@
     <Filter Include="Include">
       <UniqueIdentifier>{b25288ec-1388-4f57-a2eb-ce615059871e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{4ac46afb-f5e9-4a56-bf01-517dc8806364}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Events">
+      <UniqueIdentifier>{1c5b399d-bfb8-4ec2-8192-045e03a8b402}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Render">
+      <UniqueIdentifier>{14bd57d5-c68c-4268-8959-bb7b81607f31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ECS">
+      <UniqueIdentifier>{8ad468bc-03eb-4d0b-be8f-d012b35810d3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="source\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Controller.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="math\geometry\Mesh.cpp">
+    <ClCompile Include="source\math\geometry\Mesh.cpp">
       <Filter>Math\Geometry</Filter>
     </ClCompile>
-    <ClCompile Include="math\geometry\Plane.cpp">
+    <ClCompile Include="source\math\geometry\Plane.cpp">
       <Filter>Math\Geometry</Filter>
     </ClCompile>
-    <ClCompile Include="math\geometry\Sphere.cpp">
+    <ClCompile Include="source\math\geometry\Sphere.cpp">
       <Filter>Math\Geometry</Filter>
     </ClCompile>
-    <ClCompile Include="math\geometry\Triangle.cpp">
+    <ClCompile Include="source\math\geometry\Triangle.cpp">
       <Filter>Math\Geometry</Filter>
     </ClCompile>
-    <ClCompile Include="math\lights\SpotLight.cpp">
+    <ClCompile Include="source\math\lights\SpotLight.cpp">
       <Filter>Math\Lights</Filter>
     </ClCompile>
-    <ClCompile Include="math\lights\PointLight.cpp">
+    <ClCompile Include="source\math\lights\PointLight.cpp">
       <Filter>Math\Lights</Filter>
     </ClCompile>
-    <ClCompile Include="math\lights\DirectionLight.cpp">
+    <ClCompile Include="source\math\lights\DirectionLight.cpp">
       <Filter>Math\Lights</Filter>
     </ClCompile>
-    <ClCompile Include="include\Camera.cpp">
+    <ClCompile Include="source\include\Camera.cpp">
       <Filter>Include</Filter>
     </ClCompile>
-    <ClCompile Include="include\Scene.cpp">
+    <ClCompile Include="source\include\Scene.cpp">
       <Filter>Include</Filter>
     </ClCompile>
-    <ClCompile Include="platform\windows\BaseWindow.cpp">
+    <ClCompile Include="source\platform\windows\BaseWindow.cpp">
       <Filter>Platform\Windows</Filter>
     </ClCompile>
-    <ClCompile Include="platform\windows\MainWindow.cpp">
+    <ClCompile Include="source\platform\windows\MainWindow.cpp">
       <Filter>Platform\Windows</Filter>
     </ClCompile>
-    <ClCompile Include="math\lights\Lighting.cpp">
+    <ClCompile Include="source\math\lights\Lighting.cpp">
       <Filter>Math\Lights</Filter>
     </ClCompile>
-    <ClCompile Include="include\ParallelExecutor.cpp">
+    <ClCompile Include="source\include\ParallelExecutor.cpp">
       <Filter>Include</Filter>
     </ClCompile>
-    <ClCompile Include="render\d3d.cpp">
+    <ClCompile Include="source\utility\DDSTextureLoader.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="source\include\CameraController.cpp">
+      <Filter>Include</Filter>
+    </ClCompile>
+    <ClCompile Include="source\render\Texture2D.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="source\render\Shader.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="source\render\InputLayout.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="source\include\ShaderManager.cpp">
+      <Filter>Include</Filter>
+    </ClCompile>
+    <ClCompile Include="source\render\d3d.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="source\render\Globals.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Engine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="render\Globals.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="source\include\Application.cpp">
+      <Filter>Include</Filter>
     </ClCompile>
-    <ClCompile Include="render\Shader.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="source\render\Sky.cpp">
+      <Filter>Render</Filter>
     </ClCompile>
-    <ClCompile Include="render\InputLayout.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="source\include\TextureManager.cpp">
+      <Filter>Include</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="decorators\math\TransformMover.h">
+    <ClInclude Include="source\decorators\math\TransformMover.h">
       <Filter>Decorators\Math</Filter>
     </ClInclude>
-    <ClInclude Include="decorators\math\Vector3Mover.h">
+    <ClInclude Include="source\decorators\math\Vector3Mover.h">
       <Filter>Decorators\Math</Filter>
     </ClInclude>
-    <ClInclude Include="decorators\math\SphereMover.h">
+    <ClInclude Include="source\decorators\math\SphereMover.h">
       <Filter>Decorators\Math</Filter>
     </ClInclude>
-    <ClInclude Include="decorators\math\IObjectMover.h">
+    <ClInclude Include="source\decorators\math\IObjectMover.h">
       <Filter>Decorators\Math</Filter>
     </ClInclude>
-    <ClInclude Include="math\geometry\Mesh.h">
+    <ClInclude Include="source\math\geometry\Mesh.h">
       <Filter>Math\Geometry</Filter>
     </ClInclude>
-    <ClInclude Include="math\geometry\Triangle.h">
+    <ClInclude Include="source\math\geometry\Triangle.h">
       <Filter>Math\Geometry</Filter>
     </ClInclude>
-    <ClInclude Include="math\geometry\Sphere.h">
+    <ClInclude Include="source\math\geometry\Sphere.h">
       <Filter>Math\Geometry</Filter>
     </ClInclude>
-    <ClInclude Include="math\geometry\Ray.h">
+    <ClInclude Include="source\math\geometry\Ray.h">
       <Filter>Math\Geometry</Filter>
     </ClInclude>
-    <ClInclude Include="math\geometry\Plane.h">
+    <ClInclude Include="source\math\geometry\Plane.h">
       <Filter>Math\Geometry</Filter>
     </ClInclude>
-    <ClInclude Include="math\lights\SpotLight.h">
+    <ClInclude Include="source\math\lights\SpotLight.h">
       <Filter>Math\Lights</Filter>
     </ClInclude>
-    <ClInclude Include="math\lights\PointLight.h">
+    <ClInclude Include="source\math\lights\PointLight.h">
       <Filter>Math\Lights</Filter>
     </ClInclude>
-    <ClInclude Include="math\lights\DirectionLight.h">
+    <ClInclude Include="source\math\lights\DirectionLight.h">
       <Filter>Math\Lights</Filter>
     </ClInclude>
-    <ClInclude Include="math\Transform.h">
+    <ClInclude Include="source\math\Transform.h">
       <Filter>Math</Filter>
     </ClInclude>
-    <ClInclude Include="math\Material.h">
+    <ClInclude Include="source\math\Material.h">
       <Filter>Math</Filter>
     </ClInclude>
-    <ClInclude Include="math\Intersection.h">
+    <ClInclude Include="source\math\Intersection.h">
       <Filter>Math</Filter>
     </ClInclude>
-    <ClInclude Include="include\Camera.h">
+    <ClInclude Include="source\include\Camera.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="include\Scene.h">
+    <ClInclude Include="source\include\Scene.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="platform\windows\MainWindow.h">
+    <ClInclude Include="source\platform\windows\MainWindow.h">
       <Filter>Platform\Windows</Filter>
     </ClInclude>
-    <ClInclude Include="platform\windows\BaseWindow.h">
+    <ClInclude Include="source\platform\windows\BaseWindow.h">
       <Filter>Platform\Windows</Filter>
     </ClInclude>
-    <ClInclude Include="platform\windows\winapi.hpp">
+    <ClInclude Include="source\platform\windows\winapi.hpp">
       <Filter>Platform\Windows</Filter>
     </ClInclude>
-    <ClInclude Include="Controller.h">
+    <ClInclude Include="source\math\lights\Lighting.h">
+      <Filter>Math\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="source\include\ParallelExecutor.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="source\utility\Debug.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="source\utility\DDSTextureLoader.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="source\include\CameraController.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="source\events\KeyEvents.h">
+      <Filter>Events</Filter>
+    </ClInclude>
+    <ClInclude Include="source\events\MouseEvents.h">
+      <Filter>Events</Filter>
+    </ClInclude>
+    <ClInclude Include="source\events\ApplicationEvent.h">
+      <Filter>Events</Filter>
+    </ClInclude>
+    <ClInclude Include="source\events\Event.h">
+      <Filter>Events</Filter>
+    </ClInclude>
+    <ClInclude Include="source\render\VertexBuffer.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="source\render\Vertex.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="source\render\Texture2D.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="source\render\Shader.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="source\render\InputLayout.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="source\render\ConstantBuffer.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="source\include\ShaderManager.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="source\events\KeyCodes.h">
+      <Filter>Events</Filter>
+    </ClInclude>
+    <ClInclude Include="source\render\d3d.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="source\render\DxRes.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="source\render\Globals.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="source\ecs\ComponentArray.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="source\ecs\ComponentManager.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="source\ecs\Coordinator.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="source\ecs\EntityManager.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="source\ecs\SystemManager.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="source\ecs\System.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="source\ecs\Types.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="source\include\Application.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="source\render\Sky.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="source\include\TextureManager.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Engine.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="math\lights\Lighting.h">
-      <Filter>Math\Lights</Filter>
-    </ClInclude>
-    <ClInclude Include="include\ParallelExecutor.h">
-      <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="render\d3d.h" />
-    <ClInclude Include="render\DxRes.h" />
-    <ClInclude Include="render\Globals.h" />
-    <ClInclude Include="render\Shader.h" />
-    <ClInclude Include="include\Debug.h" />
-    <ClInclude Include="render\Vertex.h" />
-    <ClInclude Include="render\InputLayout.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="shaders\shader.shader" />
   </ItemGroup>
 </Project>
