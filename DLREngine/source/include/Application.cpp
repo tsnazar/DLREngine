@@ -5,6 +5,8 @@
 #include "KeyEvents.h"
 #include "TextureManager.h"
 #include "ShaderManager.h"
+#include "ModelManager.h"
+#include "MathUtils.h"
 
 namespace
 {
@@ -38,39 +40,70 @@ namespace engine
 		//init scene
 		m_Scene = std::unique_ptr<Scene>(new Scene());
 
-		ShaderManager::Get().LoadShader("shader", VertexType::PosTex, "shaders/shader.hlsl");
-		ShaderManager::Get().LoadShader("skybox", VertexType::Undefined, "shaders/sky.hlsl");
-		TextureManager::Get().LoadTexture2D("container", "assets/container2.dds");
+		ShaderManager::Get().LoadShader("shader", { VertexType::PosTex, InstanceType::Undefined }, "shaders/shader.hlsl");
+		ShaderManager::Get().LoadShader("instance", { VertexType::PosTex, InstanceType::Transform }, "shaders/instance.hlsl");
+		ShaderManager::Get().LoadShader("skybox", { VertexType::Undefined, InstanceType::Undefined }, "shaders/sky.hlsl");
 		TextureManager::Get().LoadCubemap("skybox", "assets/cubemap.dds");
 
-		VertexPosTex vertexData[] = {
-			//back
-			{ DirectX::XMFLOAT3{-0.5f, -0.5f, -0.5f}, DirectX::XMFLOAT2{0.f, 1.f}}, { DirectX::XMFLOAT3{-0.5f, 0.5f, -0.5f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{0.5f, -0.5f, -0.5f}, DirectX::XMFLOAT2{1.f, 1.f}},
-			{ DirectX::XMFLOAT3{0.5f, 0.5f, -0.5f}, DirectX::XMFLOAT2{1.f, 0.f}}, { DirectX::XMFLOAT3{0.5f, -0.5f, -0.5f}, DirectX::XMFLOAT2{1.f, 1.f}}, { DirectX::XMFLOAT3{-0.5f, 0.5f, -0.5f}, DirectX::XMFLOAT2{0.f, 0.f}},
-			//front
-			{ DirectX::XMFLOAT3{0.5f, -0.5f, 0.5f}, DirectX::XMFLOAT2{0.0f, 1.f}}, { DirectX::XMFLOAT3{0.5f, 0.5f, 0.5f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{-0.5f, -0.5f, 0.5f}, DirectX::XMFLOAT2{1.f, 1.f}},
-			{ DirectX::XMFLOAT3{-0.5f, 0.5f, 0.5f}, DirectX::XMFLOAT2{1.f, 0.f}}, { DirectX::XMFLOAT3{-0.5f, -0.5f, 0.5f}, DirectX::XMFLOAT2{1.f, 1.f}}, { DirectX::XMFLOAT3{0.5f, 0.5f, 0.5f}, DirectX::XMFLOAT2{0.f, 0.f}},
-			//right
-			{ DirectX::XMFLOAT3{0.5f, -0.5f, -0.5f}, DirectX::XMFLOAT2{0.f, 1.f}}, { DirectX::XMFLOAT3{0.5f, 0.5f, -0.5f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{0.5f, -0.5f, 0.5f}, DirectX::XMFLOAT2{1.f, 1.f}},
-			{ DirectX::XMFLOAT3{0.5f, -0.5f, 0.5f}, DirectX::XMFLOAT2{1.f, 1.f}}, { DirectX::XMFLOAT3{0.5f, 0.5f, -0.5f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{0.5f, 0.5f, 0.5f}, DirectX::XMFLOAT2{1.f, 0.f}},
-			//left
-			{ DirectX::XMFLOAT3{-0.5f, -0.5f, 0.5f}, DirectX::XMFLOAT2{0.f, 1.f}}, { DirectX::XMFLOAT3{-0.5f, 0.5f, 0.5f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{-0.5f, -0.5f, -0.5f}, DirectX::XMFLOAT2{1.f, 1.f}},
-			{ DirectX::XMFLOAT3{-0.5f, -0.5f, -0.5f}, DirectX::XMFLOAT2{1.f, 1.f}}, { DirectX::XMFLOAT3{-0.5f, 0.5f, 0.5f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{-0.5f, 0.5f, -0.5f}, DirectX::XMFLOAT2{1.f, 0.f}},
-			//bottom
-			{ DirectX::XMFLOAT3{-0.5f, -0.5f, 0.5f}, DirectX::XMFLOAT2{0.f, 1.f}}, { DirectX::XMFLOAT3{-0.5f, -0.5f, -0.5f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{0.5f, -0.5f, 0.5f}, DirectX::XMFLOAT2{1.f, 1.f}},
-			{ DirectX::XMFLOAT3{0.5f, -0.5f, 0.5f}, DirectX::XMFLOAT2{1.f, 1.f}}, { DirectX::XMFLOAT3{-0.5f, -0.5f, -0.5f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{0.5f, -0.5f, -0.5f}, DirectX::XMFLOAT2{1.f, 0.f}},
-			//top
-			{ DirectX::XMFLOAT3{-0.5f, 0.5f, -0.5f}, DirectX::XMFLOAT2{0.f, 1.f}}, { DirectX::XMFLOAT3{-0.5f, 0.5f, 0.5f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{0.5f, 0.5f, -0.5f}, DirectX::XMFLOAT2{1.f, 1.f}},
-			{ DirectX::XMFLOAT3{0.5f, 0.5f, -0.5f}, DirectX::XMFLOAT2{1.f, 1.f}}, { DirectX::XMFLOAT3{-0.5f, 0.5f, 0.5f}, DirectX::XMFLOAT2{0.f, 0.f}}, { DirectX::XMFLOAT3{0.5f, 0.5f, 0.5f}, DirectX::XMFLOAT2{1.f, 0.f}},
+		Model* pCube = &ModelManager::Get().CreateModel("Cube");
+		pCube->InitUnitCube();
+		std::vector<Texture2D*> cubeContainerTexture = { &TextureManager::Get().LoadTexture2D("container", "assets/container2.dds") };
+		std::vector<Texture2D*> cubeWallTexture = { &TextureManager::Get().LoadTexture2D("wall", "assets/stonewall.dds") };
+
+		Model* pSamurai = &ModelManager::Get().LoadModel("Samurai", "assets/Samurai/Samurai.fbx");
+		std::vector<Texture2D*> samuraiTextures =
+		{
+			&TextureManager::Get().LoadTexture2D("Sword", "assets/Samurai/dds/Sword_BaseColor.dds"),
+			&TextureManager::Get().LoadTexture2D("Head", "assets/Samurai/dds/Head_BaseColor.dds"),
+			&TextureManager::Get().LoadTexture2D("Eye", "assets/Samurai/dds/Eye_BaseColor.dds"),
+			&TextureManager::Get().LoadTexture2D("Helmet", "assets/Samurai/dds/Helmet_BaseColor.dds"),
+			&TextureManager::Get().LoadTexture2D("Torso", "assets/Samurai/dds/Torso_BaseColor.dds"),
+			&TextureManager::Get().LoadTexture2D("Legs", "assets/Samurai/dds/Legs_BaseColor.dds"),
+			&TextureManager::Get().LoadTexture2D("Hand", "assets/Samurai/dds/Hand_BaseColor.dds"),
+			&TextureManager::Get().LoadTexture2D("Torso", "assets/Samurai/dds/Torso_BaseColor.dds"),
 		};
 
-		m_Scene->GetBuffer().Create<VertexPosTex>(D3D11_USAGE_IMMUTABLE, vertexData, 36);
+		Model* pHorse = &ModelManager::Get().LoadModel("Horse", "assets/KnightHorse/KnightHorse.fbx");
+		std::vector<Texture2D*> horseTextures = 
+		{
+			&TextureManager::Get().LoadTexture2D("Armor", "assets/KnightHorse/dds/Armor_BaseColor.dds"),
+			&TextureManager::Get().LoadTexture2D("Horse", "assets/KnightHorse/dds/Horse_BaseColor.dds"),
+			&TextureManager::Get().LoadTexture2D("Tail", "assets/KnightHorse/dds/Tail_BaseColor.dds"),
+		};
+
+		InstanceTransform transform;
+
+		DirectX::XMMATRIX mat = DirectX::XMMatrixAffineTransformation(DirectX::XMVectorReplicate(10.0f), 
+			DirectX::XMVectorZero(), DirectX::XMQuaternionIdentity(), DirectX::XMVectorSet(0.0f, -5.0f, 0.0f, 0.0f));
+		mat = DirectX::XMMatrixTranspose(mat);
+		LoadMatrixInArray(mat, transform.matrix);
+		m_Scene->GetOpaque().AddInstance(pCube, cubeWallTexture, transform);
+
+		mat = DirectX::XMMatrixTranslation(0.0f, 0.5f, -4.0f);
+		mat = DirectX::XMMatrixTranspose(mat);
+		LoadMatrixInArray(mat, transform.matrix);
+		m_Scene->GetOpaque().AddInstance(pCube, cubeContainerTexture, transform);
+
+		for (uint32_t i = 0; i < 3; ++i)
+		{
+			mat = DirectX::XMMatrixTranslation(-4.0f + i * 3.0f, 0.0f, 0.0f);
+			mat = DirectX::XMMatrixTranspose(mat);
+			LoadMatrixInArray(mat, transform.matrix);
+
+			m_Scene->GetOpaque().AddInstance(pSamurai, samuraiTextures, transform);
+
+			mat = DirectX::XMMatrixTranslation(-3.0f + i * 3.0f, 0.0f, 0.0f);
+			mat = DirectX::XMMatrixTranspose(mat);
+			LoadMatrixInArray(mat, transform.matrix);
+
+			m_Scene->GetOpaque().AddInstance(pHorse, horseTextures, transform);
+		}
 
 		m_Scene->GetSky().SetSky("skybox", "shaders/sky.hlsl", "assets/cubemap.dds");
 		
 		//init camera
 		m_CameraController = std::unique_ptr<CameraController>(new CameraController(FOV, (float)width/(float)height, ZNEAR, ZFAR));
-		m_CameraController->GetCamera().SetWorldOffset({0.f, 0.f, -5.f});
+		m_CameraController->GetCamera().SetWorldOffset({0.f, 1.f, -10.0f});
 	}
 
 	Application::~Application()
@@ -150,6 +183,8 @@ namespace engine
 		XMStoreFloat4(&(p.frustumCorners[0]), TL);
 		XMStoreFloat4(&(p.frustumCorners[1]), xDir);
 		XMStoreFloat4(&(p.frustumCorners[2]), yDir);
+
+		m_Scene->Update(delta);
 
 	}
 	

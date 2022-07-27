@@ -10,6 +10,7 @@
 #include "Texture2D.h"
 #include "ConstantBuffer.h"
 #include "Sky.h"
+#include "OpaqueInstances.h"
 
 namespace engine
 {
@@ -23,11 +24,12 @@ namespace engine
 		Scene() {};
 
 		bool Render(MainWindow& win, Camera& camera);
+		void Update(float dt);
 
-		VertexBuffer& GetBuffer() { return m_Buffer; }
 		Sky& GetSky() { return m_Sky; }
+		OpaqueInstances& GetOpaque() { return m_Opaque; }
 	private:
-		VertexBuffer m_Buffer;
 		Sky m_Sky;
+		OpaqueInstances m_Opaque;
 	};
 }

@@ -32,5 +32,12 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	delete app;
 	engine::Engine::Fini();
 
+	/*Assimp::Importer importer;
+	uint32_t flags = uint32_t(aiProcess_Triangulate | aiProcess_GenBoundingBoxes | aiProcess_ConvertToLeftHanded | aiProcess_CalcTangentSpace);
+
+	const aiScene* scene = importer.ReadFile("assets/Samurai/Samurai.fbx", flags);
+
+	std::cout << scene->mNumMeshes << std::endl;*/
+
 	return 0;
 }

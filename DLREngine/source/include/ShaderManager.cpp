@@ -24,7 +24,7 @@ namespace engine
 		s_Instance == nullptr;
 	}
 
-	Shader& ShaderManager::LoadShader(const std::string& name, VertexType type, const std::string& filepath)
+	Shader& ShaderManager::LoadShader(const std::string& name, InputLayout::LayoutSignature type, const std::string& filepath)
 	{
 		ContainerShaders::iterator iter = m_Shaders.find(name);
 
@@ -33,20 +33,20 @@ namespace engine
 
 		std::unique_ptr<Shader>& shader = m_Shaders[name];
 		shader = std::make_unique<Shader>();
-		return shader->LoadFromFile(type, filepath);
+		return shader->LoadFromFile(filepath, type);
 	}
 
-	void ShaderManager::LoadInputLayout(VertexType type, ID3D10Blob* blob)
+	void ShaderManager::LoadInputLayout(InputLayout::LayoutSignature type, ID3D10Blob* blob)
 	{
 		if (InputLayoutExists(type)) // input  with this type already exists
 			return;
 
 		std::unique_ptr<InputLayout>& layout = m_InputLayouts[type];
 		layout = std::make_unique<InputLayout>();
-		layout->Create(type, blob);
+		layout->Create(blob, type);
 	}
 
-	bool ShaderManager::InputLayoutExists(VertexType type)
+	bool ShaderManager::InputLayoutExists(InputLayout::LayoutSignature type)
 	{
 		if (m_InputLayouts.find(type) != m_InputLayouts.end())
 			return true;
@@ -60,7 +60,7 @@ namespace engine
 		return false;
 	}
 
-	InputLayout& ShaderManager::GetInputLayout(VertexType type)
+	InputLayout& ShaderManager::GetInputLayout(InputLayout::LayoutSignature type)
 	{
 		ContainerInputLayout::iterator iter = m_InputLayouts.find(type);
 

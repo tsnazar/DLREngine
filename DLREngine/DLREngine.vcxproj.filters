@@ -121,6 +121,18 @@
     <ClCompile Include="source\include\TextureManager.cpp">
       <Filter>Include</Filter>
     </ClCompile>
+    <ClCompile Include="source\render\Model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\include\ModelManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\include\OpaqueInstances.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\utility\MathUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\decorators\math\TransformMover.h">
@@ -276,5 +288,14 @@
     <ClInclude Include="source\Engine.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="source\render\IndexBuffer.h" />
+    <ClInclude Include="source\render\Model.h" />
+    <ClInclude Include="source\include\ModelManager.h" />
+    <ClInclude Include="source\ecs\components\TransformComponent.h" />
+    <ClInclude Include="source\ecs\components\ModelComponent.h" />
+    <ClInclude Include="source\render\Instance.h" />
+    <ClInclude Include="source\include\OpaqueInstances.h" />
+    <ClInclude Include="source\utility\MathUtils.h" />
+    <ClInclude Include="source\utility\HashUtils.h" />
   </ItemGroup>
 </Project>

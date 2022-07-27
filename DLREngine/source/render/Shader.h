@@ -11,9 +11,9 @@ namespace engine
 	{
 	public:
 		Shader() {};
-		Shader(const VertexType& type, const std::string& filepath);
+		Shader(const std::string& filepath, const InputLayout::LayoutSignature& signature);
 		
-		Shader& LoadFromFile(const VertexType& type, const std::string& filepath);
+		Shader& LoadFromFile(const std::string& filepath, const InputLayout::LayoutSignature& signature);
 
 		void SetShaders();
 	private:

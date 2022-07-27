@@ -4,12 +4,12 @@
 
 namespace engine
 {
-	Shader::Shader(const VertexType& type, const std::string& filepath)
+	Shader::Shader(const std::string& filepath, const InputLayout::LayoutSignature& signature)
 	{
-		LoadFromFile(type, filepath);
+		LoadFromFile(filepath, signature);
 	}
 
-	Shader& Shader::LoadFromFile(const VertexType& type, const std::string& filepath)
+	Shader& Shader::LoadFromFile(const std::string& filepath, const InputLayout::LayoutSignature& signature)
 	{
 		DxResPtr<ID3D10Blob> VS, PS, error;
 
@@ -50,8 +50,8 @@ namespace engine
 			m_PixelShader.reset());
 		ALWAYS_ASSERT(SUCCEEDED(result));
 
-		if (type != VertexType::Undefined)
-			ShaderManager::Get().LoadInputLayout(type, VS.ptr());
+		if (signature.verType != VertexType::Undefined || signature.insType != InstanceType::Undefined)
+			ShaderManager::Get().LoadInputLayout(signature, VS.ptr());
 
 		return *this;
 	}

@@ -18,24 +18,21 @@ namespace
 	const XMVECTOR GAMMA_CORRECTION = XMVectorReplicate(1.0f / 2.2f);
 }
 
-
 namespace engine
 {
-	static XMVECTOR findMaxComponent(const XMVECTOR& vec)
-	{
-		return XMVectorReplicate((std::max)((std::max)(XMVectorGetX(vec), XMVectorGetY(vec)), XMVectorGetZ(vec)));
-	}
-
 	bool Scene::Render(MainWindow& win, Camera& camera)
 	{
 
-		ShaderManager::Get().GetShader("shader").SetShaders();
-		TextureManager::Get().GetTexture("container").BindToPS(0);
-		m_Buffer.SetBuffer();
-		s_Devcon->Draw(m_Buffer.GetVertexCount(), 0);
+		ShaderManager::Get().GetShader("instance").SetShaders();
+		ShaderManager::Get().GetInputLayout({VertexType::PosTex, InstanceType::Transform}).SetInputLayout();
+		m_Opaque.Render();
 
 		m_Sky.Render(camera);
 
 		return true;
+	}
+	void Scene::Update(float dt)
+	{
+		m_Opaque.UpdateInstanceBuffers();
 	}
 }

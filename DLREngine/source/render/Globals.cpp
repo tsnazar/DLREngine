@@ -30,7 +30,7 @@ namespace engine
 
 	void Globals::Fini()
 	{
-		//s_Device->ReportLiveDeviceObjects(D3D11_RLDO_SUMMARY | D3D11_RLDO_DETAIL);
+		//s_Debug->ReportLiveDeviceObjects(D3D11_RLDO_SUMMARY | D3D11_RLDO_DETAIL);
 		ALWAYS_ASSERT(s_Instance != nullptr);
 		delete s_Instance;
 		s_Instance = nullptr;
@@ -113,7 +113,7 @@ namespace engine
 
 	void Globals::InitConstants()
 	{
-		m_PerFrameBuffer.Create<PerFrame>(D3D11_USAGE_DYNAMIC, nullptr, 0);
+		m_PerFrameBuffer.Create<PerFrame>(D3D11_USAGE_DYNAMIC, nullptr, 1);
 	}
 
 	void Globals::Bind()
@@ -134,7 +134,7 @@ namespace engine
 
 	void Globals::UpdateConstants()
 	{
-		m_PerFrameBuffer.Update(&m_PerFrame, sizeof(PerFrame));
+		m_PerFrameBuffer.Update(&m_PerFrame, 1);
 	}
 
 	void Globals::SetCurrentSampler(int sampler)

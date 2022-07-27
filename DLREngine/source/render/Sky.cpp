@@ -9,7 +9,7 @@ namespace engine
 
 	void Sky::SetSky(const std::string& name, const std::string& shaderPath, const std::string& texturePath)
 	{
-		m_Shader = &ShaderManager::Get().LoadShader(name, VertexType::Undefined, shaderPath);
+		m_Shader = &ShaderManager::Get().LoadShader(name, { VertexType::Undefined, InstanceType::Undefined }, shaderPath);
 		m_Texture = &TextureManager::Get().LoadCubemap(name, texturePath);
 	}
 
