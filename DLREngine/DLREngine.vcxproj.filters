@@ -241,6 +241,5 @@
     <ClInclude Include="source\utility\MathUtils.h" />
     <ClInclude Include="source\utility\HashUtils.h" />
     <ClInclude Include="source\render\MeshSystem.h" />
-    <ClInclude Include="source\render\Material.h" />
   </ItemGroup>
 </Project>

@@ -48,11 +48,11 @@ namespace engine
 
 		Model* pCube = &ModelManager::Get().CreateModel("Cube");
 		pCube->InitUnitCube();
-		std::vector<Material> cubeContainerTexture = { {&TextureManager::Get().LoadTexture2D("container", "assets/container2.dds")} };
-		std::vector<Material> cubeWallTexture = { {&TextureManager::Get().LoadTexture2D("wall", "assets/stonewall.dds")} };
+		std::vector<OpaqueInstances::Material> cubeContainerTexture = { {&TextureManager::Get().LoadTexture2D("container", "assets/container2.dds")} };
+		std::vector<OpaqueInstances::Material> cubeWallTexture = { {&TextureManager::Get().LoadTexture2D("wall", "assets/stonewall.dds")} };
 
 		Model* pSamurai = &ModelManager::Get().LoadModel("Samurai", "assets/Samurai/Samurai.fbx");
-		std::vector<Material> samuraiTextures =
+		std::vector<OpaqueInstances::Material> samuraiTextures =
 		{
 			{&TextureManager::Get().LoadTexture2D("Sword", "assets/Samurai/dds/Sword_BaseColor.dds")},
 			{&TextureManager::Get().LoadTexture2D("Head", "assets/Samurai/dds/Head_BaseColor.dds")},
@@ -65,7 +65,7 @@ namespace engine
 		};
 
 		Model* pHorse = &ModelManager::Get().LoadModel("Horse", "assets/KnightHorse/KnightHorse.fbx");
-		std::vector<Material> horseTextures =
+		std::vector<OpaqueInstances::Material> horseTextures =
 		{
 			{&TextureManager::Get().LoadTexture2D("Armor", "assets/KnightHorse/dds/Armor_BaseColor.dds")},
 			{&TextureManager::Get().LoadTexture2D("Horse", "assets/KnightHorse/dds/Horse_BaseColor.dds")},

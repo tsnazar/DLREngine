@@ -1,19 +1,38 @@
 #pragma once
 #include "Model.h"
 #include "Texture2D.h"
-#include "Material.h"
 #include "VertexBuffer.h"
 #include "ConstantBuffer.h"
 #include "Instance.h"
 #include <xhash>
-
-
 
 namespace engine
 {
 	class OpaqueInstances
 	{
 	public:
+
+		struct Material
+		{
+			Texture2D* texture;
+
+			bool operator<(const Material& other)
+			{
+				return texture < texture;
+			}
+
+			friend bool operator==(const Material& lhs, const Material& rhs)
+			{
+				return lhs.texture == rhs.texture;
+			}
+
+			struct hash {
+				size_t operator()(const Material& v) const {
+					return std::hash<Texture2D*>{}(v.texture);
+				}
+			};
+		};
+
 		struct PerMaterial
 		{
 			Material material;
@@ -22,7 +41,7 @@ namespace engine
 
 		struct PerMesh
 		{
-			std::unordered_map<Material, uint32_t> materialIndexMap;
+			std::unordered_map<Material, uint32_t, Material::hash> materialIndexMap;
 			std::vector<PerMaterial> perMaterial;
 		};
 

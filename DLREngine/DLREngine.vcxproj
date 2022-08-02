@@ -129,7 +129,6 @@
     <ClInclude Include="source\include\ModelManager.h" />
     <ClInclude Include="source\render\IndexBuffer.h" />
     <ClInclude Include="source\render\Instance.h" />
-    <ClInclude Include="source\render\Material.h" />
     <ClInclude Include="source\render\MeshSystem.h" />
     <ClInclude Include="source\render\Model.h" />
     <ClInclude Include="source\render\Sky.h" />
