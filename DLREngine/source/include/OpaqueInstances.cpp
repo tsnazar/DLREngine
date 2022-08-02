@@ -75,7 +75,7 @@ namespace engine
 
 					const auto& material = perMaterial.material;
 
-					material->BindToPS(0);
+					material.texture->BindToPS(0);
 
 					uint32_t numInstances = static_cast<uint32_t>(perMaterial.instances.size());
 
@@ -90,7 +90,7 @@ namespace engine
 		}
 	}
 
-	void OpaqueInstances::AddInstance(Model* model, std::vector<Texture2D*>& materials, InstanceTransform instance)
+	void OpaqueInstances::AddInstance(Model* model, std::vector<Material>& materials, InstanceTransform instance)
 	{
 		m_ResizeInstanceBuffer = true;
 
@@ -111,20 +111,19 @@ namespace engine
 
 		for (uint32_t i = 0; i < numMeshes; ++i)
 		{
-			auto& textureIndexMap = perModel.perMesh[i].textureIndexMap;
+			auto& materialIndexMap = perModel.perMesh[i].materialIndexMap;
 			
-			if (textureIndexMap.find(materials[i]) == textureIndexMap.end())
+			if (materialIndexMap.find(materials[i]) == materialIndexMap.end())
 			{
 				uint32_t materialIndex = perModel.perMesh[i].perMaterial.size();
-				textureIndexMap[materials[i]] = materialIndex;
+				materialIndexMap[materials[i]] = materialIndex;
 
 				perModel.perMesh[i].perMaterial.emplace_back();
 				perModel.perMesh[i].perMaterial[materialIndex].material = materials[i];
 			}
 
-			perModel.perMesh[i].perMaterial[textureIndexMap[materials[i]]].instances.push_back(instance);
+			perModel.perMesh[i].perMaterial[materialIndexMap[materials[i]]].instances.push_back(instance);
 		}
 	}
 }
-
 

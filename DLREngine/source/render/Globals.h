@@ -48,7 +48,7 @@ namespace engine
 		DxResPtr<ID3D11SamplerState> m_SamplerStateLinear;
 		DxResPtr<ID3D11SamplerState> m_SamplerStateAnisotropic;
 
-		int m_CurrentSampler = 1;
+		int m_CurrentSampler = 3;
 
 		PerFrame m_PerFrame;
 		ConstantBuffer m_PerFrameBuffer;

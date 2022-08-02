@@ -14,22 +14,19 @@
 
 namespace engine
 {
-	class Scene
+	class Renderer
 	{
 	protected:
 
 	public:
 		
 	public:
-		Scene() {};
+		Renderer() {};
 
 		bool Render(MainWindow& win, Camera& camera);
-		void Update(float dt);
 
 		Sky& GetSky() { return m_Sky; }
-		OpaqueInstances& GetOpaque() { return m_Opaque; }
 	private:
 		Sky m_Sky;
-		OpaqueInstances m_Opaque;
 	};
 }

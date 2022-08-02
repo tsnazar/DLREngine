@@ -1,29 +1,28 @@
 #pragma once
 #include "Model.h"
 #include "Texture2D.h"
+#include "Material.h"
 #include "VertexBuffer.h"
 #include "ConstantBuffer.h"
 #include "Instance.h"
+#include <xhash>
+
+
 
 namespace engine
 {
 	class OpaqueInstances
 	{
 	public:
-		struct Material
-		{
-
-		};
-
 		struct PerMaterial
 		{
-			Texture2D* material;
+			Material material;
 			std::vector<InstanceTransform> instances;
 		};
 
 		struct PerMesh
 		{
-			std::unordered_map<Texture2D*, uint32_t> textureIndexMap;
+			std::unordered_map<Material, uint32_t> materialIndexMap;
 			std::vector<PerMaterial> perMaterial;
 		};
 
@@ -40,7 +39,7 @@ namespace engine
 		
 		void Render();
 
-		void AddInstance(Model* model, std::vector<Texture2D*>& materials, InstanceTransform instance);
+		void AddInstance(Model* model, std::vector<Material>& materials, InstanceTransform instance);
 
 	private:
 		bool m_ResizeInstanceBuffer = false;
@@ -49,5 +48,5 @@ namespace engine
 		VertexBuffer m_InstanceBuffer;
 		ConstantBuffer m_ConstantBuffer;
 	};
-
 }
+

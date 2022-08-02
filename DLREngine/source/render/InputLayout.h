@@ -42,14 +42,10 @@ namespace engine
 
 namespace std
 {
-	using Key = engine::InputLayout::LayoutSignature;
-
-
-
 	template<>
-	struct hash<Key>
+	struct hash<engine::InputLayout::LayoutSignature>
 	{
-		std::size_t operator()(const Key& k) const
+		std::size_t operator()(const engine::InputLayout::LayoutSignature& k) const
 		{
 			std::size_t res;
 			hashCombine(res, k.verType);

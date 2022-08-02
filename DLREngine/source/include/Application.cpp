@@ -7,6 +7,7 @@
 #include "ShaderManager.h"
 #include "ModelManager.h"
 #include "MathUtils.h"
+#include "MeshSystem.h"
 
 namespace
 {
@@ -38,7 +39,7 @@ namespace engine
 		m_Window->BindEventCallback(f);
 
 		//init scene
-		m_Scene = std::unique_ptr<Scene>(new Scene());
+		m_Renderer = std::unique_ptr<Renderer>(new Renderer());
 
 		ShaderManager::Get().LoadShader("shader", { VertexType::PosTex, InstanceType::Undefined }, "shaders/shader.hlsl");
 		ShaderManager::Get().LoadShader("instance", { VertexType::PosTex, InstanceType::Transform }, "shaders/instance.hlsl");
@@ -47,28 +48,28 @@ namespace engine
 
 		Model* pCube = &ModelManager::Get().CreateModel("Cube");
 		pCube->InitUnitCube();
-		std::vector<Texture2D*> cubeContainerTexture = { &TextureManager::Get().LoadTexture2D("container", "assets/container2.dds") };
-		std::vector<Texture2D*> cubeWallTexture = { &TextureManager::Get().LoadTexture2D("wall", "assets/stonewall.dds") };
+		std::vector<Material> cubeContainerTexture = { {&TextureManager::Get().LoadTexture2D("container", "assets/container2.dds")} };
+		std::vector<Material> cubeWallTexture = { {&TextureManager::Get().LoadTexture2D("wall", "assets/stonewall.dds")} };
 
 		Model* pSamurai = &ModelManager::Get().LoadModel("Samurai", "assets/Samurai/Samurai.fbx");
-		std::vector<Texture2D*> samuraiTextures =
+		std::vector<Material> samuraiTextures =
 		{
-			&TextureManager::Get().LoadTexture2D("Sword", "assets/Samurai/dds/Sword_BaseColor.dds"),
-			&TextureManager::Get().LoadTexture2D("Head", "assets/Samurai/dds/Head_BaseColor.dds"),
-			&TextureManager::Get().LoadTexture2D("Eye", "assets/Samurai/dds/Eye_BaseColor.dds"),
-			&TextureManager::Get().LoadTexture2D("Helmet", "assets/Samurai/dds/Helmet_BaseColor.dds"),
-			&TextureManager::Get().LoadTexture2D("Torso", "assets/Samurai/dds/Torso_BaseColor.dds"),
-			&TextureManager::Get().LoadTexture2D("Legs", "assets/Samurai/dds/Legs_BaseColor.dds"),
-			&TextureManager::Get().LoadTexture2D("Hand", "assets/Samurai/dds/Hand_BaseColor.dds"),
-			&TextureManager::Get().LoadTexture2D("Torso", "assets/Samurai/dds/Torso_BaseColor.dds"),
+			{&TextureManager::Get().LoadTexture2D("Sword", "assets/Samurai/dds/Sword_BaseColor.dds")},
+			{&TextureManager::Get().LoadTexture2D("Head", "assets/Samurai/dds/Head_BaseColor.dds")},
+			{&TextureManager::Get().LoadTexture2D("Eye", "assets/Samurai/dds/Eye_BaseColor.dds")},
+			{&TextureManager::Get().LoadTexture2D("Helmet", "assets/Samurai/dds/Helmet_BaseColor.dds")},
+			{&TextureManager::Get().LoadTexture2D("Torso", "assets/Samurai/dds/Torso_BaseColor.dds")},
+			{&TextureManager::Get().LoadTexture2D("Legs", "assets/Samurai/dds/Legs_BaseColor.dds")},
+			{&TextureManager::Get().LoadTexture2D("Hand", "assets/Samurai/dds/Hand_BaseColor.dds")},
+			{&TextureManager::Get().LoadTexture2D("Torso", "assets/Samurai/dds/Torso_BaseColor.dds")},
 		};
 
 		Model* pHorse = &ModelManager::Get().LoadModel("Horse", "assets/KnightHorse/KnightHorse.fbx");
-		std::vector<Texture2D*> horseTextures = 
+		std::vector<Material> horseTextures =
 		{
-			&TextureManager::Get().LoadTexture2D("Armor", "assets/KnightHorse/dds/Armor_BaseColor.dds"),
-			&TextureManager::Get().LoadTexture2D("Horse", "assets/KnightHorse/dds/Horse_BaseColor.dds"),
-			&TextureManager::Get().LoadTexture2D("Tail", "assets/KnightHorse/dds/Tail_BaseColor.dds"),
+			{&TextureManager::Get().LoadTexture2D("Armor", "assets/KnightHorse/dds/Armor_BaseColor.dds")},
+			{&TextureManager::Get().LoadTexture2D("Horse", "assets/KnightHorse/dds/Horse_BaseColor.dds")},
+			{&TextureManager::Get().LoadTexture2D("Tail", "assets/KnightHorse/dds/Tail_BaseColor.dds")},
 		};
 
 		InstanceTransform transform;
@@ -77,12 +78,12 @@ namespace engine
 			DirectX::XMVectorZero(), DirectX::XMQuaternionIdentity(), DirectX::XMVectorSet(0.0f, -5.0f, 0.0f, 0.0f));
 		mat = DirectX::XMMatrixTranspose(mat);
 		LoadMatrixInArray(mat, transform.matrix);
-		m_Scene->GetOpaque().AddInstance(pCube, cubeWallTexture, transform);
+		MeshSystem::Get().GetOpaqueInstances().AddInstance(pCube, cubeWallTexture, transform);
 
 		mat = DirectX::XMMatrixTranslation(0.0f, 0.5f, -4.0f);
 		mat = DirectX::XMMatrixTranspose(mat);
 		LoadMatrixInArray(mat, transform.matrix);
-		m_Scene->GetOpaque().AddInstance(pCube, cubeContainerTexture, transform);
+		MeshSystem::Get().GetOpaqueInstances().AddInstance(pCube, cubeContainerTexture, transform);
 
 		for (uint32_t i = 0; i < 3; ++i)
 		{
@@ -90,16 +91,16 @@ namespace engine
 			mat = DirectX::XMMatrixTranspose(mat);
 			LoadMatrixInArray(mat, transform.matrix);
 
-			m_Scene->GetOpaque().AddInstance(pSamurai, samuraiTextures, transform);
+			MeshSystem::Get().GetOpaqueInstances().AddInstance(pSamurai, samuraiTextures, transform);
 
 			mat = DirectX::XMMatrixTranslation(-3.0f + i * 3.0f, 0.0f, 0.0f);
 			mat = DirectX::XMMatrixTranspose(mat);
 			LoadMatrixInArray(mat, transform.matrix);
 
-			m_Scene->GetOpaque().AddInstance(pHorse, horseTextures, transform);
+			MeshSystem::Get().GetOpaqueInstances().AddInstance(pHorse, horseTextures, transform);
 		}
 
-		m_Scene->GetSky().SetSky("skybox", "shaders/sky.hlsl", "assets/cubemap.dds");
+		m_Renderer->GetSky().SetSky("skybox", "shaders/sky.hlsl", "assets/cubemap.dds");
 		
 		//init camera
 		m_CameraController = std::unique_ptr<CameraController>(new CameraController(FOV, (float)width/(float)height, ZNEAR, ZFAR));
@@ -184,8 +185,7 @@ namespace engine
 		XMStoreFloat4(&(p.frustumCorners[1]), xDir);
 		XMStoreFloat4(&(p.frustumCorners[2]), yDir);
 
-		m_Scene->Update(delta);
-
+		MeshSystem::Get().Update();
 	}
 	
 	void Application::Render()
@@ -196,7 +196,7 @@ namespace engine
 		m_Window->BindRenderTarget();
 		Globals::Get().Bind();
 
-		m_Scene->Render(*m_Window, m_CameraController->GetCamera());
+		m_Renderer->Render(*m_Window, m_CameraController->GetCamera());
 		m_Window->Flush();
 	}
 }
