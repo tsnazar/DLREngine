@@ -37,13 +37,30 @@ namespace engine
 
 		std::function<void(Event&)> f = std::bind(&Application::OnEvent, this, std::placeholders::_1);
 		m_Window->BindEventCallback(f);
+		Globals::Get().CreateDepthBuffer(m_Window->GetClientWidth(), m_Window->GetClientHeight());
 
 		//init scene
 		m_Renderer = std::unique_ptr<Renderer>(new Renderer());
 
-		ShaderManager::Get().LoadShader("shader", { VertexType::PosTex, InstanceType::Undefined }, "shaders/shader.hlsl");
-		ShaderManager::Get().LoadShader("instance", { VertexType::PosTex, InstanceType::Transform }, "shaders/instance.hlsl");
-		ShaderManager::Get().LoadShader("skybox", { VertexType::Undefined, InstanceType::Undefined }, "shaders/sky.hlsl");
+		std::vector<D3D11_INPUT_ELEMENT_DESC> simple = {
+			D3D11_INPUT_ELEMENT_DESC{ "POS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTex, pos), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			D3D11_INPUT_ELEMENT_DESC{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(VertexPosTex, texCoord), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		};
+
+		std::vector<D3D11_INPUT_ELEMENT_DESC> instance = {
+			D3D11_INPUT_ELEMENT_DESC{ "POS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTexNorTan, pos), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			D3D11_INPUT_ELEMENT_DESC{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(VertexPosTexNorTan, texCoord), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			D3D11_INPUT_ELEMENT_DESC{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTexNorTan, nor), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			D3D11_INPUT_ELEMENT_DESC{ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTexNorTan, tan), D3D11_INPUT_PER_VERTEX_DATA, 0 }, 
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(OpaqueInstances::Instance, matrix[0]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(OpaqueInstances::Instance, matrix[1]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(OpaqueInstances::Instance, matrix[2]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(OpaqueInstances::Instance, matrix[3]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+		};
+
+		ShaderManager::Get().LoadShader("shader",  "shaders/shader.hlsl", &simple);
+		ShaderManager::Get().LoadShader("instance",  "shaders/instance.hlsl", &instance);
+		ShaderManager::Get().LoadShader("skybox", "shaders/sky.hlsl", nullptr);
 		TextureManager::Get().LoadCubemap("skybox", "assets/cubemap.dds");
 
 		Model* pCube = &ModelManager::Get().CreateModel("Cube");
@@ -72,7 +89,7 @@ namespace engine
 			{&TextureManager::Get().LoadTexture2D("Tail", "assets/KnightHorse/dds/Tail_BaseColor.dds")},
 		};
 
-		InstanceTransform transform;
+		OpaqueInstances::Instance transform;
 
 		DirectX::XMMATRIX mat = DirectX::XMMatrixAffineTransformation(DirectX::XMVectorReplicate(10.0f), 
 			DirectX::XMVectorZero(), DirectX::XMQuaternionIdentity(), DirectX::XMVectorSet(0.0f, -5.0f, 0.0f, 0.0f));
@@ -159,6 +176,16 @@ namespace engine
 				return true;
 			});
 
+		dispatcher.Dispatch<WindowResizeEvent>([](WindowResizeEvent& e)
+			{
+				uint32_t width = e.GetWidth() > 0 ? e.GetWidth() : 8;
+				uint32_t height = e.GetHeight() > 0 ? e.GetHeight() : 8;
+
+				Globals::Get().CreateDepthBuffer(width, height);
+				
+				return true;
+			});
+
 		m_CameraController->OnEvent(e);
 
 	}
@@ -190,11 +217,11 @@ namespace engine
 	
 	void Application::Render()
 	{
-		float color[4] = { 0.0f, 0.2f, 0.4f, 1.0f };
+		const float color[4] = { 0.0f, 0.2f, 0.4f, 1.0f };
 
 		m_Window->ClearColor(color);
-		m_Window->BindRenderTarget();
-		Globals::Get().Bind();
+		//m_Window->BindRenderTarget();
+		Globals::Get().Bind(m_Window->GetRenderTarget());
 
 		m_Renderer->Render(*m_Window, m_CameraController->GetCamera());
 		m_Window->Flush();

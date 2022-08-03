@@ -236,7 +236,6 @@
     <ClInclude Include="source\include\ModelManager.h" />
     <ClInclude Include="source\ecs\components\TransformComponent.h" />
     <ClInclude Include="source\ecs\components\ModelComponent.h" />
-    <ClInclude Include="source\render\Instance.h" />
     <ClInclude Include="source\include\OpaqueInstances.h" />
     <ClInclude Include="source\utility\MathUtils.h" />
     <ClInclude Include="source\utility\HashUtils.h" />

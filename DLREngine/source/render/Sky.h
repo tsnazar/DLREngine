@@ -9,6 +9,11 @@ namespace engine
 	class Sky
 	{
 	public:
+		struct ShaderDescription
+		{
+			enum Bindings : uint32_t { CUBEMAP_TEXTURE = 0 };
+		};
+
 		Sky();
 
 		void SetSky(const std::string& name, const std::string& shaderPath, const std::string& texturePath);

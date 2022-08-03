@@ -22,10 +22,10 @@ namespace engine
 		if (m_ResizeInstanceBuffer)
 		{
 			m_ResizeInstanceBuffer = false;
-			m_InstanceBuffer.Create<InstanceTransform>(D3D11_USAGE_DYNAMIC, nullptr, totalInstances);
+			m_InstanceBuffer.Create<Instance>(D3D11_USAGE_DYNAMIC, nullptr, totalInstances);
 		}
 
-		InstanceTransform* dst = static_cast<InstanceTransform*>(m_InstanceBuffer.Map());
+		Instance* dst = static_cast<Instance*>(m_InstanceBuffer.Map());
 
 		uint32_t copiedNum = 0;
 
@@ -54,12 +54,13 @@ namespace engine
 		if (m_InstanceBuffer.GetVertexCount() == 0 || !m_InstanceBuffer.IsValid())
 			return;
 
-		m_InstanceBuffer.SetBuffer(1);
+		ShaderManager::Get().GetShader("instance").SetShaders();
+		m_InstanceBuffer.SetBuffer(ShaderDescription::Bindings::INSTANCE_BUFFER);
 
 		uint32_t renderedInstances = 0;
 		for (const auto& perModel : m_PerModel)
 		{
-			perModel.model->Bind();
+			perModel.model->Bind(ShaderDescription::Bindings::MESH_BUFFER);
 			auto& subMeshes = perModel.model->GetSubMeshes();
 
 			for (uint32_t meshIndex = 0; meshIndex < perModel.perMesh.size(); ++meshIndex)
@@ -67,7 +68,7 @@ namespace engine
 				const Model::SubMesh& subMesh = subMeshes[meshIndex];
 
 				m_ConstantBuffer.Update(&subMesh.meshToModel, 1);
-				m_ConstantBuffer.BindToVS(1);
+				m_ConstantBuffer.BindToVS(ShaderDescription::Bindings::MESH_TO_MODEL_BUFFER);
 
 				for (const auto& perMaterial : perModel.perMesh[meshIndex].perMaterial)
 				{
@@ -75,7 +76,7 @@ namespace engine
 
 					const auto& material = perMaterial.material;
 
-					material.texture->BindToPS(0);
+					material.texture->BindToPS(ShaderDescription::Bindings::ALBEDO_TEXTURE);
 
 					uint32_t numInstances = static_cast<uint32_t>(perMaterial.instances.size());
 
@@ -90,7 +91,7 @@ namespace engine
 		}
 	}
 
-	void OpaqueInstances::AddInstance(Model* model, std::vector<Material>& materials, InstanceTransform instance)
+	void OpaqueInstances::AddInstance(Model* model, std::vector<Material>& materials, Instance instance)
 	{
 		m_ResizeInstanceBuffer = true;
 

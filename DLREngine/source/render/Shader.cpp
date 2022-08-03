@@ -4,12 +4,7 @@
 
 namespace engine
 {
-	Shader::Shader(const std::string& filepath, const InputLayout::LayoutSignature& signature)
-	{
-		LoadFromFile(filepath, signature);
-	}
-
-	Shader& Shader::LoadFromFile(const std::string& filepath, const InputLayout::LayoutSignature& signature)
+	Shader& Shader::LoadFromFile(const std::string& filepath, const std::vector<D3D11_INPUT_ELEMENT_DESC>* inputAttributes)
 	{
 		DxResPtr<ID3D10Blob> VS, PS, error;
 
@@ -50,14 +45,18 @@ namespace engine
 			m_PixelShader.reset());
 		ALWAYS_ASSERT(SUCCEEDED(result));
 
-		if (signature.verType != VertexType::Undefined || signature.insType != InstanceType::Undefined)
-			ShaderManager::Get().LoadInputLayout(signature, VS.ptr());
+		m_Layout = nullptr;
+
+		if(inputAttributes != nullptr)
+			m_Layout = &ShaderManager::Get().LoadInputLayout(*inputAttributes, VS.ptr());
 
 		return *this;
 	}
 
 	void Shader::SetShaders()
-	{		s_Devcon->VSSetShader(m_VertexShader.ptr(), NULL, 0);
+	{		if (m_Layout != nullptr)			m_Layout->SetInputLayout();		else 			s_Devcon->IASetInputLayout(NULL);
+		
+		s_Devcon->VSSetShader(m_VertexShader.ptr(), NULL, 0);
 		s_Devcon->PSSetShader(m_PixelShader.ptr(), NULL, 0);
 	}
 }

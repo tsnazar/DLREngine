@@ -21,7 +21,7 @@ namespace engine
 
 		std::vector<SubMesh>& GetSubMeshes() { return m_Meshes; }
 
-		void Bind();
+		void Bind(uint32_t slot);
 
 		bool VertexBufferOnly() { return m_VertexBufferOnly; }
 		void SetVertexBufferOnly(bool value) { m_VertexBufferOnly = value; }

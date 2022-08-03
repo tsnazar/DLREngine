@@ -24,8 +24,12 @@ namespace engine
 		void InitD3D();
 
 		void InitConstants();
+
+		void InitStates();
+
+		void CreateDepthBuffer(uint32_t width, uint32_t height);
 		
-		void Bind();
+		void Bind(DxResPtr<ID3D11RenderTargetView>& renderTarget);
 		
 		void UpdateConstants();
 
@@ -35,6 +39,8 @@ namespace engine
 		
 		PerFrame& GetPerFrameObj() { return m_PerFrame; }
 
+		DxResPtr<ID3D11DepthStencilView>& GetDepthBuffer() { return m_Depthbuffer; }
+
 	private:
 		DxResPtr<IDXGIFactory> m_Factory;
 		DxResPtr<IDXGIFactory5> m_Factory5;
@@ -43,12 +49,16 @@ namespace engine
 		DxResPtr<ID3D11DeviceContext> m_Devcon;
 		DxResPtr<ID3D11DeviceContext4> m_Devcon4;
 		DxResPtr<ID3D11Debug> m_Devdebug;
+
 		DxResPtr<ID3D11SamplerState> m_SamplerStatePoint;
 		DxResPtr<ID3D11SamplerState> m_SamplerStateLinearMipPoint;
 		DxResPtr<ID3D11SamplerState> m_SamplerStateLinear;
 		DxResPtr<ID3D11SamplerState> m_SamplerStateAnisotropic;
 
 		int m_CurrentSampler = 3;
+
+		DxResPtr<ID3D11DepthStencilView> m_Depthbuffer;
+		DxResPtr<ID3D11DepthStencilState> m_DepthState;
 
 		PerFrame m_PerFrame;
 		ConstantBuffer m_PerFrameBuffer;

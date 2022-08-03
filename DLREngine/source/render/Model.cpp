@@ -75,9 +75,9 @@ namespace engine
 		return *this;
 	}
 
-	void Model::Bind()
+	void Model::Bind(uint32_t slot)
 	{
-		m_Vertices.SetBuffer(0);
+		m_Vertices.SetBuffer(slot);
 		
 		if(!m_VertexBufferOnly)
 			m_Indices.Bind();

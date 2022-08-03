@@ -3,7 +3,6 @@
 #include "Texture2D.h"
 #include "VertexBuffer.h"
 #include "ConstantBuffer.h"
-#include "Instance.h"
 #include <xhash>
 
 namespace engine
@@ -11,6 +10,15 @@ namespace engine
 	class OpaqueInstances
 	{
 	public:
+		struct ShaderDescription
+		{
+			enum Bindings : uint32_t { ALBEDO_TEXTURE = 0, MESH_BUFFER = 0, MESH_TO_MODEL_BUFFER = 1, INSTANCE_BUFFER = 1 };
+		};
+
+		struct Instance
+		{
+			DirectX::XMFLOAT4 matrix[4];
+		};
 
 		struct Material
 		{
@@ -36,7 +44,7 @@ namespace engine
 		struct PerMaterial
 		{
 			Material material;
-			std::vector<InstanceTransform> instances;
+			std::vector<Instance> instances;
 		};
 
 		struct PerMesh
@@ -58,7 +66,7 @@ namespace engine
 		
 		void Render();
 
-		void AddInstance(Model* model, std::vector<Material>& materials, InstanceTransform instance);
+		void AddInstance(Model* model, std::vector<Material>& materials, Instance instance);
 
 	private:
 		bool m_ResizeInstanceBuffer = false;

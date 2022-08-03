@@ -10,16 +10,14 @@ namespace engine
 	class Shader
 	{
 	public:
-		Shader() {};
-		Shader(const std::string& filepath, const InputLayout::LayoutSignature& signature);
-		
-		Shader& LoadFromFile(const std::string& filepath, const InputLayout::LayoutSignature& signature);
+		Shader& LoadFromFile(const std::string& filepath, const std::vector<D3D11_INPUT_ELEMENT_DESC>* inputLayout);
 
 		void SetShaders();
 	private:
 
 		DxResPtr<ID3D11VertexShader> m_VertexShader;
 		DxResPtr<ID3D11PixelShader> m_PixelShader;
+		InputLayout* m_Layout = nullptr;
 	};
 }
 
