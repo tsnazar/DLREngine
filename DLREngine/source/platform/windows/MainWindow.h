@@ -21,13 +21,11 @@ namespace engine
 
 		virtual HWND Create(int x, int y, RECT wr, LPCTSTR pszTitle, DWORD dwStyle, DWORD dwStyleEx, HMENU pszMenu, HINSTANCE hInstance, HWND hwndParent) override;
 
-		void InitSwapchainAndStates();
+		void InitSwapchain();
 
-		void InitDepthAndBackbuffer();
+		void InitBackbuffer();
 
 		void ClearColor(const float color[4]);
-
-		void BindRenderTarget();
 
 		void Flush();
 
@@ -36,6 +34,8 @@ namespace engine
 		void BindEventCallback(std::function<void(Event&)> f) { m_EventCallback = f; }
 
 		bool IsKeyPressed(KeyCode keycode) const { return m_Keys[keycode]; }
+
+		DxResPtr<ID3D11RenderTargetView>& GetRenderTarget() { return m_Backbuffer; }
 
 	protected:
 		virtual LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) override;
@@ -53,8 +53,6 @@ namespace engine
 
 		DxResPtr<IDXGISwapChain1> m_Swapchain;
 		DxResPtr<ID3D11RenderTargetView> m_Backbuffer;
-		DxResPtr<ID3D11DepthStencilView> m_Depthbuffer;
-		DxResPtr<ID3D11DepthStencilState> m_DepthState;
 	};
 }
 

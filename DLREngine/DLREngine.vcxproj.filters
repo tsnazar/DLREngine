@@ -46,31 +46,10 @@
     <ClCompile Include="source\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\math\geometry\Mesh.cpp">
-      <Filter>Math\Geometry</Filter>
-    </ClCompile>
-    <ClCompile Include="source\math\geometry\Plane.cpp">
-      <Filter>Math\Geometry</Filter>
-    </ClCompile>
-    <ClCompile Include="source\math\geometry\Sphere.cpp">
-      <Filter>Math\Geometry</Filter>
-    </ClCompile>
-    <ClCompile Include="source\math\geometry\Triangle.cpp">
-      <Filter>Math\Geometry</Filter>
-    </ClCompile>
-    <ClCompile Include="source\math\lights\SpotLight.cpp">
-      <Filter>Math\Lights</Filter>
-    </ClCompile>
-    <ClCompile Include="source\math\lights\PointLight.cpp">
-      <Filter>Math\Lights</Filter>
-    </ClCompile>
-    <ClCompile Include="source\math\lights\DirectionLight.cpp">
-      <Filter>Math\Lights</Filter>
-    </ClCompile>
     <ClCompile Include="source\include\Camera.cpp">
       <Filter>Include</Filter>
     </ClCompile>
-    <ClCompile Include="source\include\Scene.cpp">
+    <ClCompile Include="source\include\Renderer.cpp">
       <Filter>Include</Filter>
     </ClCompile>
     <ClCompile Include="source\platform\windows\BaseWindow.cpp">
@@ -78,9 +57,6 @@
     </ClCompile>
     <ClCompile Include="source\platform\windows\MainWindow.cpp">
       <Filter>Platform\Windows</Filter>
-    </ClCompile>
-    <ClCompile Include="source\math\lights\Lighting.cpp">
-      <Filter>Math\Lights</Filter>
     </ClCompile>
     <ClCompile Include="source\include\ParallelExecutor.cpp">
       <Filter>Include</Filter>
@@ -121,6 +97,21 @@
     <ClCompile Include="source\include\TextureManager.cpp">
       <Filter>Include</Filter>
     </ClCompile>
+    <ClCompile Include="source\render\Model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\include\ModelManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\include\OpaqueInstances.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\utility\MathUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\render\MeshSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\decorators\math\TransformMover.h">
@@ -135,43 +126,10 @@
     <ClInclude Include="source\decorators\math\IObjectMover.h">
       <Filter>Decorators\Math</Filter>
     </ClInclude>
-    <ClInclude Include="source\math\geometry\Mesh.h">
-      <Filter>Math\Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="source\math\geometry\Triangle.h">
-      <Filter>Math\Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="source\math\geometry\Sphere.h">
-      <Filter>Math\Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="source\math\geometry\Ray.h">
-      <Filter>Math\Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="source\math\geometry\Plane.h">
-      <Filter>Math\Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="source\math\lights\SpotLight.h">
-      <Filter>Math\Lights</Filter>
-    </ClInclude>
-    <ClInclude Include="source\math\lights\PointLight.h">
-      <Filter>Math\Lights</Filter>
-    </ClInclude>
-    <ClInclude Include="source\math\lights\DirectionLight.h">
-      <Filter>Math\Lights</Filter>
-    </ClInclude>
-    <ClInclude Include="source\math\Transform.h">
-      <Filter>Math</Filter>
-    </ClInclude>
-    <ClInclude Include="source\math\Material.h">
-      <Filter>Math</Filter>
-    </ClInclude>
-    <ClInclude Include="source\math\Intersection.h">
-      <Filter>Math</Filter>
-    </ClInclude>
     <ClInclude Include="source\include\Camera.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="source\include\Scene.h">
+    <ClInclude Include="source\include\Renderer.h">
       <Filter>Include</Filter>
     </ClInclude>
     <ClInclude Include="source\platform\windows\MainWindow.h">
@@ -182,9 +140,6 @@
     </ClInclude>
     <ClInclude Include="source\platform\windows\winapi.hpp">
       <Filter>Platform\Windows</Filter>
-    </ClInclude>
-    <ClInclude Include="source\math\lights\Lighting.h">
-      <Filter>Math\Lights</Filter>
     </ClInclude>
     <ClInclude Include="source\include\ParallelExecutor.h">
       <Filter>Include</Filter>
@@ -276,5 +231,14 @@
     <ClInclude Include="source\Engine.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="source\render\IndexBuffer.h" />
+    <ClInclude Include="source\render\Model.h" />
+    <ClInclude Include="source\include\ModelManager.h" />
+    <ClInclude Include="source\ecs\components\TransformComponent.h" />
+    <ClInclude Include="source\ecs\components\ModelComponent.h" />
+    <ClInclude Include="source\include\OpaqueInstances.h" />
+    <ClInclude Include="source\utility\MathUtils.h" />
+    <ClInclude Include="source\utility\HashUtils.h" />
+    <ClInclude Include="source\render\MeshSystem.h" />
   </ItemGroup>
 </Project>

@@ -1,6 +1,12 @@
 #include "ShaderManager.h"
 #include "Debug.h"
 
+bool operator<(const D3D11_INPUT_ELEMENT_DESC& lhs, const D3D11_INPUT_ELEMENT_DESC& rhs)
+{
+	return std::tie(lhs.SemanticName, lhs.SemanticIndex, lhs.InputSlot, lhs.Format, lhs.AlignedByteOffset, lhs.InstanceDataStepRate, lhs.InputSlotClass) <
+		std::tie(rhs.SemanticName, rhs.SemanticIndex, rhs.InputSlot, rhs.Format, rhs.AlignedByteOffset, rhs.InstanceDataStepRate, rhs.InputSlotClass);
+}
+
 namespace engine
 {
 	ShaderManager* ShaderManager::s_Instance = nullptr;
@@ -24,7 +30,7 @@ namespace engine
 		s_Instance == nullptr;
 	}
 
-	Shader& ShaderManager::LoadShader(const std::string& name, VertexType type, const std::string& filepath)
+	Shader& ShaderManager::LoadShader(const std::string& name, const std::string& filepath, const std::vector<D3D11_INPUT_ELEMENT_DESC>* inputAttributes)
 	{
 		ContainerShaders::iterator iter = m_Shaders.find(name);
 
@@ -33,24 +39,36 @@ namespace engine
 
 		std::unique_ptr<Shader>& shader = m_Shaders[name];
 		shader = std::make_unique<Shader>();
-		return shader->LoadFromFile(type, filepath);
+		return shader->LoadFromFile(filepath, inputAttributes);
 	}
 
-	void ShaderManager::LoadInputLayout(VertexType type, ID3D10Blob* blob)
+	InputLayout& ShaderManager::LoadInputLayout(const std::vector<D3D11_INPUT_ELEMENT_DESC>& inputAttributes, ID3D10Blob* blob)
 	{
-		if (InputLayoutExists(type)) // input  with this type already exists
-			return;
+		ContainerInputLayout::iterator iter = m_InputLayouts.find(inputAttributes);
 
-		std::unique_ptr<InputLayout>& layout = m_InputLayouts[type];
+		if (iter != m_InputLayouts.end()) // input  with this name already exists
+			return *(iter->second);
+
+		std::unique_ptr<InputLayout>& layout = m_InputLayouts[inputAttributes];
 		layout = std::make_unique<InputLayout>();
-		layout->Create(type, blob);
+		return layout->Create(blob, inputAttributes);
 	}
 
-	bool ShaderManager::InputLayoutExists(VertexType type)
+	bool ShaderManager::InputLayoutExists(const std::vector<D3D11_INPUT_ELEMENT_DESC>& inputAttributes)
 	{
-		if (m_InputLayouts.find(type) != m_InputLayouts.end())
+		if (m_InputLayouts.find(inputAttributes) != m_InputLayouts.end())
 			return true;
 		return false;
+	}
+
+	InputLayout& ShaderManager::GetInputLayout(const std::vector<D3D11_INPUT_ELEMENT_DESC>& inputLayout)
+	{
+		ContainerInputLayout::iterator iter = m_InputLayouts.find(inputLayout);
+
+		if (iter == m_InputLayouts.end()) // no texture with this name
+			ALWAYS_ASSERT(false);
+
+		return *(iter->second);
 	}
 
 	bool ShaderManager::ShaderExists(const std::string& name)
@@ -58,16 +76,6 @@ namespace engine
 		if (m_Shaders.find(name) != m_Shaders.end())
 			return true;
 		return false;
-	}
-
-	InputLayout& ShaderManager::GetInputLayout(VertexType type)
-	{
-		ContainerInputLayout::iterator iter = m_InputLayouts.find(type);
-
-		if (iter == m_InputLayouts.end()) // no texture with this name
-			ALWAYS_ASSERT(false);
-
-		return *(iter->second);
 	}
 
 	Shader& ShaderManager::GetShader(const std::string& name)

@@ -74,7 +74,9 @@ namespace engine
 		template<typename T>
 		std::shared_ptr<T> RegisterSystem()
 		{
-			return m_SystemManager->RegisterSystem<T>();
+			auto& system = m_SystemManager->RegisterSystem<T>();
+			system.m_Coordinator = this;
+			return system;
 		}
 
 		template<typename T>

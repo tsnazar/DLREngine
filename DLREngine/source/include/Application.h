@@ -1,7 +1,7 @@
 #pragma once
 
 #include "windows/MainWindow.h"
-#include "Scene.h"
+#include "Renderer.h"
 #include "Event.h"
 #include "CameraController.h"
 
@@ -28,7 +28,7 @@ namespace engine
 		inline static Application& Get() { return *s_Instance; }
 	private:
 		std::unique_ptr<MainWindow> m_Window;
-		std::unique_ptr<Scene> m_Scene;
+		std::unique_ptr<Renderer> m_Renderer;
 		std::unique_ptr<CameraController> m_CameraController;
 		bool m_Running = true;
 	private:

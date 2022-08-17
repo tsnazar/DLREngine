@@ -1,11 +1,9 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <unordered_map>
+#include "d3d.h"
 #include "DxRes.h"
 #include "Vertex.h"
-#include "d3d.h"
-#include <memory>
 
 namespace engine
 {
@@ -14,7 +12,7 @@ namespace engine
 	public:
 		InputLayout(){}
 
-		bool Create(const VertexType& type, ID3D10Blob* const blob = nullptr);
+		InputLayout& Create(ID3D10Blob* const blob, const std::vector<D3D11_INPUT_ELEMENT_DESC>& attributes);
 
 		void SetInputLayout();
 	private:

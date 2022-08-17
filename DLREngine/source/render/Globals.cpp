@@ -26,11 +26,12 @@ namespace engine
 
 		s_Instance->InitD3D();
 		s_Instance->InitConstants();
+		s_Instance->InitStates();
 	}
 
 	void Globals::Fini()
 	{
-		//s_Device->ReportLiveDeviceObjects(D3D11_RLDO_SUMMARY | D3D11_RLDO_DETAIL);
+		//s_Debug->ReportLiveDeviceObjects(D3D11_RLDO_SUMMARY | D3D11_RLDO_DETAIL);
 		ALWAYS_ASSERT(s_Instance != nullptr);
 		delete s_Instance;
 		s_Instance = nullptr;
@@ -79,6 +80,31 @@ namespace engine
 		result = m_Device->QueryInterface(__uuidof(ID3D11Debug), (void**)m_Devdebug.reset());
 		ALWAYS_ASSERT(SUCCEEDED(result));
 
+		s_Factory = m_Factory5.ptr();
+		s_Device = m_Device5.ptr();
+		s_Devcon = m_Devcon4.ptr();
+		s_Debug = m_Devdebug.ptr();
+	}
+
+	void Globals::InitConstants()
+	{
+		m_PerFrameBuffer.Create<PerFrame>(D3D11_USAGE_DYNAMIC, nullptr, 1);
+	}
+
+	void Globals::InitStates()
+	{
+		//Create Depth state
+		D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
+		ZeroMemory(&depthStencilDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
+
+		depthStencilDesc.DepthEnable = true;
+		depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+		depthStencilDesc.DepthFunc = D3D11_COMPARISON_GREATER_EQUAL;
+
+		HRESULT result = m_Device5->CreateDepthStencilState(&depthStencilDesc, m_DepthState.reset());
+		ALWAYS_ASSERT(SUCCEEDED(result));
+
+		// Create Sampler states 
 		D3D11_SAMPLER_DESC sampDesc;
 		ZeroMemory(&sampDesc, sizeof(D3D11_SAMPLER_DESC));
 		sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
@@ -89,35 +115,58 @@ namespace engine
 		sampDesc.MinLOD = 0;
 		sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
-		result = m_Device->CreateSamplerState(&sampDesc, m_SamplerStatePoint.reset());
+		result = m_Device5->CreateSamplerState(&sampDesc, m_SamplerStatePoint.reset());
 		ALWAYS_ASSERT(SUCCEEDED(result));
 
 		sampDesc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
-		result = m_Device->CreateSamplerState(&sampDesc, m_SamplerStateLinearMipPoint.reset());
+		result = m_Device5->CreateSamplerState(&sampDesc, m_SamplerStateLinearMipPoint.reset());
 		ALWAYS_ASSERT(SUCCEEDED(result));
 
 		sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-		result = m_Device->CreateSamplerState(&sampDesc, m_SamplerStateLinear.reset());
+		result = m_Device5->CreateSamplerState(&sampDesc, m_SamplerStateLinear.reset());
 		ALWAYS_ASSERT(SUCCEEDED(result));
 
 		sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
 		sampDesc.MaxAnisotropy = D3D11_DEFAULT_MAX_ANISOTROPY;
-		result = m_Device->CreateSamplerState(&sampDesc, m_SamplerStateAnisotropic.reset());
+		result = m_Device5->CreateSamplerState(&sampDesc, m_SamplerStateAnisotropic.reset());
+		ALWAYS_ASSERT(SUCCEEDED(result));
+	}
+
+	void Globals::CreateDepthBuffer(uint32_t width, uint32_t height)
+	{
+		if (m_Depthbuffer.valid())
+			m_Depthbuffer.release();
+
+		// Create Depthbuffer
+		ID3D11Texture2D* pDepthStencil = NULL;
+		D3D11_TEXTURE2D_DESC descDepth;
+		descDepth.Width = width;
+		descDepth.Height = height;
+		descDepth.MipLevels = 1;
+		descDepth.ArraySize = 1;
+		descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		descDepth.SampleDesc.Count = 1;
+		descDepth.SampleDesc.Quality = 0;
+		descDepth.Usage = D3D11_USAGE_DEFAULT;
+		descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		descDepth.CPUAccessFlags = 0;
+		descDepth.MiscFlags = 0;
+
+		HRESULT result = m_Device5->CreateTexture2D(&descDepth, NULL, &pDepthStencil);
 		ALWAYS_ASSERT(SUCCEEDED(result));
 
-		s_Factory = m_Factory5.ptr();
-		s_Device = m_Device5.ptr();
-		s_Devcon = m_Devcon4.ptr();
-		s_Debug = m_Devdebug.ptr();
+		result = m_Device5->CreateDepthStencilView(pDepthStencil, NULL, m_Depthbuffer.reset());
+		ALWAYS_ASSERT(SUCCEEDED(result));
+		pDepthStencil->Release();
 	}
 
-	void Globals::InitConstants()
+	void Globals::Bind(DxResPtr<ID3D11RenderTargetView>& renderTarget)
 	{
-		m_PerFrameBuffer.Create<PerFrame>(D3D11_USAGE_DYNAMIC, nullptr, 0);
-	}
+		m_Devcon->ClearDepthStencilView(m_Depthbuffer.ptr(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 0.0f, 0);
 
-	void Globals::Bind()
-	{
+		m_Devcon->OMSetRenderTargets(1, renderTarget.ptrAdr(), m_Depthbuffer.ptr());
+		m_Devcon->OMSetDepthStencilState(m_DepthState.ptr(), 0);
+
 		m_PerFrameBuffer.BindToVS(0);
 
 		if (m_CurrentSampler == 1)
@@ -134,7 +183,7 @@ namespace engine
 
 	void Globals::UpdateConstants()
 	{
-		m_PerFrameBuffer.Update(&m_PerFrame, sizeof(PerFrame));
+		m_PerFrameBuffer.Update(&m_PerFrame, 1);
 	}
 
 	void Globals::SetCurrentSampler(int sampler)

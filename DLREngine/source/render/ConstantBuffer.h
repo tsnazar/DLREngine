@@ -8,7 +8,6 @@ namespace engine
 	class ConstantBuffer
 	{
 	public:
-		ConstantBuffer();
 
 		template<typename T>
 		void Create(D3D11_USAGE usage, const T* data, const uint32_t size);
@@ -20,14 +19,9 @@ namespace engine
 		void BindToPS(uint32_t slot);
 
 	private:
-		uint32_t m_Size;
+		uint32_t m_Stride, m_Offset, m_ByteWidthGPU;
 		DxResPtr<ID3D11Buffer> m_Buffer;
 	};
-
-	inline ConstantBuffer::ConstantBuffer()
-	{
-
-	}
 
 	template<typename T>
 	void ConstantBuffer::Create(D3D11_USAGE usage, const T* data, const uint32_t size)
@@ -35,13 +29,17 @@ namespace engine
 		if (m_Buffer.valid())
 			m_Buffer.release();
 
-		m_Size = size;
+		m_Stride = sizeof(T);
+		m_Offset = 0;
+		m_ByteWidthGPU = size * m_Stride;
+
+		bool dynamic = usage == D3D11_USAGE_DYNAMIC;
 
 		D3D11_BUFFER_DESC desc = { 0 };
-		desc.ByteWidth = sizeof(T);
+		desc.ByteWidth = m_ByteWidthGPU;
 		desc.Usage = usage;
 		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		desc.CPUAccessFlags = dynamic ? D3D11_CPU_ACCESS_WRITE : 0;
 		desc.MiscFlags = 0;
 		desc.StructureByteStride = 0;
 
@@ -50,25 +48,21 @@ namespace engine
 		sr_data.SysMemPitch = 0;
 		sr_data.SysMemSlicePitch = 0;
 
-		HRESULT result;
-		if(data == nullptr)
-			result = s_Device->CreateBuffer(&desc, NULL, m_Buffer.reset());
-		else
-			result = s_Device->CreateBuffer(&desc, &sr_data, m_Buffer.reset());
-
+		HRESULT result = s_Device->CreateBuffer(&desc, data == nullptr ? NULL : &sr_data, m_Buffer.reset());
 		ALWAYS_ASSERT(SUCCEEDED(result));
 	}
 
 	template<typename T>
 	void ConstantBuffer::Update(const T* data, const uint32_t size)
 	{
-		m_Size = size;
+		ALWAYS_ASSERT(m_Stride == sizeof(T));
+
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 
 		HRESULT result = s_Devcon->Map(m_Buffer.ptr(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 		ALWAYS_ASSERT(SUCCEEDED(result));
 
-		memcpy((void*)mappedResource.pData, data, size);
+		memcpy((void*)mappedResource.pData, data, m_Stride * size);
 
 		s_Devcon->Unmap(m_Buffer.ptr(), 0);
 	}
