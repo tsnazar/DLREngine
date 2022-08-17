@@ -112,6 +112,24 @@
     <ClCompile Include="source\render\MeshSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\render\RenderTarget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\render\LightSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\include\LightInstances.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\math\TriangleOctree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\math\SolidVector.h">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\render\TransformSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\decorators\math\TransformMover.h">
@@ -240,5 +258,16 @@
     <ClInclude Include="source\utility\MathUtils.h" />
     <ClInclude Include="source\utility\HashUtils.h" />
     <ClInclude Include="source\render\MeshSystem.h" />
+    <ClInclude Include="source\renderer\Pipeline\RenderPipeline.h" />
+    <ClInclude Include="source\renderer\Pipeline\RenderPipelinePass.h" />
+    <ClInclude Include="source\render\RenderTarget.h" />
+    <ClInclude Include="source\render\LightSystem.h" />
+    <ClInclude Include="source\include\LightInstances.h" />
+    <ClInclude Include="source\math\Box.h" />
+    <ClInclude Include="source\math\TriangleOctree.h" />
+    <ClInclude Include="source\math\Ray.h" />
+    <ClInclude Include="source\render\TransformSystem.h" />
+    <ClInclude Include="source\math\MeshIntersection.h" />
+    <ClInclude Include="source\math\Query.h" />
   </ItemGroup>
 </Project>

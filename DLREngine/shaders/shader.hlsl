@@ -22,7 +22,8 @@ VS_OUTPUT vs_main(VS_INPUT input) {
     return output;
 }
 
-float4 ps_main(VS_OUTPUT input) : SV_TARGET{
+float4 ps_main(VS_OUTPUT input) : SV_TARGET
+{
     float3 pixelColor = objTexture.Sample(g_sampler, input.texCoord);
     return float4(pixelColor, 1.0f); 
 }

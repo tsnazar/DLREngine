@@ -4,6 +4,7 @@
 #include "Event.h"
 #include "MouseEvents.h"
 #include "ApplicationEvent.h"
+#include "Ray.h"
 
 namespace engine
 {
@@ -18,6 +19,8 @@ namespace engine
 
 		bool OnMouseScrolled(MouseScrolledEvent& e);
 		bool OnWindowResized(WindowResizeEvent& e);
+
+		Ray GetPickingRay();
 
 		Camera& GetCamera() { return m_Camera; }
 		const Camera& GetCamera() const { return m_Camera; }

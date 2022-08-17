@@ -8,7 +8,7 @@ cbuffer PerMesh : register(b1)
 struct VS_INPUT {
     float3 inPosition : POS;
     float2 inTexCoord : TEXCOORD;
-    float4x4 mat : MAT;
+    float4x4 inModelToWorld : MAT;
 };
 
 struct VS_OUTPUT {
@@ -23,7 +23,7 @@ VS_OUTPUT vs_main(VS_INPUT input) {
     VS_OUTPUT output = (VS_OUTPUT)0;
     output.position = float4(input.inPosition, 1.0);
     output.position = mul(output.position, meshToModel);
-    output.position = mul(output.position, input.mat);
+    output.position = mul(output.position, input.inModelToWorld);
     output.position = mul(output.position, g_viewProj);
 
     output.texCoord = input.inTexCoord;
