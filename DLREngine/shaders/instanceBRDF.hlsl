@@ -98,12 +98,6 @@ float4 ps_main(VS_OUTPUT input) : SV_TARGET
     if ((g_flags & f_hasNormals) == f_hasNormals)
         input.normal = normalize(objNormalMap.Sample(g_sampler, input.texCoord).xyz * 2.0 - 1.0);
 
-    /*float3 dpdx = ddx(input.worldPos);
-    float3 dpdy = ddy(input.worldPos);
-    input.normal = normalize(cross(dpdy, dpdx));
-    float3 color = ((input.normal + 1) / 2);
-    return float4(0, 0, color.z, 1.0f);*/
-
     float roughness = g_roughness;
     if ((g_flags & f_hasRoughness) == f_hasRoughness)
         roughness = objRoughness.Sample(g_sampler, input.texCoord);
@@ -114,10 +108,12 @@ float4 ps_main(VS_OUTPUT input) : SV_TARGET
 
     float3 f0 = lerp(basicF0, pixelColor, metallic);
 
-    float distance = length(input.lightPos - input.worldPos);
+    float dist = length(input.lightPos - input.worldPos);
 
-    float sqrDist = distance * distance;
+    float sqrDist = dist * dist;
     float sqrRadius = g_lights[0].radius * g_lights[0].radius;
+
+    sqrDist = max(sqrDist, sqrRadius);
 
     float angularCos = sqrt(1.0 - sqrRadius / sqrDist);
 
@@ -131,7 +127,7 @@ float4 ps_main(VS_OUTPUT input) : SV_TARGET
 
     float3 reflection = 2.0 * N * NdotV - V;
 
-    float3 closestPointDir = approximateClosestSphereDir(reflection, angularCos, L * distance, L, distance, g_lights[0].radius);
+    float3 closestPointDir = approximateClosestSphereDir(reflection, angularCos, L * dist, L, dist, g_lights[0].radius);
     float NdotD = dot(closestPointDir, N);
     clampDirToHorizon(closestPointDir, NdotD, N, MIN_DOT);
 
