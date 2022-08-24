@@ -33,20 +33,22 @@ namespace engine
 					hasRoughness = 1 << 0,
 					hasMetallic = 1 << 1,
 					hasNormals = 1 << 2,
+					flipNormals = 1 << 3,
 				};
 				int flags;
 				float roughness, metallic;
-				float placeholder;
+				float padding;
 			};
 
 			Material() = default;
-			Material(Texture2D* texture, Texture2D* roughnessTex, Texture2D* metallicTex, Texture2D* normalMap, float roughness, float metallic)
+			Material(Texture2D* texture, Texture2D* roughnessTex, Texture2D* metallicTex, Texture2D* normalMap, float roughness, float metallic, bool flipNormals = false)
 				: texture(texture), roughness(roughnessTex), metallic(metallicTex), normalMap(normalMap)
 			{
 				constants.flags = 0;
 				constants.flags |= roughnessTex == nullptr ? 0 : Material::Contants::hasRoughness;
 				constants.flags |= metallicTex == nullptr ? 0 : Material::Contants::hasMetallic;
 				constants.flags |= normalMap == nullptr ? 0 : Material::Contants::hasNormals;
+				constants.flags |= (normalMap == nullptr || !flipNormals) ? 0 : Material::Contants::flipNormals;
 				constants.roughness = roughness;
 				constants.metallic = metallic;
 			}

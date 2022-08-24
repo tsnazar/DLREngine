@@ -1,3 +1,5 @@
+#pragma once
+
 static const float PI = 3.14;
 static const float MIN_DOT = 0.0005;
 

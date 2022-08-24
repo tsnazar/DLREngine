@@ -14,6 +14,9 @@ namespace engine
 	{
 		ALWAYS_ASSERT(s_Instance == nullptr);
 		s_Instance = new ModelManager();
+
+		s_Instance->CreateModel("Cube").InitUnitCube();
+		s_Instance->CreateModel("Sphere").InitUnitSphere();
 	}
 
 	void ModelManager::Fini()
@@ -64,5 +67,13 @@ namespace engine
 			ALWAYS_ASSERT(false);
 
 		return *(iter->second);
+	}
+	Model& ModelManager::GetUnitCube()
+	{
+		return GetModel("Cube");
+	}
+	Model& ModelManager::GetUnitSphere()
+	{
+		return GetModel("Sphere");
 	}
 }

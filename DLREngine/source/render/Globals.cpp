@@ -160,13 +160,8 @@ namespace engine
 		pDepthStencil->Release();
 	}
 
-	void Globals::Bind()
+	void Globals::Update()
 	{
-		
-		/*s_Devcon->ClearRenderTargetView(renderTarget.ptr(), color);
-		m_Devcon->ClearDepthStencilView(m_Depthbuffer.ptr(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 0.0f, 0);
-
-		m_Devcon->OMSetRenderTargets(1, renderTarget.ptrAdr(), m_Depthbuffer.ptr());*/
 		m_Devcon->OMSetDepthStencilState(m_DepthState.ptr(), 0);
 
 		m_PerFrameBuffer.BindToVS(0);

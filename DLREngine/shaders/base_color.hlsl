@@ -1,4 +1,4 @@
-#include "globals.hlsl"
+#include "globals.hlsli"
 
 cbuffer PerMesh : register(b1)
 {

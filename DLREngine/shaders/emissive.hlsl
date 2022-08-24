@@ -1,4 +1,4 @@
-#include "globals.hlsl"
+#include "globals.hlsli"
 
 struct VS_INPUT {
     float3 inPosition : POS;

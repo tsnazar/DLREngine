@@ -9,7 +9,7 @@ namespace engine
 	class LightSystem
 	{
 	public:
-		static const uint8_t MAX_POINT_LIGHTS = 1;
+		static const uint8_t MAX_POINT_LIGHTS = 2;
 		
 		struct PointLight
 		{
@@ -38,7 +38,7 @@ namespace engine
 
 		void AddPointLight(const PointLight& light);
 
-		void Bind();
+		void Update();
 
 	private:
 		uint32_t m_NumLights = 0;

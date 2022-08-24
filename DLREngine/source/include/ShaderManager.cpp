@@ -27,7 +27,7 @@ namespace engine
 	{
 		ALWAYS_ASSERT(s_Instance != nullptr);
 		delete s_Instance;
-		s_Instance == nullptr;
+		s_Instance = nullptr;
 	}
 
 	Shader& ShaderManager::LoadShader(const std::string& name, const std::string& filepath, const std::vector<D3D11_INPUT_ELEMENT_DESC>* inputAttributes)

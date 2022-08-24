@@ -32,7 +32,7 @@ namespace engine
 
 		void CreateDepthBuffer(uint32_t width, uint32_t height);
 		
-		void Bind();
+		void Update();
 		
 		void UpdateConstants();
 

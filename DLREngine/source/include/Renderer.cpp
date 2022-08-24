@@ -3,6 +3,7 @@
 #include "ShaderManager.h"
 #include "MeshSystem.h"
 #include "Application.h"
+#include "Postprocess.h"
 
 namespace engine
 {
@@ -19,7 +20,7 @@ namespace engine
 		desc.SampleDesc.Count = 1;
 		desc.Usage = D3D11_USAGE_DEFAULT;
 		desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		desc.CPUAccessFlags = 0;
 
 		m_HDRTarget.CreateFromDescription(desc);
 	}
@@ -28,7 +29,7 @@ namespace engine
 	{
 		const float color[4] = { 0.0f, 0.2f, 0.4f, 1.0f };
 
-		Globals::Get().Bind();
+		Globals::Get().Update();
 		s_Devcon->OMSetRenderTargets(1, m_HDRTarget.GetRenderTarget().ptrAdr(), Globals::Get().GetDepthBuffer().ptr());
 		s_Devcon->ClearDepthStencilView(Globals::Get().GetDepthBuffer().ptr(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 0.0f, 0);
 		s_Devcon->ClearRenderTargetView(m_HDRTarget.GetRenderTarget().ptr(), color);
@@ -36,20 +37,19 @@ namespace engine
 		MeshSystem::Get().Render();
 		m_Sky.Render(camera);
 
-		Globals::Get().Bind();
-		s_Devcon->OMSetRenderTargets(1, win.GetBackBuffer().GetRenderTarget().ptrAdr(), Globals::Get().GetDepthBuffer().ptr());
-		s_Devcon->ClearDepthStencilView(Globals::Get().GetDepthBuffer().ptr(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 0.0f, 0);
-		s_Devcon->ClearRenderTargetView(win.GetBackBuffer().GetRenderTarget().ptr(), color);
 
-		ShaderManager::Get().GetShader("resolve").SetShaders();
-		m_HDRTarget.BindToPS(0);
-		m_ResolveConstants.BindToPS(0);
-		s_Devcon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		s_Devcon->Draw(3, 0);
+		Postprocess::Get().Resolve(m_HDRTarget, win.GetBackBuffer());
 
 		ID3D11ShaderResourceView* const pSRV[1] = { NULL };
 		s_Devcon->PSSetShaderResources(0, 1, pSRV);
 
 		return true;
+	}
+
+	void Renderer::Update()
+	{
+		const Postprocess::ResolveConstants constants = { m_EV100, {0,0,0} };
+
+		Postprocess::Get().Update(constants);
 	}
 }

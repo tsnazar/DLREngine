@@ -130,6 +130,9 @@
     <ClCompile Include="source\render\TransformSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\include\Postprocess.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\decorators\math\TransformMover.h">
@@ -269,5 +272,6 @@
     <ClInclude Include="source\render\TransformSystem.h" />
     <ClInclude Include="source\math\MeshIntersection.h" />
     <ClInclude Include="source\math\Query.h" />
+    <ClInclude Include="source\include\Postprocess.h" />
   </ItemGroup>
 </Project>

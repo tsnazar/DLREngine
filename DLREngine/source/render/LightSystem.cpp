@@ -25,7 +25,7 @@ namespace engine
 		TransformSystem::Transform transform;
 		transform.position = light.position;
 		transform.rotation = { 0,0,0 };
-		transform.scale = { light.radius / 2.0f, light.radius / 2.0f, light.radius / 2.0f };
+		transform.scale = { light.radius , light.radius , light.radius };
 
 		auto& transforms = TransformSystem::Get().GetTransforms();
 		uint32_t id = transforms.insert(transform);
@@ -41,7 +41,7 @@ namespace engine
 		MeshSystem::Get().GetLightInstances().AddInstance(&ModelManager::Get().GetModel("Sphere"), light.radiance, id);
 	}
 
-	void LightSystem::Bind()
+	void LightSystem::Update()
 	{
 		auto& perFrame = Globals::Get().GetPerFrameObj();
 		auto& transforms = TransformSystem::Get().GetTransforms();

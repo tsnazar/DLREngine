@@ -6,6 +6,7 @@
 #include "MeshSystem.h"
 #include "LightSystem.h"
 #include "TransformSystem.h"
+#include "Postprocess.h"
 
 namespace engine
 {
@@ -18,9 +19,11 @@ namespace engine
 		MeshSystem::Init();
 		LightSystem::Init();
 		TransformSystem::Init();
+		Postprocess::Init();
 	}
 	void Engine::Fini()
 	{
+		Postprocess::Fini();
 		TransformSystem::Fini();
 		LightSystem::Fini();
 		MeshSystem::Fini();

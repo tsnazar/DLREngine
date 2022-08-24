@@ -103,6 +103,7 @@ copy /Y "$(ProjectDir)shaders" "$(OutDir)shaders"</Command>
     <ClCompile Include="source\include\LightInstances.cpp" />
     <ClCompile Include="source\include\OpaqueInstances.cpp" />
     <ClCompile Include="source\include\ModelManager.cpp" />
+    <ClCompile Include="source\include\Postprocess.cpp" />
     <ClCompile Include="source\math\SolidVector.h" />
     <ClCompile Include="source\math\TriangleOctree.cpp" />
     <ClCompile Include="source\render\LightSystem.cpp" />
@@ -136,6 +137,7 @@ copy /Y "$(ProjectDir)shaders" "$(OutDir)shaders"</Command>
     <ClInclude Include="source\ecs\components\ModelComponent.h" />
     <ClInclude Include="source\ecs\components\TransformComponent.h" />
     <ClInclude Include="source\include\ModelManager.h" />
+    <ClInclude Include="source\include\Postprocess.h" />
     <ClInclude Include="source\math\Box.h" />
     <ClInclude Include="source\math\MeshIntersection.h" />
     <ClInclude Include="source\math\Query.h" />

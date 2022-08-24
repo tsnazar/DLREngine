@@ -1,20 +1,7 @@
-#include "globals.hlsl"
+#include "globals.hlsli"
+#include "fullscreen.hlsli"
 
 static const float GAMMA = 1.0f / 2.2f;
-
-struct VSQuadOut {
-    float2 uv: TextureCoords;
-    float4 position : SV_Position;
-};
-
-VSQuadOut vs_main(uint vertexID : SV_VertexID) {
-    VSQuadOut result;
-
-    result.uv = float2((vertexID << 1) & 2, vertexID & 2);
-    result.position = float4(result.uv * float2(2.0f, -2.0f) + float2(-1.0f, 1.0f), ZFAR, 1.0f);
-
-    return result;
-}
 
 float3 acesHdr2Ldr(float3 hdr)
 {
@@ -43,20 +30,22 @@ float3 adjustExposure(float3 color, float EV100)
     return color * (1.0f / LMax);
 }
 
-Texture2D objTexture : TEXTURE : register(t0);
+Texture2D g_texture : TEXTURE : register(t0);
 
 cbuffer Constants : register(b0)
 {
     float EV100;
-    float placeholder;
+    float3 padding;
 }
 
 float4 ps_main(VSQuadOut input) : SV_TARGET
 {
-    float4 pixelColor = objTexture.Load(int3(input.position.xy, 0));
+    float4 pixelColor = g_texture.Load(int3(input.position.xy, 0));
     float3 color = adjustExposure(float3(pixelColor.xyz), EV100);
+    
     color = acesHdr2Ldr(color);
     color = pow(color, GAMMA);
     pixelColor = float4(color.xyz, pixelColor.w);
+
     return pixelColor;
 }

@@ -27,7 +27,7 @@ namespace engine
 	{
 		if (s_Instance != nullptr)
 			ALWAYS_ASSERT(false);
-		
+
 		s_Instance = this;
 
 		std::wstring stemp = std::wstring(name.begin(), name.end());
@@ -44,14 +44,8 @@ namespace engine
 		//init scene
 		m_Renderer = std::unique_ptr<Renderer>(new Renderer());
 		m_Renderer->CreateHDRTexture(width, height);
-		m_Renderer->GetResolveConstants().Create<Renderer::ResolveConstants>(D3D11_USAGE_DYNAMIC, nullptr, 1);
 
-		std::vector<D3D11_INPUT_ELEMENT_DESC> simple = {
-			D3D11_INPUT_ELEMENT_DESC{ "POS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTex, pos), D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			D3D11_INPUT_ELEMENT_DESC{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(VertexPosTex, texCoord), D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		};
-
-		std::vector<D3D11_INPUT_ELEMENT_DESC> instance = {
+		std::vector<D3D11_INPUT_ELEMENT_DESC> opaque = {
 			D3D11_INPUT_ELEMENT_DESC{ "POS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTexNorTanBitan, pos), D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			D3D11_INPUT_ELEMENT_DESC{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(VertexPosTexNorTanBitan, texCoord), D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			D3D11_INPUT_ELEMENT_DESC{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTexNorTanBitan, nor), D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -63,7 +57,7 @@ namespace engine
 			D3D11_INPUT_ELEMENT_DESC{ "MAT", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(OpaqueInstances::Instance, matrix[3]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 		};
 
-		std::vector<D3D11_INPUT_ELEMENT_DESC> instanceLight = {
+		std::vector<D3D11_INPUT_ELEMENT_DESC> emissive = {
 			D3D11_INPUT_ELEMENT_DESC{ "POS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTexNorTan, pos), D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			D3D11_INPUT_ELEMENT_DESC{ "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 1, offsetof(LightInstances::Instance, color), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 			D3D11_INPUT_ELEMENT_DESC{ "MAT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(LightInstances::Instance, matrix[0]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
@@ -72,71 +66,71 @@ namespace engine
 			D3D11_INPUT_ELEMENT_DESC{ "MAT", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(LightInstances::Instance, matrix[3]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 		};
 
-		ShaderManager::Get().LoadShader("shader",  "shaders/shader.hlsl", &simple);
-		ShaderManager::Get().LoadShader("instanceBRDF",  "shaders/instanceBRDF.hlsl", &instance);
-		ShaderManager::Get().LoadShader("lightInstance",  "shaders/lightInstance.hlsl", &instanceLight);
+		ShaderManager::Get().LoadShader("instanceBRDF", "shaders/opaque.hlsl", &opaque);
+		ShaderManager::Get().LoadShader("lightInstance", "shaders/emissive.hlsl", &emissive);
 		ShaderManager::Get().LoadShader("skybox", "shaders/sky.hlsl", nullptr);
 		ShaderManager::Get().LoadShader("resolve", "shaders/resolve.hlsl", nullptr);
 
-		Model* pSphere = &ModelManager::Get().CreateModel("Sphere");
-		pSphere->InitUnitSphere();
+		Model* pSphere = &ModelManager::Get().GetUnitSphere();
+		Model* pCube = &ModelManager::Get().GetUnitCube();
 
-		Model* pCube = &ModelManager::Get().CreateModel("Cube");
-		pCube->InitUnitCube();
-
-		std::vector<OpaqueInstances::Material> cubeContainerTexture = { OpaqueInstances::Material(&TextureManager::Get().LoadTexture2D("container", "assets/container2.dds"), nullptr,nullptr, nullptr,  0.9f, 0.0f)};
-		std::vector<OpaqueInstances::Material> cubeWallTexture = { OpaqueInstances::Material(&TextureManager::Get().LoadTexture2D("wall", "assets/stonewall.dds"), nullptr,nullptr, nullptr,  0.9f, 0.0f) };
+		std::vector<OpaqueInstances::Material> cubeContainerTexture = { OpaqueInstances::Material(&TextureManager::Get().LoadTexture2D("BambooWall", "assets/bamboo/BambooWall_albedo.dds"), 
+																									&TextureManager::Get().LoadTexture2D("BambooWallRoughness", "assets/bamboo/BambooWall_roughness.dds"), 
+																						nullptr, &TextureManager::Get().LoadTexture2D("BambooWallNormal", "assets/bamboo/BambooWall_normal.dds"),  0.9f, 0.0f) };
+		std::vector<OpaqueInstances::Material> cubeWallTexture = { OpaqueInstances::Material(&TextureManager::Get().LoadTexture2D("TilesGlass", "assets/tiles/TilesGlass4_albedo.dds"), 
+																							&TextureManager::Get().LoadTexture2D("TilesGlassRoughness", "assets/tiles/TilesGlass4_roughness.dds"),
+																					nullptr, &TextureManager::Get().LoadTexture2D("TilesGlassNormals", "assets/tiles/TilesGlass4_normal.dds"),  0.9f, 0.0f) };
 
 		Model* pSamurai = &ModelManager::Get().LoadModel("Samurai", "assets/Samurai/Samurai.fbx");
 		std::vector<OpaqueInstances::Material> samuraiTextures =
 		{
-			OpaqueInstances::Material(&TextureManager::Get().LoadTexture2D("Sword", "assets/Samurai/dds/Sword_BaseColor.dds"), 
-										&TextureManager::Get().LoadTexture2D("SwordRoughness", "assets/Samurai/dds/Sword_Roughness.dds"), 
-										&TextureManager::Get().LoadTexture2D("SwordMetallic", "assets/Samurai/dds/Sword_Metallic.dds"), 
+			OpaqueInstances::Material(&TextureManager::Get().LoadTexture2D("Sword", "assets/Samurai/dds/Sword_BaseColor.dds"),
+										&TextureManager::Get().LoadTexture2D("SwordRoughness", "assets/Samurai/dds/Sword_Roughness.dds"),
+										&TextureManager::Get().LoadTexture2D("SwordMetallic", "assets/Samurai/dds/Sword_Metallic.dds"),
 										&TextureManager::Get().LoadTexture2D("SwordNormal", "assets/Samurai/dds/Sword_Normal.dds"),  0.9f, 0.0f),
-			
+
 			OpaqueInstances::Material(&TextureManager::Get().LoadTexture2D("Head", "assets/Samurai/dds/Head_BaseColor.dds"),
 									  &TextureManager::Get().LoadTexture2D("HeadRoughness", "assets/Samurai/dds/Head_Roughness.dds"), nullptr,
 									  &TextureManager::Get().LoadTexture2D("HeadNormal", "assets/Samurai/dds/Head_Normal.dds"),  0.9f, 0.0f),
-			
+
 			OpaqueInstances::Material(&TextureManager::Get().LoadTexture2D("Eye", "assets/Samurai/dds/Eye_BaseColor.dds"), nullptr,nullptr, nullptr,  0.9f, 0.0f),
-			
-			OpaqueInstances::Material(&TextureManager::Get().LoadTexture2D("Helmet", "assets/Samurai/dds/Helmet_BaseColor.dds"), 
-										&TextureManager::Get().LoadTexture2D("HelmetRoughness", "assets/Samurai/dds/Helmet_Roughness.dds"), 
-										&TextureManager::Get().LoadTexture2D("HelmetMetallic", "assets/Samurai/dds/Helmet_Metallic.dds"), 
+
+			OpaqueInstances::Material(&TextureManager::Get().LoadTexture2D("Helmet", "assets/Samurai/dds/Helmet_BaseColor.dds"),
+										&TextureManager::Get().LoadTexture2D("HelmetRoughness", "assets/Samurai/dds/Helmet_Roughness.dds"),
+										&TextureManager::Get().LoadTexture2D("HelmetMetallic", "assets/Samurai/dds/Helmet_Metallic.dds"),
 										&TextureManager::Get().LoadTexture2D("HelmetNormal", "assets/Samurai/dds/Helmet_Normal.dds"),  0.9f, 0.0f),
-			
-			OpaqueInstances::Material(&TextureManager::Get().LoadTexture2D("Torso", "assets/Samurai/dds/Torso_BaseColor.dds"), 
-										&TextureManager::Get().LoadTexture2D("TorsoRoughness", "assets/Samurai/dds/Torso_Roughness.dds"), 
+
+			OpaqueInstances::Material(&TextureManager::Get().LoadTexture2D("Torso", "assets/Samurai/dds/Torso_BaseColor.dds"),
+										&TextureManager::Get().LoadTexture2D("TorsoRoughness", "assets/Samurai/dds/Torso_Roughness.dds"),
 										&TextureManager::Get().LoadTexture2D("TorsoMetallic", "assets/Samurai/dds/Torso_Metallic.dds"),
 										&TextureManager::Get().LoadTexture2D("TorsoNormal", "assets/Samurai/dds/Torso_Normal.dds"),  0.9f, 0.0f),
-			
-			OpaqueInstances::Material(&TextureManager::Get().LoadTexture2D("Legs", "assets/Samurai/dds/Legs_BaseColor.dds"), 
-										&TextureManager::Get().LoadTexture2D("LegsRoughness", "assets/Samurai/dds/Legs_Roughness.dds"), 
-										&TextureManager::Get().LoadTexture2D("LegsMetallic", "assets/Samurai/dds/Legs_Metallic.dds"), 
+
+			OpaqueInstances::Material(&TextureManager::Get().LoadTexture2D("Legs", "assets/Samurai/dds/Legs_BaseColor.dds"),
+										&TextureManager::Get().LoadTexture2D("LegsRoughness", "assets/Samurai/dds/Legs_Roughness.dds"),
+										&TextureManager::Get().LoadTexture2D("LegsMetallic", "assets/Samurai/dds/Legs_Metallic.dds"),
 										&TextureManager::Get().LoadTexture2D("LegsNormal", "assets/Samurai/dds/Legs_Normal.dds"), 0.9f, 0.0f),
-			
-			OpaqueInstances::Material(&TextureManager::Get().LoadTexture2D("Hand", "assets/Samurai/dds/Hand_BaseColor.dds"), 
-										&TextureManager::Get().LoadTexture2D("HandRoughness", "assets/Samurai/dds/Hand_Roughness.dds"), nullptr, 
+
+			OpaqueInstances::Material(&TextureManager::Get().LoadTexture2D("Hand", "assets/Samurai/dds/Hand_BaseColor.dds"),
+										&TextureManager::Get().LoadTexture2D("HandRoughness", "assets/Samurai/dds/Hand_Roughness.dds"), nullptr,
 										&TextureManager::Get().LoadTexture2D("HandNormal", "assets/Samurai/dds/Hand_Normal.dds"),  0.9f, 0.0f),
-			
-			OpaqueInstances::Material(&TextureManager::Get().LoadTexture2D("Torso", "assets/Samurai/dds/Torso_BaseColor.dds"), 
-										&TextureManager::Get().LoadTexture2D("TorsoRoughness", "assets/Samurai/dds/Torso_Roughness.dds"), 
-										&TextureManager::Get().LoadTexture2D("TorsoMetallic", "assets/Samurai/dds/Torso_Metallic.dds"), 
+
+			OpaqueInstances::Material(&TextureManager::Get().LoadTexture2D("Torso", "assets/Samurai/dds/Torso_BaseColor.dds"),
+										&TextureManager::Get().LoadTexture2D("TorsoRoughness", "assets/Samurai/dds/Torso_Roughness.dds"),
+										&TextureManager::Get().LoadTexture2D("TorsoMetallic", "assets/Samurai/dds/Torso_Metallic.dds"),
 										&TextureManager::Get().LoadTexture2D("TorsoNormal", "assets/Samurai/dds/Torso_Normal.dds"), 0.9f, 0.0f),
 		};
 
 		Model* pHorse = &ModelManager::Get().LoadModel("Horse", "assets/KnightHorse/KnightHorse.fbx");
 		std::vector<OpaqueInstances::Material> horseTextures =
 		{
-			OpaqueInstances::Material(&TextureManager::Get().LoadTexture2D("Armor", "assets/KnightHorse/dds/Armor_BaseColor.dds"), 
-									  &TextureManager::Get().LoadTexture2D("ArmorRoughness", "assets/KnightHorse/dds/Armor_Roughness.dds"), 
-									  &TextureManager::Get().LoadTexture2D("ArmorMetallic", "assets/KnightHorse/dds/Armor_Metallic.dds"), 
+			OpaqueInstances::Material(&TextureManager::Get().LoadTexture2D("Armor", "assets/KnightHorse/dds/Armor_BaseColor.dds"),
+									  &TextureManager::Get().LoadTexture2D("ArmorRoughness", "assets/KnightHorse/dds/Armor_Roughness.dds"),
+									  &TextureManager::Get().LoadTexture2D("ArmorMetallic", "assets/KnightHorse/dds/Armor_Metallic.dds"),
 									  &TextureManager::Get().LoadTexture2D("ArmorNormal", "assets/KnightHorse/dds/Armor_Normal.dds"), 0.9f, 0.0f),
-			OpaqueInstances::Material(&TextureManager::Get().LoadTexture2D("Horse", "assets/KnightHorse/dds/Horse_BaseColor.dds"), 
-									  &TextureManager::Get().LoadTexture2D("HorseRoughness", "assets/KnightHorse/dds/Horse_Roughness.dds"), nullptr, 
+			OpaqueInstances::Material(&TextureManager::Get().LoadTexture2D("Horse", "assets/KnightHorse/dds/Horse_BaseColor.dds"),
+									  &TextureManager::Get().LoadTexture2D("HorseRoughness", "assets/KnightHorse/dds/Horse_Roughness.dds"), nullptr,
 									  &TextureManager::Get().LoadTexture2D("HorseNormal", "assets/KnightHorse/dds/Horse_Normal.dds"), 0.9f, 0.0f),
-			OpaqueInstances::Material(&TextureManager::Get().LoadTexture2D("Tail", "assets/KnightHorse/dds/Tail_BaseColor.dds"), nullptr, nullptr, 
+			OpaqueInstances::Material(&TextureManager::Get().LoadTexture2D("Tail", "assets/KnightHorse/dds/Tail_BaseColor.dds"), nullptr, nullptr,
 									  &TextureManager::Get().LoadTexture2D("TailNormal", "assets/KnightHorse/dds/Tail_Normal.dds"),  0.9f, 0.0f),
 		};
 
@@ -167,9 +161,15 @@ namespace engine
 
 		m_Renderer->GetSky().SetSky("skybox", "shaders/sky.hlsl", "assets/night_street.dds");
 
-		LightSystem::PointLight light({ 0.0f, 5.0f, -3.0f }, { 1.0f, 1.0f, 1.0f }, 1.0f, 8.0f);
-		LightSystem::Get().AddPointLight(light);
-		
+		{
+			LightSystem::PointLight light({ -2.0f, 5.0f, -3.0f }, { 1.0f, 1.0f, 1.0f }, 0.15f, 8.0f);
+			LightSystem::Get().AddPointLight(light);
+		}
+
+		{
+			LightSystem::PointLight light({ 2.0f, 5.0f, -3.0f }, { 1.0f, 1.0f, 1.0f }, 0.15f, 8.0f);
+			LightSystem::Get().AddPointLight(light);
+		}
 		//init camera
 		m_CameraController = std::unique_ptr<CameraController>(new CameraController(FOV, (float)width/(float)height, ZNEAR, ZFAR));
 		m_CameraController->GetCamera().SetWorldOffset({0.f, 1.f, -10.0f});
@@ -304,10 +304,9 @@ namespace engine
 
 		m_Renderer->SetEV100(EV100);
 
-		Renderer::ResolveConstants s = { EV100, 0, 0, 0 };
-		m_Renderer->GetResolveConstants().Update<Renderer::ResolveConstants>(&s, 1);
-
 		MeshSystem::Get().Update();
+
+		m_Renderer->Update();
 	}
 	
 	void Application::Render()

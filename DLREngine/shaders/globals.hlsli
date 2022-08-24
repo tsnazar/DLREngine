@@ -1,4 +1,6 @@
-static const uint MAX_POINT_LIGHTS = 1;
+#pragma once 
+
+static const uint MAX_POINT_LIGHTS = 2;
 
 struct PointLight
 {
