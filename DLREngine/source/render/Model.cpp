@@ -104,92 +104,11 @@ namespace engine
 
 	void Model::InitUnitCube()
 	{
-		/*const uint32_t numVertices = 36;
-
-		m_VertexBufferOnly = true;
-
-		m_Submeshes.clear();
-
-		m_Submeshes.push_back(Model::SubMesh{  0, 0, numVertices, 0});
-
-		m_Meshes.clear();
-		m_Meshes.emplace_back();
-		m_Meshes[0].meshToModel = { 1, 0, 0, 0,
-									0, 1, 0, 0,
-									0, 0, 1, 0,
-									0, 0, 0, 1 };
-		m_Meshes[0].modelToMesh = { 1, 0, 0, 0,
-									0, 1, 0, 0,
-									0, 0, 1, 0,
-									0, 0, 0, 1 };*/
-
-		//const VertexPosTexNorTanBitan vertexData[] = {
-		//	//front
-		//	{ DirectX::XMFLOAT3{-0.5f, -0.5f, -0.5f}, DirectX::XMFLOAT2{0.f, 1.f}, DirectX::XMFLOAT3{0.0f, 0.0f, -1.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-		//	{ DirectX::XMFLOAT3{-0.5f, 0.5f, -0.5f}, DirectX::XMFLOAT2{0.f, 0.f}, DirectX::XMFLOAT3{0.0f, 0.0f, -1.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-		//	{ DirectX::XMFLOAT3{0.5f, -0.5f, -0.5f}, DirectX::XMFLOAT2{1.f, 1.f}, DirectX::XMFLOAT3{0.0f, 0.0f, -1.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-
-		//	{ DirectX::XMFLOAT3{0.5f, 0.5f, -0.5f}, DirectX::XMFLOAT2{1.f, 0.f}, DirectX::XMFLOAT3{0.0f, 0.0f, -1.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-		//	{ DirectX::XMFLOAT3{0.5f, -0.5f, -0.5f}, DirectX::XMFLOAT2{1.f, 1.f}, DirectX::XMFLOAT3{0.0f, 0.0f, -1.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-		//	{ DirectX::XMFLOAT3{-0.5f, 0.5f, -0.5f}, DirectX::XMFLOAT2{0.f, 0.f}, DirectX::XMFLOAT3{0.0f, 0.0f, -1.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-
-		//	//back
-		//	{ DirectX::XMFLOAT3{0.5f, -0.5f, 0.5f}, DirectX::XMFLOAT2{0.0f, 1.f}, DirectX::XMFLOAT3{0.0f, 0.0f, 1.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-		//	{ DirectX::XMFLOAT3{0.5f, 0.5f, 0.5f}, DirectX::XMFLOAT2{0.f, 0.f}, DirectX::XMFLOAT3{0.0f, 0.0f, 1.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-		//	{ DirectX::XMFLOAT3{-0.5f, -0.5f, 0.5f}, DirectX::XMFLOAT2{1.f, 1.f}, DirectX::XMFLOAT3{0.0f, 0.0f, 1.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-
-		//	{ DirectX::XMFLOAT3{-0.5f, 0.5f, 0.5f}, DirectX::XMFLOAT2{1.f, 0.f}, DirectX::XMFLOAT3{0.0f, 0.0f, 1.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-		//	{ DirectX::XMFLOAT3{-0.5f, -0.5f, 0.5f}, DirectX::XMFLOAT2{1.f, 1.f}, DirectX::XMFLOAT3{0.0f, 0.0f, 1.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-		//	{ DirectX::XMFLOAT3{0.5f, 0.5f, 0.5f}, DirectX::XMFLOAT2{0.f, 0.f}, DirectX::XMFLOAT3{0.0f, 0.0f, 1.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-
-		//	////right
-		//	{ DirectX::XMFLOAT3{0.5f, -0.5f, -0.5f}, DirectX::XMFLOAT2{0.f, 1.f}, DirectX::XMFLOAT3{1.0f, 0.0f, 0.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-		//	{ DirectX::XMFLOAT3{0.5f, 0.5f, -0.5f}, DirectX::XMFLOAT2{0.f, 0.f}, DirectX::XMFLOAT3{1.0f, 0.0f, 0.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-		//	{ DirectX::XMFLOAT3{0.5f, -0.5f, 0.5f}, DirectX::XMFLOAT2{1.f, 1.f}, DirectX::XMFLOAT3{1.0f, 0.0f, 0.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-
-		//	{ DirectX::XMFLOAT3{0.5f, -0.5f, 0.5f}, DirectX::XMFLOAT2{1.f, 1.f}, DirectX::XMFLOAT3{1.0f, 0.0f, 0.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-		//	{ DirectX::XMFLOAT3{0.5f, 0.5f, -0.5f}, DirectX::XMFLOAT2{0.f, 0.f}, DirectX::XMFLOAT3{1.0f, 0.0f, 0.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-		//	{ DirectX::XMFLOAT3{0.5f, 0.5f, 0.5f}, DirectX::XMFLOAT2{1.f, 0.f}, DirectX::XMFLOAT3{1.0f, 0.0f, 0.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-
-		//	////left
-		//	{ DirectX::XMFLOAT3{-0.5f, -0.5f, 0.5f}, DirectX::XMFLOAT2{0.f, 1.f}, DirectX::XMFLOAT3{-1.0f, 0.0f, 0.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-		//	{ DirectX::XMFLOAT3{-0.5f, 0.5f, 0.5f}, DirectX::XMFLOAT2{0.f, 0.f}, DirectX::XMFLOAT3{-1.0f, 0.0f, 0.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-		//	{ DirectX::XMFLOAT3{-0.5f, -0.5f, -0.5f}, DirectX::XMFLOAT2{1.f, 1.f}, DirectX::XMFLOAT3{-1.0f, 0.0f, 0.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-
-		//	{ DirectX::XMFLOAT3{-0.5f, -0.5f, -0.5f}, DirectX::XMFLOAT2{1.f, 1.f}, DirectX::XMFLOAT3{-1.0f, 0.0f, 0.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-		//	{ DirectX::XMFLOAT3{-0.5f, 0.5f, 0.5f}, DirectX::XMFLOAT2{0.f, 0.f}, DirectX::XMFLOAT3{-1.0f, 0.0f, 0.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-		//	{ DirectX::XMFLOAT3{-0.5f, 0.5f, -0.5f}, DirectX::XMFLOAT2{1.f, 0.f}, DirectX::XMFLOAT3{-1.0f, 0.0f, 0.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-
-		//	////bottom
-		//	{ DirectX::XMFLOAT3{-0.5f, -0.5f, 0.5f}, DirectX::XMFLOAT2{0.f, 1.f}, DirectX::XMFLOAT3{0.0f, -1.0f, 0.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-		//	{ DirectX::XMFLOAT3{-0.5f, -0.5f, -0.5f}, DirectX::XMFLOAT2{0.f, 0.f}, DirectX::XMFLOAT3{0.0f, -1.0f, 0.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-		//	{ DirectX::XMFLOAT3{0.5f, -0.5f, 0.5f}, DirectX::XMFLOAT2{1.f, 1.f}, DirectX::XMFLOAT3{0.0f, -1.0f, 0.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-
-		//	{ DirectX::XMFLOAT3{0.5f, -0.5f, 0.5f}, DirectX::XMFLOAT2{1.f, 1.f}, DirectX::XMFLOAT3{0.0f, -1.0f, 0.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-		//	{ DirectX::XMFLOAT3{-0.5f, -0.5f, -0.5f}, DirectX::XMFLOAT2{0.f, 0.f}, DirectX::XMFLOAT3{0.0f, -1.0f, 0.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-		//	{ DirectX::XMFLOAT3{0.5f, -0.5f, -0.5f}, DirectX::XMFLOAT2{1.f, 0.f}, DirectX::XMFLOAT3{0.0f, -1.0f, 0.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-
-		//	////top
-		//	{ DirectX::XMFLOAT3{-0.5f, 0.5f, -0.5f}, DirectX::XMFLOAT2{0.f, 1.f}, DirectX::XMFLOAT3{0.0f, 1.0f, 0.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-		//	{ DirectX::XMFLOAT3{-0.5f, 0.5f, 0.5f}, DirectX::XMFLOAT2{0.f, 0.f}, DirectX::XMFLOAT3{0.0f, 1.0f, 0.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-		//	{ DirectX::XMFLOAT3{0.5f, 0.5f, -0.5f}, DirectX::XMFLOAT2{1.f, 1.f}, DirectX::XMFLOAT3{0.0f, 1.0f, 0.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-
-		//	{ DirectX::XMFLOAT3{0.5f, 0.5f, -0.5f}, DirectX::XMFLOAT2{1.f, 1.f}, DirectX::XMFLOAT3{0.0f, 1.0f, 0.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-		//	{ DirectX::XMFLOAT3{-0.5f, 0.5f, 0.5f}, DirectX::XMFLOAT2{0.f, 0.f}, DirectX::XMFLOAT3{0.0f, 1.0f, 0.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-		//	{ DirectX::XMFLOAT3{0.5f, 0.5f, 0.5f}, DirectX::XMFLOAT2{1.f, 0.f}, DirectX::XMFLOAT3{0.0f, 1.0f, 0.0f}, DirectX::XMFLOAT3{0, 0, 0},  DirectX::XMFLOAT3{0, 0, 0}},
-		//};
-
-		/*m_Meshes[0].vertices.assign(vertexData, vertexData + numVertices);
-		m_Meshes[0].box = { {-0.5f, -0.5f, -0.5f}, {0.5f, 0.5f, 0.5f} };
-		m_Meshes[0].UpdateOctree();
-
-		m_Vertices.Create<VertexPosTexNorTanBitan>(D3D11_USAGE_DYNAMIC, vertexData, numVertices);*/
-
 		const uint32_t SIDES = 6;
-		const uint32_t GRID_SIZE = 1;
-		const uint32_t TRIS_PER_SIDE = GRID_SIZE * GRID_SIZE * 2;
-		const uint32_t VERT_PER_SIDE = 3 * TRIS_PER_SIDE;
-		const uint32_t VERTEX_COUNT = VERT_PER_SIDE * SIDES;
+		//const uint32_t GRID_SIZE = 1;
+		//const uint32_t TRIS_PER_SIDE = GRID_SIZE * GRID_SIZE * 2;
+		//const uint32_t VERT_PER_SIDE = 3 * TRIS_PER_SIDE;
+		const uint32_t VERTEX_COUNT = SIDES * 6;
 
 		std::vector<VertexPosTexNorTanBitan> vertices;
 		vertices.resize(VERTEX_COUNT);
@@ -288,11 +207,6 @@ namespace engine
 				DirectX::XMVECTOR AC = DirectX::XMVectorSet(vertex[2].pos.x - vertex[0].pos.x, vertex[2].pos.y - vertex[0].pos.y, vertex[2].pos.z - vertex[0].pos.z, 0.0f);;
 				DirectX::XMVECTOR norm = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(AB, AC));
 
-				/*DirectX::XMVECTOR UV1 = DirectX::XMVectorSet(vertex[1].texCoord.x - vertex[0].texCoord.x, vertex[1].texCoord.y - vertex[0].texCoord.y, 0.0f, 0.0f);
-				DirectX::XMVECTOR UV2 = DirectX::XMVectorSet(vertex[2].texCoord.x - vertex[0].texCoord.x, vertex[2].texCoord.y - vertex[0].texCoord.y, 0.0f, 0.0f);*/
-
-				//DirectX::XMVECTOR f = DirectX::XMVectorReplicate(1.0f/(UV1.x));
-
 				DirectX::XMStoreFloat3(&vertex[0].nor, norm);
 				DirectX::XMStoreFloat3(&vertex[1].nor, norm);
 				DirectX::XMStoreFloat3(&vertex[2].nor, norm);
@@ -326,7 +240,7 @@ namespace engine
 	void Model::InitUnitSphere()
 	{
 		const uint32_t SIDES = 6;
-		const uint32_t GRID_SIZE = 12;
+		const uint32_t GRID_SIZE = 24;
 		const uint32_t TRIS_PER_SIDE = GRID_SIZE * GRID_SIZE * 2;
 		const uint32_t VERT_PER_SIDE = 3 * TRIS_PER_SIDE;
 		const uint32_t VERTEX_COUNT = VERT_PER_SIDE * SIDES;

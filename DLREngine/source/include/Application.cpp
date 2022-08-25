@@ -76,10 +76,10 @@ namespace engine
 
 		std::vector<OpaqueInstances::Material> cubeContainerTexture = { OpaqueInstances::Material(&TextureManager::Get().LoadTexture2D("BambooWall", "assets/bamboo/BambooWall_albedo.dds"), 
 																									&TextureManager::Get().LoadTexture2D("BambooWallRoughness", "assets/bamboo/BambooWall_roughness.dds"), 
-																						nullptr, &TextureManager::Get().LoadTexture2D("BambooWallNormal", "assets/bamboo/BambooWall_normal.dds"),  0.9f, 0.0f) };
+																						nullptr, &TextureManager::Get().LoadTexture2D("BambooWallNormal", "assets/bamboo/BambooWall_normal.dds"),  0.9f, 0.0f, true) };
 		std::vector<OpaqueInstances::Material> cubeWallTexture = { OpaqueInstances::Material(&TextureManager::Get().LoadTexture2D("TilesGlass", "assets/tiles/TilesGlass4_albedo.dds"), 
 																							&TextureManager::Get().LoadTexture2D("TilesGlassRoughness", "assets/tiles/TilesGlass4_roughness.dds"),
-																					nullptr, &TextureManager::Get().LoadTexture2D("TilesGlassNormals", "assets/tiles/TilesGlass4_normal.dds"),  0.9f, 0.0f) };
+																					nullptr, &TextureManager::Get().LoadTexture2D("TilesGlassNormals", "assets/tiles/TilesGlass4_normal.dds"),  0.9f, 0.0f, true) };
 
 		Model* pSamurai = &ModelManager::Get().LoadModel("Samurai", "assets/Samurai/Samurai.fbx");
 		std::vector<OpaqueInstances::Material> samuraiTextures =
