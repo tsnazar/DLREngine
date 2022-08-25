@@ -25,7 +25,6 @@ namespace engine
 
 	void MeshSystem::Render()
 	{
-		LightSystem::Get().Update();
 		m_OpaqueInstances.Render();
 		m_LightInstances.Render();
 	}

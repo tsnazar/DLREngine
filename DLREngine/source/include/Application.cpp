@@ -303,9 +303,6 @@ namespace engine
 		}
 
 		m_Renderer->SetEV100(EV100);
-
-		MeshSystem::Get().Update();
-
 		m_Renderer->Update();
 	}
 	

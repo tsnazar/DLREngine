@@ -51,5 +51,7 @@ namespace engine
 		const Postprocess::ResolveConstants constants = { m_EV100, {0,0,0} };
 
 		Postprocess::Get().Update(constants);
+		LightSystem::Get().Update();
+		MeshSystem::Get().Update();
 	}
 }
