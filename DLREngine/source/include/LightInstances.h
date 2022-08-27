@@ -18,22 +18,23 @@ namespace engine
 			enum Bindings : uint32_t {  MESH_BUFFER = 0, INSTANCE_BUFFER = 1 };
 		};
 
-		struct InstanceRef
+		struct Instance
 		{
 			DirectX::XMFLOAT3 color;
 			uint32_t transformId;
 		};
 
-		struct Instance
+		struct GpuInstance
 		{
 			DirectX::XMFLOAT3 color;
+			float padding;
 			DirectX::XMFLOAT4 matrix[4];
 		};
 
 		struct PerModel
 		{
 			Model* model;
-			std::vector<InstanceRef> instanceRefs;
+			std::vector<Instance> instanceRefs;
 		};
 
 	public:

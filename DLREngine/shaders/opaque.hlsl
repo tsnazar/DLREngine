@@ -1,5 +1,5 @@
 #include "globals.hlsli"
-#include "BRDF.hlsli"
+#include "lighting.hlsli"
 
 cbuffer PerMesh : register(b1)
 {
@@ -49,9 +49,6 @@ VS_OUTPUT vs_main(VS_INPUT input) {
 
     output.texCoord = input.inTexCoord;
 
-    //float4x4 normalModelMat = transpose(inverse(meshToModel));
-    //float4x4 normalWorldMat = transpose(inverse(input.inModelToWorld));
-
     output.normal = mul(input.inNormal, meshToModel);
     output.normal = mul(output.normal , input.inModelToWorld);
 
@@ -91,9 +88,9 @@ float4 ps_main(VS_OUTPUT input) : SV_TARGET
 
     if (g_flags & f_hasNormals)
     {
-        input.normal = normalize(g_normalTexture.Sample(g_sampler, input.texCoord).xyz * 2.0 - 1.0);
+        input.normal = g_normalTexture.Sample(g_sampler, input.texCoord).xyz * 2.0 - 1.0;
         if (g_flags & f_flipNormals)
-            input.normal.y = -1.0 * input.normal.y;
+            input.normal.y = -input.normal.y;
 
         input.normal = normalize(mul(input.normal, input.TBN));
     }
@@ -108,64 +105,68 @@ float4 ps_main(VS_OUTPUT input) : SV_TARGET
 
     float3 f0 = lerp(basicF0, albedo, metallic);
 
+    float3 N = normalize(input.normal);
+    float3 V = normalize(g_cameraPos - input.worldPos);
+
+    float NdotV = max(dot(N, V), MIN_DOT);
+
+    float3 reflection = 2.0 * N * NdotV - V;
+
     for (uint i = 0; i < MAX_POINT_LIGHTS; ++i)
     {
-        float dist = length(g_lights[i].position - input.worldPos);
-        float radius = g_lights[i].radius;
+        Material material;
+        material.albedo = albedo;
+        material.f0 = f0;
+        material.roughness = roughness;
+        material.metallic = metallic;
+        resultColor += calculatePointLighting(N, GN, V, NdotV, reflection, input.worldPos, g_lights[i].position, g_lights[i].radius, g_lights[i].radiance, material);
+        //float dist = length(g_lights[i].position - input.worldPos);
+        //float radius = g_lights[i].radius;
+        //
+        //dist = max(dist, radius);
+        //
+        //float lightAngleSin = radius / dist;
 
-        float sqrDist = dist * dist;
-        float sqrRadius =  radius * radius;
+        //float angularCos = sqrt(1.0 - lightAngleSin * lightAngleSin);
 
-        sqrDist = max(sqrRadius, sqrDist);
+        //float solidAngle = (1.0 - angularCos) * 2 * PI;
+        //
+        //float3 L = normalize(g_lights[i].position - input.worldPos);
 
-        float angularCos = sqrt(1.0 - sqrRadius / sqrDist);
+        ////float NdotL = max(dot(N, L), MIN_DOT);
+        //float NdotL = dot(N, L);
+        //if (NdotL < -lightAngleSin)
+        //    continue;
 
-        float lightAngleSin = radius / dist;
+        //float GNdotL = dot(GN, L);
+        //float faddingGeom = 1.0 - saturate((radius - GNdotL * dist) / (2 * radius));
+        //float faddingNMap = 1.0 - saturate((radius - NdotL * dist) / (2 * radius));
 
-        float solidAngle = (1.0 - angularCos) * PI;
+        //NdotL = max(NdotL, faddingGeom * lightAngleSin);
 
-        float3 N = normalize(input.normal);
-        float3 V = normalize(g_cameraPos - input.worldPos);
-        float3 L = normalize(g_lights[i].position - input.worldPos);
+        //
 
-        //float NdotL = max(dot(N, L), MIN_DOT);
-        float NdotL = dot(N, L);
-        if (NdotL < -lightAngleSin)
-            continue;
+        //float3 C = approximateClosestSphereDir(reflection, angularCos, L * dist, L, dist, radius);
+        //float NdotC = dot(N, C);
+        //clampDirToHorizon(C, NdotC, N, MIN_DOT);
 
-        float GNdotL = dot(GN, L);
-        float faddingGeom = 1.0 - saturate((radius - GNdotL * dist) / (2 * radius));
-        float faddingNMap = 1.0 - saturate((radius - NdotL * dist) / (2 * radius));
+        //float3 radiance = g_lights[i].radiance;
 
-        NdotL = max(NdotL, faddingGeom * lightAngleSin);
+        //float3 H = normalize(C + V);
 
-        float NdotV = max(dot(N, V), MIN_DOT);
+        //float NdotH = max(dot(N, H), MIN_DOT);
+        //float HdotC = max(dot(H, C), MIN_DOT);
 
-        float3 reflection = 2.0 * N * NdotV - V;
+        //float FL = fresnel(f0, NdotL);
+        //float FH = fresnel(f0, HdotC);
 
-        float3 C = approximateClosestSphereDir(reflection, angularCos, L * dist, L, dist, radius);
-        float NdotC = dot(N, C);
-        clampDirToHorizon(C, NdotC, N, MIN_DOT);
+        //float D = ggx(roughness * roughness, NdotH);
+        //float G = smith(roughness * roughness, NdotV, NdotC);
 
-        float3 radiance = g_lights[i].radiance;
+        //float spec = brdfCookTorrance(FH, D, G, NdotV, NdotC, solidAngle);
+        //float3 diff = brdfLambert(albedo.xyz, metallic, FL);
 
-        float3 H = normalize(C + V);
-
-        float NdotH = max(dot(N, H), MIN_DOT);
-        float HdotC = max(dot(H, C), MIN_DOT);
-
-        float FL = fresnel(f0, NdotL);
-        float FH = fresnel(f0, HdotC);
-
-        float D = ggx(roughness * roughness, NdotH);
-        float G = smith(roughness * roughness, NdotV, NdotC);
-
-        float spec = brdfCookTorrance(FH, D, G, NdotV, NdotC, solidAngle);
-        float3 diff = brdfLambert(albedo.xyz, metallic, FL);
-
-        resultColor += (diff * solidAngle * NdotL + spec * NdotC) * radiance * faddingGeom * faddingNMap;
         //resultColor += (diff * solidAngle * NdotL + spec * NdotC) * radiance * faddingGeom * faddingNMap;
-        //return float4((diff * solidAngle * NdotL + spec * NdotD) * radiance, 1.0);
     }
     
     return float4(resultColor.xyz, 1.0);

@@ -51,19 +51,19 @@ namespace engine
 			D3D11_INPUT_ELEMENT_DESC{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTexNorTanBitan, nor), D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			D3D11_INPUT_ELEMENT_DESC{ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTexNorTanBitan, tan), D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			D3D11_INPUT_ELEMENT_DESC{ "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTexNorTanBitan, bitan), D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			D3D11_INPUT_ELEMENT_DESC{ "MAT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(OpaqueInstances::Instance, matrix[0]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-			D3D11_INPUT_ELEMENT_DESC{ "MAT", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(OpaqueInstances::Instance, matrix[1]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-			D3D11_INPUT_ELEMENT_DESC{ "MAT", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(OpaqueInstances::Instance, matrix[2]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-			D3D11_INPUT_ELEMENT_DESC{ "MAT", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(OpaqueInstances::Instance, matrix[3]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(OpaqueInstances::GpuInstance, matrix[0]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(OpaqueInstances::GpuInstance, matrix[1]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(OpaqueInstances::GpuInstance, matrix[2]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(OpaqueInstances::GpuInstance, matrix[3]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 		};
 
 		std::vector<D3D11_INPUT_ELEMENT_DESC> emissive = {
 			D3D11_INPUT_ELEMENT_DESC{ "POS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTexNorTan, pos), D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			D3D11_INPUT_ELEMENT_DESC{ "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 1, offsetof(LightInstances::Instance, color), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-			D3D11_INPUT_ELEMENT_DESC{ "MAT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(LightInstances::Instance, matrix[0]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-			D3D11_INPUT_ELEMENT_DESC{ "MAT", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(LightInstances::Instance, matrix[1]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-			D3D11_INPUT_ELEMENT_DESC{ "MAT", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(LightInstances::Instance, matrix[2]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-			D3D11_INPUT_ELEMENT_DESC{ "MAT", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(LightInstances::Instance, matrix[3]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 1, offsetof(LightInstances::GpuInstance, color), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(LightInstances::GpuInstance, matrix[0]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(LightInstances::GpuInstance, matrix[1]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(LightInstances::GpuInstance, matrix[2]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(LightInstances::GpuInstance, matrix[3]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 		};
 
 		ShaderManager::Get().LoadShader("instanceBRDF", "shaders/opaque.hlsl", &opaque);
@@ -162,12 +162,12 @@ namespace engine
 		m_Renderer->GetSky().SetSky("skybox", "shaders/sky.hlsl", "assets/night_street.dds");
 
 		{
-			LightSystem::PointLight light({ -2.0f, 5.0f, -3.0f }, { 1.0f, 1.0f, 1.0f }, 0.15f, 8.0f);
+			LightSystem::PointLight light({ -2.0f, 5.0f, -3.0f }, { 1.0f, 1.0f, 1.0f }, 0.15f, 4.0f);
 			LightSystem::Get().AddPointLight(light);
 		}
 
 		{
-			LightSystem::PointLight light({ 2.0f, 5.0f, -3.0f }, { 1.0f, 1.0f, 1.0f }, 0.15f, 8.0f);
+			LightSystem::PointLight light({ 2.0f, 5.0f, -3.0f }, { 1.0f, 1.0f, 1.0f }, 0.15f, 4.0f);
 			LightSystem::Get().AddPointLight(light);
 		}
 		//init camera

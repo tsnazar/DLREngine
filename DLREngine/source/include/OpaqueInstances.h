@@ -19,7 +19,7 @@ namespace engine
 			enum Bindings : uint32_t { ALBEDO_TEXTURE = 0, ROUGHNESS_TEXTURE = 1, METALLIC_TEXTURE = 2, NORMAL_MAP_TEXTURE = 3, MESH_BUFFER = 0, MESH_TO_MODEL_BUFFER = 1, INSTANCE_BUFFER = 1, MATERIAL_CONSTANTS = 2};
 		};
 
-		struct Instance
+		struct GpuInstance
 		{
 			DirectX::XMFLOAT4 matrix[4];
 		};

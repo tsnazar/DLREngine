@@ -23,10 +23,10 @@ namespace engine
 		if (m_ResizeInstanceBuffer)
 		{
 			m_ResizeInstanceBuffer = false;
-			m_InstanceBuffer.Create<Instance>(D3D11_USAGE_DYNAMIC, nullptr, totalInstances);
+			m_InstanceBuffer.Create<GpuInstance>(D3D11_USAGE_DYNAMIC, nullptr, totalInstances);
 		}
 
-		Instance* dst = static_cast<Instance*>(m_InstanceBuffer.Map());
+		GpuInstance* dst = static_cast<GpuInstance*>(m_InstanceBuffer.Map());
 
 		uint32_t copiedNum = 0;
 
@@ -38,20 +38,12 @@ namespace engine
 			{
 				for (const auto& perMaterial : perModel.perMesh[meshIndex].perMaterial)
 				{
-					//auto& instances = perMaterial.instanceIDs;
-					//uint32_t numModelInstances = instances.size();
-
 					for (const auto& id : perMaterial.instanceIDs)
 					{
-						Instance instance;
+						GpuInstance instance;
 						LoadMatrixInArray(transforms[id].GetTranspose(), instance.matrix);
 						dst[copiedNum++] = instance;
 					}
-
-					//for (uint32_t index = 0; index < numModelInstances; ++index)
-					//{
-					//	dst[copiedNum++] = instances[id];
-					//}
 				}
 			}
 		}

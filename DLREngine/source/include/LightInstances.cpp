@@ -18,10 +18,10 @@ namespace engine
 		if (m_ResizeInstanceBuffer)
 		{
 			m_ResizeInstanceBuffer = false;
-			m_InstanceBuffer.Create<Instance>(D3D11_USAGE_DYNAMIC, nullptr, totalInstances);
+			m_InstanceBuffer.Create<GpuInstance>(D3D11_USAGE_DYNAMIC, nullptr, totalInstances);
 		}
 
-		Instance* dst = static_cast<Instance*>(m_InstanceBuffer.Map());
+		GpuInstance* dst = static_cast<GpuInstance*>(m_InstanceBuffer.Map());
 
 		uint32_t copiedNum = 0;
 
@@ -29,15 +29,9 @@ namespace engine
 
 		for (const auto& perModel : m_PerModel)
 		{
-			//auto& instances = perModel.instances;
-			//uint32_t numModelInstances = instances.size();
-
-			//for (uint32_t index = 0; index < numModelInstances; ++index)
-					//dst[copiedNum++] = instances[index];
-
 			for (const auto& ref : perModel.instanceRefs)
 			{
-				Instance instance;
+				GpuInstance instance;
 				instance.color = ref.color;
 				LoadMatrixInArray(transforms[ref.transformId].GetTranspose(), instance.matrix);
 				dst[copiedNum++] = instance;
@@ -92,12 +86,10 @@ namespace engine
 
 		auto& perModel = m_PerModel[m_ModelIndexMap[model]];
 		auto& transforms = TransformSystem::Get().GetTransforms();
-		//uint32_t transformID = transforms.insert(transform);
 
-		InstanceRef instance;
+		Instance instance;
 		instance.color = color;
 		instance.transformId = transformId;
-		//LoadMatrixInArray(transforms[transformId].GetTranspose(), instance.matrix);
 
 		perModel.instanceRefs.push_back(instance);
 	}
