@@ -120,53 +120,6 @@ float4 ps_main(VS_OUTPUT input) : SV_TARGET
         material.roughness = roughness;
         material.metallic = metallic;
         resultColor += calculatePointLighting(N, GN, V, NdotV, reflection, input.worldPos, g_lights[i].position, g_lights[i].radius, g_lights[i].radiance, material);
-        //float dist = length(g_lights[i].position - input.worldPos);
-        //float radius = g_lights[i].radius;
-        //
-        //dist = max(dist, radius);
-        //
-        //float lightAngleSin = radius / dist;
-
-        //float angularCos = sqrt(1.0 - lightAngleSin * lightAngleSin);
-
-        //float solidAngle = (1.0 - angularCos) * 2 * PI;
-        //
-        //float3 L = normalize(g_lights[i].position - input.worldPos);
-
-        ////float NdotL = max(dot(N, L), MIN_DOT);
-        //float NdotL = dot(N, L);
-        //if (NdotL < -lightAngleSin)
-        //    continue;
-
-        //float GNdotL = dot(GN, L);
-        //float faddingGeom = 1.0 - saturate((radius - GNdotL * dist) / (2 * radius));
-        //float faddingNMap = 1.0 - saturate((radius - NdotL * dist) / (2 * radius));
-
-        //NdotL = max(NdotL, faddingGeom * lightAngleSin);
-
-        //
-
-        //float3 C = approximateClosestSphereDir(reflection, angularCos, L * dist, L, dist, radius);
-        //float NdotC = dot(N, C);
-        //clampDirToHorizon(C, NdotC, N, MIN_DOT);
-
-        //float3 radiance = g_lights[i].radiance;
-
-        //float3 H = normalize(C + V);
-
-        //float NdotH = max(dot(N, H), MIN_DOT);
-        //float HdotC = max(dot(H, C), MIN_DOT);
-
-        //float FL = fresnel(f0, NdotL);
-        //float FH = fresnel(f0, HdotC);
-
-        //float D = ggx(roughness * roughness, NdotH);
-        //float G = smith(roughness * roughness, NdotV, NdotC);
-
-        //float spec = brdfCookTorrance(FH, D, G, NdotV, NdotC, solidAngle);
-        //float3 diff = brdfLambert(albedo.xyz, metallic, FL);
-
-        //resultColor += (diff * solidAngle * NdotL + spec * NdotC) * radiance * faddingGeom * faddingNMap;
     }
     
     return float4(resultColor.xyz, 1.0);

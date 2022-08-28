@@ -85,7 +85,7 @@ float3 calculatePointLighting(float3 N, float3 GN, float3 V,  float NdotV, float
     float faddingGeom = 1.0 - saturate((radius - GNdotL * dist) / (2 * radius));
     float faddingNMap = 1.0 - saturate((radius - NdotL * dist) / (2 * radius));
 
-    NdotL = max(NdotL, faddingGeom * lightAngleSin);
+    NdotL = max(NdotL, faddingNMap * lightAngleSin);
 
     float3 C = approximateClosestSphereDir(reflection, angularCos, L * dist, L, dist, radius);
     float NdotC = dot(N, C);
