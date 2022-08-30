@@ -80,7 +80,7 @@ static const float3 basicF0 = float3(0.04, 0.04, 0.04);
 
 float4 ps_main(VS_OUTPUT input) : SV_TARGET
 {
-    float4 albedo = g_colorTexture.Sample(g_sampler, input.texCoord);
+    float3 albedo = g_colorTexture.Sample(g_sampler, input.texCoord);
 
     float3 resultColor = float3(0, 0, 0);
 
@@ -119,7 +119,8 @@ float4 ps_main(VS_OUTPUT input) : SV_TARGET
         material.f0 = f0;
         material.roughness = roughness;
         material.metallic = metallic;
-        resultColor += calculatePointLighting(N, GN, V, NdotV, reflection, input.worldPos, g_lights[i].position, g_lights[i].radius, g_lights[i].radiance, material);
+        float3 L = g_lights[i].position - input.worldPos;
+        resultColor += calculatePointLighting(N, GN, V, L, NdotV, reflection, g_lights[i].radius, g_lights[i].radiance, material);
     }
     
     return float4(resultColor.xyz, 1.0);

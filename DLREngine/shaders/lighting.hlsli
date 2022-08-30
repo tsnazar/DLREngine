@@ -11,7 +11,7 @@ struct Material
     float metallic;
 };
 
-float fresnel(float3 F0, float NdotL)
+float3 fresnel(float3 F0, float NdotL)
 {
 	return F0 + (1.0 - F0) * pow(1.0 - NdotL, 5.0);
 }
@@ -26,18 +26,18 @@ float smith(float rough2, float NdotV, float NdotL)
 
 float ggx(float rough2, float NdotH)
 {
-	float3 denom = NdotH * NdotH * (rough2 - 1.0) + 1.0f;
+	float denom = NdotH * NdotH * (rough2 - 1.0) + 1.0f;
 	denom = PI * denom * denom;
 	return rough2 / denom;
 }
 
-float brdfCookTorrance(float F, float D, float G, float NdotV, float NdotL, float solidAngle)
+float3 brdfCookTorrance(float3 F, float D, float G, float NdotV, float solidAngle)
 {
-	float3 k = min((D * solidAngle) / (4.0 * NdotV * NdotL + 0.0001), 1.0);
-	return F * G * k;
+	float k = min((D * solidAngle / (4.0 * NdotV + 0.0001)), 1.0);
+    return F * G * k;
 }
 
-float3 brdfLambert(float3 albedo, float metal, float F)
+float3 brdfLambert(float3 albedo, float metal, float3 F)
 {
 	return  (1.0 - F) * (1.0 - metal) * albedo / PI;
 }
@@ -63,9 +63,9 @@ void clampDirToHorizon(inout float3 dir, inout float NdotD, float3 normal, float
 	}
 }
 
-float3 calculatePointLighting(float3 N, float3 GN, float3 V,  float NdotV, float3 reflection, float3 fragmentPosition, float3 position, float radius, float3 radiance, Material material)
+float3 calculatePointLighting(float3 N, float3 GN, float3 V, float3 L, float NdotV, float3 reflection, float radius, float3 radiance, Material material)
 {
-    float dist = length(position - fragmentPosition);
+    float dist = length(L);
 
     dist = max(dist, radius);
 
@@ -75,7 +75,7 @@ float3 calculatePointLighting(float3 N, float3 GN, float3 V,  float NdotV, float
 
     float solidAngle = (1.0 - angularCos) * 2 * PI;
 
-    float3 L = normalize(position - fragmentPosition);
+    L = normalize(L);
 
     float NdotL = dot(N, L);
     if (NdotL < -lightAngleSin)
@@ -96,14 +96,14 @@ float3 calculatePointLighting(float3 N, float3 GN, float3 V,  float NdotV, float
     float NdotH = max(dot(N, H), MIN_DOT);
     float HdotC = max(dot(H, C), MIN_DOT);
 
-    float FL = fresnel(material.f0, NdotL);
-    float FH = fresnel(material.f0, HdotC);
+    float3 FL = fresnel(material.f0, NdotL);
+    float3 FH = fresnel(material.f0, HdotC);
 
     float D = ggx(material.roughness * material.roughness, NdotH);
     float G = smith(material.roughness * material.roughness, NdotV, NdotC);
 
-    float spec = brdfCookTorrance(FH, D, G, NdotV, NdotC, solidAngle);
+    float3 spec = brdfCookTorrance(FH, D, G, NdotV, solidAngle);
     float3 diff = brdfLambert(material.albedo.xyz, material.metallic, FL);
 
-   return float3((diff * solidAngle * NdotL + spec * NdotC) * radiance * faddingGeom * faddingNMap);
+   return float3((diff * solidAngle * NdotL + spec) * radiance * faddingGeom * faddingNMap);
 }
