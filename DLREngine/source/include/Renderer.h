@@ -11,22 +11,32 @@
 #include "ConstantBuffer.h"
 #include "Sky.h"
 #include "OpaqueInstances.h"
+#include "RenderTarget.h"
+#include "ConstantBuffer.h"
 
 namespace engine
 {
 	class Renderer
 	{
-	protected:
+	public:
 
-	public:
-		
-	public:
-		Renderer() {};
+		void CreateHDRTexture(uint32_t width, uint32_t height);
 
 		bool Render(MainWindow& win, Camera& camera);
 
+		void Update();
+
 		Sky& GetSky() { return m_Sky; }
+		
+		RenderTarget& GetHDRRenderTarget() { return m_HDRTarget; }
+
+		float GetEV100() { return m_EV100; }
+
+		void SetEV100(float value) { m_EV100 = value; }
+
 	private:
+		float m_EV100;
 		Sky m_Sky;
+		RenderTarget m_HDRTarget;
 	};
 }

@@ -5,7 +5,8 @@ namespace engine
 {
 	OpaqueInstances::OpaqueInstances()
 	{
-		m_ConstantBuffer.Create<DirectX::XMFLOAT4X4>(D3D11_USAGE_DYNAMIC, nullptr, 1);
+		m_PerMeshConstants.Create<DirectX::XMFLOAT4X4>(D3D11_USAGE_DYNAMIC, nullptr, 1);
+		m_PerMaterialConstants.Create<Material::Contants>(D3D11_USAGE_DYNAMIC, nullptr, 1);
 	}
 
 	void OpaqueInstances::UpdateInstanceBuffers()
@@ -14,7 +15,7 @@ namespace engine
 		for (auto& perModel : m_PerModel)
 			for (auto& perMesh : perModel.perMesh)
 				for (const auto& perMaterial : perMesh.perMaterial)
-					totalInstances += uint32_t(perMaterial.instances.size());
+					totalInstances += uint32_t(perMaterial.instanceIDs.size());
 
 		if (totalInstances == 0)
 			return;
@@ -22,25 +23,26 @@ namespace engine
 		if (m_ResizeInstanceBuffer)
 		{
 			m_ResizeInstanceBuffer = false;
-			m_InstanceBuffer.Create<Instance>(D3D11_USAGE_DYNAMIC, nullptr, totalInstances);
+			m_InstanceBuffer.Create<GpuInstance>(D3D11_USAGE_DYNAMIC, nullptr, totalInstances);
 		}
 
-		Instance* dst = static_cast<Instance*>(m_InstanceBuffer.Map());
+		GpuInstance* dst = static_cast<GpuInstance*>(m_InstanceBuffer.Map());
 
 		uint32_t copiedNum = 0;
 
+		auto& transforms = TransformSystem::Get().GetTransforms();
+		
 		for (const auto& perModel : m_PerModel)
 		{
 			for (uint32_t meshIndex = 0; meshIndex < perModel.perMesh.size(); ++meshIndex)
 			{
 				for (const auto& perMaterial : perModel.perMesh[meshIndex].perMaterial)
 				{
-					auto& instances = perMaterial.instances;
-					uint32_t numModelInstances = instances.size();
-
-					for (uint32_t index = 0; index < numModelInstances; ++index)
+					for (const auto& id : perMaterial.instanceIDs)
 					{
-						dst[copiedNum++] = instances[index];
+						GpuInstance instance;
+						LoadMatrixInArray(transforms[id].GetTranspose(), instance.matrix);
+						dst[copiedNum++] = instance;
 					}
 				}
 			}
@@ -54,7 +56,7 @@ namespace engine
 		if (m_InstanceBuffer.GetVertexCount() == 0 || !m_InstanceBuffer.IsValid())
 			return;
 
-		ShaderManager::Get().GetShader("instance").SetShaders();
+		ShaderManager::Get().GetShader("instanceBRDF").SetShaders();
 		m_InstanceBuffer.SetBuffer(ShaderDescription::Bindings::INSTANCE_BUFFER);
 
 		uint32_t renderedInstances = 0;
@@ -66,19 +68,33 @@ namespace engine
 			for (uint32_t meshIndex = 0; meshIndex < perModel.perMesh.size(); ++meshIndex)
 			{
 				const Model::SubMesh& subMesh = subMeshes[meshIndex];
+				const Mesh& mesh = perModel.model->GetMeshes()[meshIndex];
 
-				m_ConstantBuffer.Update(&subMesh.meshToModel, 1);
-				m_ConstantBuffer.BindToVS(ShaderDescription::Bindings::MESH_TO_MODEL_BUFFER);
+				m_PerMeshConstants.Update(&mesh.meshToModel, 1);
+				m_PerMeshConstants.BindToVS(ShaderDescription::Bindings::MESH_TO_MODEL_BUFFER);
 
 				for (const auto& perMaterial : perModel.perMesh[meshIndex].perMaterial)
 				{
-					if (perMaterial.instances.empty()) continue;
+					if (perMaterial.instanceIDs.empty()) continue;
 
 					const auto& material = perMaterial.material;
 
+					m_PerMaterialConstants.Update(&material.constants, 1);
+					m_PerMaterialConstants.BindToVS(ShaderDescription::Bindings::MATERIAL_CONSTANTS);
+					m_PerMaterialConstants.BindToPS(ShaderDescription::Bindings::MATERIAL_CONSTANTS);
+
 					material.texture->BindToPS(ShaderDescription::Bindings::ALBEDO_TEXTURE);
 
-					uint32_t numInstances = static_cast<uint32_t>(perMaterial.instances.size());
+					if(material.roughness != nullptr)
+						material.roughness->BindToPS(ShaderDescription::Bindings::ROUGHNESS_TEXTURE);
+					
+					if (material.metallic != nullptr)
+						material.metallic->BindToPS(ShaderDescription::Bindings::METALLIC_TEXTURE);
+
+					if(material.normalMap != nullptr)
+						material.normalMap->BindToPS(ShaderDescription::Bindings::NORMAL_MAP_TEXTURE);
+
+					uint32_t numInstances = static_cast<uint32_t>(perMaterial.instanceIDs.size());
 
 					if (perModel.model->VertexBufferOnly())
 						s_Devcon->DrawInstanced(subMesh.vertexNum, numInstances, subMesh.vertexOffset, renderedInstances);
@@ -91,7 +107,7 @@ namespace engine
 		}
 	}
 
-	void OpaqueInstances::AddInstance(Model* model, std::vector<Material>& materials, Instance instance)
+	void OpaqueInstances::AddInstance(Model* model, std::vector<Material>& materials, TransformSystem::Transform transform)
 	{
 		m_ResizeInstanceBuffer = true;
 
@@ -109,6 +125,8 @@ namespace engine
 		}
 
 		auto& perModel = m_PerModel[m_ModelIndexMap[model]];
+		auto& transforms = TransformSystem::Get().GetTransforms();
+		uint32_t instanceID = transforms.insert(transform);
 
 		for (uint32_t i = 0; i < numMeshes; ++i)
 		{
@@ -123,7 +141,7 @@ namespace engine
 				perModel.perMesh[i].perMaterial[materialIndex].material = materials[i];
 			}
 
-			perModel.perMesh[i].perMaterial[materialIndexMap[materials[i]]].instances.push_back(instance);
+			perModel.perMesh[i].perMaterial[materialIndexMap[materials[i]]].instanceIDs.push_back(instanceID);
 		}
 	}
 }

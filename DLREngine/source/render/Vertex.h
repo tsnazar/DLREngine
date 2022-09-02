@@ -36,6 +36,15 @@ namespace engine
 		DirectX::XMFLOAT4 col = { 0 , 0 , 0 , 0 };
 	};
 
+	struct VertexPosNor
+	{
+		VertexPosNor() = default;
+		VertexPosNor(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& normal) : pos(position), nor(normal) {}
+
+		DirectX::XMFLOAT3 pos = { 0 , 0 , 0 };
+		DirectX::XMFLOAT3 nor = { 0 , 0 , 0 };
+	};
+
 	struct VertexPosTex
 	{
 		VertexPosTex() = default;
@@ -55,6 +64,19 @@ namespace engine
 		DirectX::XMFLOAT2 texCoord = { 0 , 0 };
 		DirectX::XMFLOAT3 nor = { 0, 0, 0 };
 		DirectX::XMFLOAT3 tan = { 0, 0, 0 };
+	};
+
+	struct VertexPosTexNorTanBitan
+	{
+		VertexPosTexNorTanBitan() = default;
+		VertexPosTexNorTanBitan(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT2& texCoord, const DirectX::XMFLOAT3& normal, const DirectX::XMFLOAT3& tangent, const DirectX::XMFLOAT3& bitangent)
+			: pos(position), texCoord(texCoord), nor(normal), tan(tangent), bitan(bitangent){}
+
+		DirectX::XMFLOAT3 pos = { 0 , 0 , 0 };
+		DirectX::XMFLOAT2 texCoord = { 0 , 0 };
+		DirectX::XMFLOAT3 nor = { 0, 0, 0 };
+		DirectX::XMFLOAT3 tan = { 0, 0, 0 };
+		DirectX::XMFLOAT3 bitan = { 0, 0, 0 };
 	};
 
 	template<typename T>

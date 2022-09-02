@@ -3,13 +3,16 @@
 #include "DxRes.h"
 #include "ConstantBuffer.h"
 #include <DirectXMath.h>
+#include "LightSystem.h"
 
 namespace engine
 {
 	struct PerFrame
 	{
 		DirectX::XMFLOAT4X4 viewProj;
+		DirectX::XMFLOAT4 cameraPos;
 		DirectX::XMFLOAT4 frustumCorners[3];
+		LightSystem::PointLight pointLights[LightSystem::MAX_POINT_LIGHTS];
 	};
 
 	class Globals
@@ -29,7 +32,7 @@ namespace engine
 
 		void CreateDepthBuffer(uint32_t width, uint32_t height);
 		
-		void Bind(DxResPtr<ID3D11RenderTargetView>& renderTarget);
+		void Update();
 		
 		void UpdateConstants();
 

@@ -99,4 +99,27 @@ namespace engine
 		m_Camera.SetPerspective(m_FOV, (float)e.GetWidth() / (float)e.GetHeight(), m_ZNear, m_ZFar);
 		return true;
 	}
+	
+	Ray CameraController::GetPickingRay()
+	{
+		auto& window = Application::Get().GetWindow();
+
+		POINT pos;
+		GetCursorPos(&pos);
+		ScreenToClient(window.GetWindow(), &pos);
+
+		float xNDC = (2.0f * (pos.x + 0.5f) / (window.GetClientWidth())) - 1.0f;
+		float yNDC = 1.0f - (2.0f * (pos.y + 0.5f) / (window.GetClientHeight()));
+
+		auto& camera = GetCamera();
+		DirectX::XMVECTOR cameraPos = camera.Position();
+		DirectX::XMVECTOR worldPos = camera.Unproject(DirectX::XMVectorSet(xNDC, yNDC, 1.0f, 1.0f));
+		DirectX::XMVECTOR direction = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(worldPos, cameraPos));
+
+		DirectX::XMFLOAT3 dir, org;
+		DirectX::XMStoreFloat3(&dir, direction);
+		DirectX::XMStoreFloat3(&org, cameraPos);
+
+		return Ray(org, dir);
+	}
 }

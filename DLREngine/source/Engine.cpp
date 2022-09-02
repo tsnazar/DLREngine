@@ -4,6 +4,9 @@
 #include "TextureManager.h"
 #include "ModelManager.h"
 #include "MeshSystem.h"
+#include "LightSystem.h"
+#include "TransformSystem.h"
+#include "Postprocess.h"
 
 namespace engine
 {
@@ -14,9 +17,15 @@ namespace engine
 		TextureManager::Init();
 		ModelManager::Init();
 		MeshSystem::Init();
+		LightSystem::Init();
+		TransformSystem::Init();
+		Postprocess::Init();
 	}
 	void Engine::Fini()
 	{
+		Postprocess::Fini();
+		TransformSystem::Fini();
+		LightSystem::Fini();
 		MeshSystem::Fini();
 		ModelManager::Fini();
 		TextureManager::Fini();

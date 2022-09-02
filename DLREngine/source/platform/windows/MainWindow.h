@@ -5,6 +5,7 @@
 #include <functional>
 #include "KeyCodes.h"
 #include "Event.h"
+#include "RenderTarget.h"
 
 namespace engine
 {
@@ -35,7 +36,9 @@ namespace engine
 
 		bool IsKeyPressed(KeyCode keycode) const { return m_Keys[keycode]; }
 
-		DxResPtr<ID3D11RenderTargetView>& GetRenderTarget() { return m_Backbuffer; }
+		//DxResPtr<ID3D11RenderTargetView>& GetRenderTarget() { return m_Backbuffer; }
+		// 
+		RenderTarget& GetBackBuffer() { return m_Backbuffer; }
 
 	protected:
 		virtual LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) override;
@@ -52,7 +55,8 @@ namespace engine
 		std::function<void(Event&)> m_EventCallback = nullptr;
 
 		DxResPtr<IDXGISwapChain1> m_Swapchain;
-		DxResPtr<ID3D11RenderTargetView> m_Backbuffer;
+		//DxResPtr<ID3D11RenderTargetView> m_Backbuffer;
+		RenderTarget m_Backbuffer;
 	};
 }
 

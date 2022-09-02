@@ -4,9 +4,12 @@
 #include "Renderer.h"
 #include "Event.h"
 #include "CameraController.h"
+#include "Query.h"
 
 namespace engine
 {
+	class MouseButtonPressedEvent;
+
 	class Application
 	{
 	public:
@@ -22,7 +25,7 @@ namespace engine
 		void OnEvent(Event& e);
 		void OnUpdate(float delta);
 		void Render();
-
+		
 		inline MainWindow& GetWindow() { return *m_Window; }
 
 		inline static Application& Get() { return *s_Instance; }
@@ -31,6 +34,9 @@ namespace engine
 		std::unique_ptr<Renderer> m_Renderer;
 		std::unique_ptr<CameraController> m_CameraController;
 		bool m_Running = true;
+
+		bool m_FirstRMB = true;
+		Query m_Query;
 	private:
 		static Application* s_Instance;
 	};

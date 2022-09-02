@@ -18,6 +18,10 @@ namespace engine
 		bool ModelExists(const std::string& name);
 
 		Model& GetModel(const std::string name);
+
+		Model& GetUnitCube();
+
+		Model& GetUnitSphere();
 	private:
 		using ContainerModels = std::unordered_map<std::string, std::unique_ptr<Model>>;
 
