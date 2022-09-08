@@ -81,8 +81,8 @@ TextureCubeArray g_shadowMap : register(t4);
     Texture2D g_reflectance : register(t7);
 #endif
 
-
 static const float3 basicF0 = float3(0.04, 0.04, 0.04);
+
 ///pixel shader
 
 float4 ps_main(VS_OUTPUT input) : SV_TARGET
@@ -140,11 +140,11 @@ float4 ps_main(VS_OUTPUT input) : SV_TARGET
     for (uint i = 0; i < MAX_POINT_LIGHTS; ++i)
     {
         float3 L = g_lights[i].position - input.worldPos;
-        
-        if (shadowCalculation(-L, g_shadowMap, i))
-            continue;
+        float3 shadowFragPos = input.worldPos + N * 0.0005;
+        //if (shadowCalculation(-L, shadowFragPos, g_shadowMap, i))
+            //continue;
 
-        resultColor += calculatePointLighting(N, GN, V, L, view, g_lights[i].radius, g_lights[i].radiance, material);
+        resultColor += calculatePointLighting(N, GN, V, L, view, g_lights[i].radius, g_lights[i].radiance, material, shadowCalculation(-L, shadowFragPos, g_shadowMap, i));
     }
     
     #ifdef IBL

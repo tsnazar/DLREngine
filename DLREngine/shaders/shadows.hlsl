@@ -33,8 +33,6 @@ struct GS_OUTPUT
 cbuffer ShadowTransforms : register(b1)
 {
     float4x4 g_shadowTransforms[6];
-    float3 lightPos;
-    float farPlane;
 }
 
 //geometry shader
@@ -57,20 +55,20 @@ void gs_main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> output
     }
 }
 
-struct PS_OUTPUT {
-    float depth : SV_Depth;
-};
-
-PS_OUTPUT ps_main(GS_OUTPUT input)
-{
-    PS_OUTPUT output = (PS_OUTPUT)0;
-    output.depth = length(input.worldPos - lightPos);
-    output.depth /= farPlane;
-
-    return output;
- }
-
-
-//void ps_main()
+//struct PS_OUTPUT {
+//    float depth : SV_Depth;
+//};
+//
+//PS_OUTPUT ps_main(GS_OUTPUT input)
 //{
-//}
+//    PS_OUTPUT output = (PS_OUTPUT)0;
+//    output.depth = length(input.worldPos - lightPos);
+//    output.depth /= farPlane;
+//
+//    return output;
+// }
+
+
+void ps_main()
+{
+}

@@ -32,10 +32,10 @@ namespace engine
 
 		Globals::Get().Update();
 
-		Globals::Get().SetDepthState();
+		Globals::Get().SetReversedDepthState();
 		LightSystem::Get().RenderToShadowMaps();
 
-		Globals::Get().SetReversedDepthState();
+		LightSystem::Get().GetShadowMatrices().BindToPS(1);
 		s_Devcon->GSSetShader(nullptr, NULL, 0);
 		s_Devcon->RSSetViewports(1, &win.GetViewport());
 		s_Devcon->OMSetRenderTargets(1, m_HDRTarget.GetRenderTarget().ptrAdr(), Globals::Get().GetDepthBuffer().ptr());

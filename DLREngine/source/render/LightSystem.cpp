@@ -19,7 +19,6 @@ namespace engine
 
 	LightSystem::LightSystem()
 	{
-		m_ShadowMatricesBuffer.Create<ShadowMapConstants>(D3D11_USAGE_DYNAMIC, nullptr, 1);
 	}
 
 	void LightSystem::Init()
@@ -49,7 +48,6 @@ namespace engine
 		ref.transformId = id;
 		ref.radiance = light.radiance;
 		ref.radius = light.radius;
-		GenerateShadowTransforms(ref.matrices, light.position);
 
 		ALWAYS_ASSERT(m_NumLights < MAX_POINT_LIGHTS);
 		m_PointLightRefs[m_NumLights] = ref;
@@ -82,8 +80,6 @@ namespace engine
 		ZeroMemory(&shaderResourceViewDesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
 		shaderResourceViewDesc.Format = DXGI_FORMAT_R32_FLOAT;
 		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBEARRAY;
-		//shaderResourceViewDesc.Texture2D.MipLevels = 1;
-		//shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 		shaderResourceViewDesc.TextureCubeArray.First2DArrayFace = 0;
 		shaderResourceViewDesc.TextureCubeArray.NumCubes = m_NumLights;
 		shaderResourceViewDesc.TextureCubeArray.MipLevels = 1;
@@ -105,6 +101,10 @@ namespace engine
 			depthStencilViewDesc.Texture2DArray.FirstArraySlice = i * 6;
 			m_ShadowMaps[i].RecreateDSV(depthStencilViewDesc);
 		}
+
+		m_ShadowMatrixBuffer.Create<ShadowMapConstants>(D3D11_USAGE_DYNAMIC, nullptr, 1);
+		m_ShadowMatricesBuffer.Create<ShadowMapConstants>(D3D11_USAGE_DYNAMIC, nullptr, m_NumLights);
+
 	}
 
 	void LightSystem::Update()
@@ -112,6 +112,9 @@ namespace engine
 		auto& perFrame = Globals::Get().GetPerFrameObj();
 		auto& transforms = TransformSystem::Get().GetTransforms();
 		
+		m_Matrices.clear();
+		ShadowMapConstants con;
+
 		for (uint32_t i = 0; i < m_NumLights; ++i)
 		{
 			PointLight light; 
@@ -121,8 +124,11 @@ namespace engine
 
 			perFrame.pointLights[i] = light;
 
-			GenerateShadowTransforms(m_PointLightRefs[i].matrices, light.position);
+			GenerateShadowTransforms(con.matrices, light.position);
+			m_Matrices.push_back(con);
 		}
+
+		m_ShadowMatricesBuffer.Update(m_Matrices.data(), m_Matrices.size());
 	}
 
 	void LightSystem::RenderToShadowMaps()
@@ -147,21 +153,15 @@ namespace engine
 		auto& transforms = TransformSystem::Get().GetTransforms();
 
 		ID3D11ShaderResourceView* const pSRV[1] = { NULL };
-		s_Devcon->PSSetShaderResources(7, 1, pSRV);
+		s_Devcon->PSSetShaderResources(4, 1, pSRV);
 
 		for (uint32_t i = 0; i < m_NumLights; ++i)
 		{
-			ShadowMapConstants con;
-			memcpy(&con.matrices, &m_PointLightRefs[i].matrices, 6 * sizeof(DirectX::XMFLOAT4X4));
-			con.lightPos = transforms[m_PointLightRefs[i].transformId].position;
-			con.farPlane = SHADOW_MAP_NEAR;
-
-			m_ShadowMatricesBuffer.Update(&con, 1);
-			m_ShadowMatricesBuffer.BindToGS(1);
-			m_ShadowMatricesBuffer.BindToPS(1);
+			m_ShadowMatrixBuffer.Update(&m_Matrices[i], 1);
+			m_ShadowMatrixBuffer.BindToGS(ShaderDescription::Bindings::SHADOWMAP_MATRICES);
 
 			s_Devcon->OMSetRenderTargets(1, pRTV, m_ShadowMaps[i].GetDepthView().ptr());
-			s_Devcon->ClearDepthStencilView(m_ShadowMaps[i].GetDepthView(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+			s_Devcon->ClearDepthStencilView(m_ShadowMaps[i].GetDepthView(), D3D11_CLEAR_DEPTH, 0.0f, 0);
 
 			MeshSystem::Get().RenderToShadowMap();
 		}

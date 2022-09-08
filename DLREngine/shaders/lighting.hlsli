@@ -29,6 +29,28 @@ struct IBLTextures
 };
 #endif
 
+
+uint getCubemapFace(float3 dir)
+{
+    float maxComponent = max(max(abs(dir.x), abs(dir.y)), abs(dir.z));
+    uint faceId = 0;
+
+    if (dir.x == maxComponent)
+        faceId = 0;
+    else if (-dir.x == maxComponent)
+        faceId = 1;
+    else if (dir.y == maxComponent)
+        faceId = 2;
+    else if (-dir.y == maxComponent)
+        faceId = 3;
+    else if (dir.z == maxComponent)
+        faceId = 4;
+    else if (-dir.z == maxComponent)
+        faceId = 5;
+
+    return faceId;
+}
+
 float3 fresnel(float3 F0, float NdotL)
 {
     return F0 + (1.0 - F0) * pow(1.0 - NdotL, 5.0);
@@ -81,14 +103,19 @@ void clampDirToHorizon(inout float3 dir, inout float NdotD, float3 normal, float
     }
 }
 
-bool shadowCalculation(float3 fragToLight, TextureCubeArray tex, uint index)
+float shadowCalculation(float3 fragToLight, float3 fragPos, TextureCubeArray tex, uint index)
 {
     float3 norm = normalize(fragToLight);
-    float closestDepth = tex.Sample(g_linearClampSampler, float4(norm, index));
-    closestDepth *= shadowMapFarPlane;
-    float currentDepth = length(fragToLight);
-    bool shadow = currentDepth - 0.005 > closestDepth ? true : false;
-    return shadow;
+    float4x4 mat = g_shadowMapTransforms[index * 6 + getCubemapFace(norm)];
+    float4 pos = mul(float4(fragPos, 1.0), mat);
+    pos.xyz /= pos.w;
+    float currentDepth = pos.z;
+    float closestDepth = tex.SampleCmp(g_cmpSampler, float4(norm, index), currentDepth + 0.001);
+    //float closestDepth = tex.Sample(g_linearClampSampler, float4(norm, index));
+    //bool shadow = currentDepth + 0.001 < closestDepth ? true: false;
+    //bool shadow = currentDepth  < closestDepth ? true: false;
+    //return shadow;
+    return closestDepth;
 }
 
 #ifdef IBL
@@ -102,7 +129,7 @@ void addEnvironmentReflection(inout float3 diffuseReflection, inout float3 specu
 }
 #endif
 
-float3 calculatePointLighting(float3 N, float3 GN, float3 V, float3 L, View view, float radius, float3 radiance, Material material)
+float3 calculatePointLighting(float3 N, float3 GN, float3 V, float3 L, View view, float radius, float3 radiance, Material material, float shadow)
 {
     float dist = length(L);
 
@@ -144,6 +171,6 @@ float3 calculatePointLighting(float3 N, float3 GN, float3 V, float3 L, View view
     float3 spec = brdfCookTorrance(FH, D, G, view.NdotV, solidAngle);
     float3 diff = brdfLambert(material.albedo.xyz, material.metallic, FL);
 
-    return float3((diff * solidAngle * NdotL + spec) * radiance * faddingGeom * faddingNMap);
+    return float3((diff * solidAngle * NdotL + spec) * radiance * faddingGeom * faddingNMap * shadow);
 }
 #endif

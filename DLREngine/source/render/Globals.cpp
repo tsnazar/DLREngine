@@ -104,15 +104,6 @@ namespace engine
 		HRESULT result = m_Device5->CreateDepthStencilState(&depthStencilDesc, m_DepthStateReversed.reset());
 		ALWAYS_ASSERT(SUCCEEDED(result));
 
-		ZeroMemory(&depthStencilDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
-
-		depthStencilDesc.DepthEnable = true;
-		depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-		depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
-
-		result = m_Device5->CreateDepthStencilState(&depthStencilDesc, m_DepthState.reset());
-		ALWAYS_ASSERT(SUCCEEDED(result));
-
 		// Create Sampler states 
 		D3D11_SAMPLER_DESC sampDesc;
 		ZeroMemory(&sampDesc, sizeof(D3D11_SAMPLER_DESC));
@@ -138,6 +129,11 @@ namespace engine
 		sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
 		sampDesc.MaxAnisotropy = D3D11_DEFAULT_MAX_ANISOTROPY;
 		result = m_Device5->CreateSamplerState(&sampDesc, m_SamplerStateAnisotropic.reset());
+		ALWAYS_ASSERT(SUCCEEDED(result));
+
+		sampDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
+		sampDesc.ComparisonFunc = D3D11_COMPARISON_GREATER;
+		result = m_Device5->CreateSamplerState(&sampDesc, m_SamplerCmp.reset());
 		ALWAYS_ASSERT(SUCCEEDED(result));
 	}
 
@@ -171,6 +167,7 @@ namespace engine
 
 	void Globals::Update()
 	{
+		m_Devcon->OMSetDepthStencilState(m_DepthStateReversed.ptr(), 0);
 
 		m_PerFrameBuffer.BindToVS(0);
 		m_PerFrameBuffer.BindToPS(0);
@@ -185,6 +182,7 @@ namespace engine
 			m_Devcon->PSSetSamplers(0, 1, m_SamplerStateAnisotropic.ptrAdr());
 
 		m_Devcon->PSSetSamplers(1, 1, m_SamplerStateLinear.ptrAdr());
+		m_Devcon->PSSetSamplers(2, 1, m_SamplerCmp.ptrAdr());
 
 		this->UpdateConstants();
 	}

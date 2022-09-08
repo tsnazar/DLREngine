@@ -1,6 +1,7 @@
 #pragma once
 #include <DirectXMath.h>
 #include <array>
+#include <vector>
 #include "ConstantBuffer.h"
 #include "MathUtils.h"
 #include "DepthTarget.h"
@@ -32,8 +33,6 @@ namespace engine
 		struct ShadowMapConstants
 		{
 			DirectX::XMFLOAT4X4 matrices[6];
-			DirectX::XMFLOAT3 lightPos;
-			float farPlane;
 		};
 
 		struct PointLightRef
@@ -41,7 +40,13 @@ namespace engine
 			DirectX::XMFLOAT3 radiance;
 			uint32_t transformId;
 			float radius;
-			DirectX::XMFLOAT4X4 matrices[6];
+		};
+
+		struct ShaderDescription
+		{
+			enum Bindings : uint32_t {
+				SHADOWMAP_MATRICES = 1,
+			};
 		};
 
 	public:
@@ -64,6 +69,8 @@ namespace engine
 
 		Texture2D& GetShadowMap() { return m_ShadowMaps[0]; }
 
+		ConstantBuffer& GetShadowMatrices() { return m_ShadowMatricesBuffer; }
+
 	protected:
 		void GenerateShadowTransforms(DirectX::XMFLOAT4X4* arr,const DirectX::XMFLOAT3& position);
 
@@ -71,6 +78,8 @@ namespace engine
 		uint32_t m_NumLights = 0;
 		std::array<PointLightRef, MAX_POINT_LIGHTS> m_PointLightRefs;
 		std::array<DepthTarget, MAX_POINT_LIGHTS> m_ShadowMaps;
+		std::vector<ShadowMapConstants> m_Matrices;
+		ConstantBuffer m_ShadowMatrixBuffer;
 		ConstantBuffer m_ShadowMatricesBuffer;
 	private:
 		static LightSystem* s_Instance;

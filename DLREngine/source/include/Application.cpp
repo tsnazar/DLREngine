@@ -266,7 +266,7 @@ namespace engine
 		
 		XMStoreFloat4x4(&p.viewProj, XMMatrixTranspose(camera.GetViewProj()));
 
-		DirectX::XMStoreFloat3(&p.cameraPos, camera.Position());
+		DirectX::XMStoreFloat4(&p.cameraPos, camera.Position());
 
 		XMVECTOR TL, TR, BL, xDir, yDir;
 		TL = camera.Unproject(XMVectorSet(-1.0f, 1.0f, 1.0f, 1.0f)) - camera.Position();
@@ -277,8 +277,6 @@ namespace engine
 		XMStoreFloat4(&(p.frustumCorners[0]), TL);
 		XMStoreFloat4(&(p.frustumCorners[1]), xDir);
 		XMStoreFloat4(&(p.frustumCorners[2]), yDir);
-
-		p.shadowMapFarPlane = LightSystem::Get().SHADOW_MAP_NEAR;
 
 		float EV100 = m_Renderer->GetEV100();
 
