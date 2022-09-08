@@ -10,7 +10,8 @@ namespace engine
 	struct PerFrame
 	{
 		DirectX::XMFLOAT4X4 viewProj;
-		DirectX::XMFLOAT4 cameraPos;
+		DirectX::XMFLOAT3 cameraPos;
+		float shadowMapFarPlane;
 		DirectX::XMFLOAT4 frustumCorners[3];
 		LightSystem::PointLight pointLights[LightSystem::MAX_POINT_LIGHTS];
 	};
@@ -44,6 +45,10 @@ namespace engine
 
 		DxResPtr<ID3D11DepthStencilView>& GetDepthBuffer() { return m_Depthbuffer; }
 
+		void SetReversedDepthState() { m_Devcon->OMSetDepthStencilState(m_DepthStateReversed.ptr(), 0); }
+
+		void SetDepthState() { m_Devcon->OMSetDepthStencilState(m_DepthState.ptr(), 0); }
+
 	private:
 		DxResPtr<IDXGIFactory> m_Factory;
 		DxResPtr<IDXGIFactory5> m_Factory5;
@@ -61,6 +66,7 @@ namespace engine
 		int m_CurrentSampler = 3;
 
 		DxResPtr<ID3D11DepthStencilView> m_Depthbuffer;
+		DxResPtr<ID3D11DepthStencilState> m_DepthStateReversed;
 		DxResPtr<ID3D11DepthStencilState> m_DepthState;
 
 		PerFrame m_PerFrame;

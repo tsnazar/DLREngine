@@ -74,6 +74,13 @@ Texture2D g_colorTexture : TEXTURE: register(t0);
 Texture2D g_roughnessTexture : ROUGHNESS: register(t1);
 Texture2D g_metallicTexture : METALIC: register(t2);
 Texture2D g_normalTexture : NORMAL_MAP: register(t3);
+TextureCubeArray g_shadowMap : register(t4);
+#ifdef IBL
+    TextureCube g_irradiance : register(t5);
+    TextureCube g_reflection : register(t6);
+    Texture2D g_reflectance : register(t7);
+#endif
+
 
 static const float3 basicF0 = float3(0.04, 0.04, 0.04);
 ///pixel shader
@@ -112,16 +119,41 @@ float4 ps_main(VS_OUTPUT input) : SV_TARGET
 
     float3 reflection = 2.0 * N * NdotV - V;
 
+    View view;
+    view.reflection = reflection;
+    view.NdotV = NdotV;
+
+    Material material;
+    material.albedo = albedo;
+    material.f0 = f0;
+    material.roughness = roughness;
+    material.metallic = metallic;
+
+    #ifdef IBL
+        IBLTextures textures;
+        textures.reflectance = g_reflectance;
+        textures.irradiance = g_irradiance;
+        textures.reflection = g_reflection;
+        textures.reflectionMips = 9;
+    #endif
+
     for (uint i = 0; i < MAX_POINT_LIGHTS; ++i)
     {
-        Material material;
-        material.albedo = albedo;
-        material.f0 = f0;
-        material.roughness = roughness;
-        material.metallic = metallic;
         float3 L = g_lights[i].position - input.worldPos;
-        resultColor += calculatePointLighting(N, GN, V, L, NdotV, reflection, g_lights[i].radius, g_lights[i].radiance, material);
+        
+        if (shadowCalculation(-L, g_shadowMap, i))
+            continue;
+
+        resultColor += calculatePointLighting(N, GN, V, L, view, g_lights[i].radius, g_lights[i].radiance, material);
     }
     
+    #ifdef IBL
+        float3 diff = float3(0, 0, 0);
+        float3 spec = float3(0, 0, 0);
+        addEnvironmentReflection(diff, spec, N, view, material, textures);
+
+        resultColor += diff + spec;
+    #endif
+
     return float4(resultColor.xyz, 1.0);
 }

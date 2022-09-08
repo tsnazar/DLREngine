@@ -5,6 +5,7 @@
 #include "ConstantBuffer.h"
 #include "HashUtils.h"
 #include "TransformSystem.h"
+#include "Sky.h"
 #include <xhash>
 
 namespace engine
@@ -16,7 +17,9 @@ namespace engine
 	public:
 		struct ShaderDescription
 		{
-			enum Bindings : uint32_t { ALBEDO_TEXTURE = 0, ROUGHNESS_TEXTURE = 1, METALLIC_TEXTURE = 2, NORMAL_MAP_TEXTURE = 3, MESH_BUFFER = 0, MESH_TO_MODEL_BUFFER = 1, INSTANCE_BUFFER = 1, MATERIAL_CONSTANTS = 2};
+			enum Bindings : uint32_t { ALBEDO_TEXTURE = 0, ROUGHNESS_TEXTURE = 1, METALLIC_TEXTURE = 2, NORMAL_MAP_TEXTURE = 3, 
+									   SHADOWMAP_TEXTURE = 4, IRRADIANCE_TEXTURE = 5, REFLECTION_TEXTURE = 6, REFLECTANCE_TEXTURE = 7, 
+									   MESH_BUFFER = 0, MESH_TO_MODEL_BUFFER = 1, INSTANCE_BUFFER = 1, MATERIAL_CONSTANTS = 2};
 		};
 
 		struct GpuInstance
@@ -104,7 +107,9 @@ namespace engine
 
 		void UpdateInstanceBuffers();
 		
-		void Render();
+		void Render(Sky::IblResources iblResources);
+
+		void RenderToShadowMap();
 
 		void AddInstance(Model* model, std::vector<Material>& materials, TransformSystem::Transform transform);
 

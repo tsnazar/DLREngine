@@ -36,8 +36,8 @@ namespace engine
 
 		bool IsKeyPressed(KeyCode keycode) const { return m_Keys[keycode]; }
 
-		//DxResPtr<ID3D11RenderTargetView>& GetRenderTarget() { return m_Backbuffer; }
-		// 
+		D3D11_VIEWPORT& GetViewport() { return m_Viewport; }
+
 		RenderTarget& GetBackBuffer() { return m_Backbuffer; }
 
 	protected:
@@ -55,7 +55,7 @@ namespace engine
 		std::function<void(Event&)> m_EventCallback = nullptr;
 
 		DxResPtr<IDXGISwapChain1> m_Swapchain;
-		//DxResPtr<ID3D11RenderTargetView> m_Backbuffer;
+		D3D11_VIEWPORT m_Viewport;
 		RenderTarget m_Backbuffer;
 	};
 }

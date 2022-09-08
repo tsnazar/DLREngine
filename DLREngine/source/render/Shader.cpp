@@ -4,9 +4,11 @@
 
 namespace engine
 {
-	Shader& Shader::LoadFromFile(const std::string& filepath, const std::vector<D3D11_INPUT_ELEMENT_DESC>* inputAttributes)
+	Shader& Shader::LoadFromFile(const std::string& filepath, const std::vector<D3D11_INPUT_ELEMENT_DESC>* inputAttributes, bool hasGS)
 	{
-		DxResPtr<ID3D10Blob> VS, PS, error;
+		DxResPtr<ID3D10Blob> VS, PS, GS, error;
+
+		m_HasGS = hasGS;
 
 		UINT flags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 		std::wstring stemp = std::wstring(filepath.begin(), filepath.end());
@@ -45,6 +47,26 @@ namespace engine
 			m_PixelShader.reset());
 		ALWAYS_ASSERT(SUCCEEDED(result));
 
+		if (hasGS)
+		{
+			result = D3DCompileFromFile(stemp.c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, "gs_main", "gs_5_0", flags, 0, GS.reset(), error.reset());
+			if (FAILED(result)) {
+				if (error.valid()) {
+					OutputDebugStringA((char*)error->GetBufferPointer());
+					error->Release();
+				}
+				if (GS.valid()) { GS->Release(); }
+				ALWAYS_ASSERT(false);
+			}
+
+			result = s_Device->CreateGeometryShader(
+				GS->GetBufferPointer(),
+				GS->GetBufferSize(),
+				NULL,
+				m_GeometryShader.reset());
+			ALWAYS_ASSERT(SUCCEEDED(result));
+		}
+
 		m_Layout = nullptr;
 
 		if(inputAttributes != nullptr)
@@ -58,5 +80,7 @@ namespace engine
 		
 		s_Devcon->VSSetShader(m_VertexShader.ptr(), NULL, 0);
 		s_Devcon->PSSetShader(m_PixelShader.ptr(), NULL, 0);
+		if(m_HasGS)
+			s_Devcon->GSSetShader(m_GeometryShader.ptr(), NULL, 0);
 	}
 }

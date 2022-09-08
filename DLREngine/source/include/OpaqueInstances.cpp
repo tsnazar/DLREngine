@@ -1,5 +1,6 @@
 #include "OpaqueInstances.h"
 #include "windows/winapi.hpp"
+#include "LightSystem.h"
 
 namespace engine
 {
@@ -51,12 +52,62 @@ namespace engine
 		m_InstanceBuffer.UnMap();
 	}
 
-	void OpaqueInstances::Render()
+	void OpaqueInstances::RenderToShadowMap()
 	{
 		if (m_InstanceBuffer.GetVertexCount() == 0 || !m_InstanceBuffer.IsValid())
 			return;
 
-		ShaderManager::Get().GetShader("instanceBRDF").SetShaders();
+		m_InstanceBuffer.SetBuffer(ShaderDescription::Bindings::INSTANCE_BUFFER);
+
+		uint32_t renderedInstances = 0;
+		for (const auto& perModel : m_PerModel)
+		{
+			perModel.model->Bind(ShaderDescription::Bindings::MESH_BUFFER);
+			auto& subMeshes = perModel.model->GetSubMeshes();
+
+			for (uint32_t meshIndex = 0; meshIndex < perModel.perMesh.size(); ++meshIndex)
+			{
+				const Model::SubMesh& subMesh = subMeshes[meshIndex];
+				const Mesh& mesh = perModel.model->GetMeshes()[meshIndex];
+
+				m_PerMeshConstants.Update(&mesh.meshToModel, 1);
+				m_PerMeshConstants.BindToVS(ShaderDescription::Bindings::MESH_TO_MODEL_BUFFER);
+
+				for (const auto& perMaterial : perModel.perMesh[meshIndex].perMaterial)
+				{
+					if (perMaterial.instanceIDs.empty()) continue;
+
+					uint32_t numInstances = static_cast<uint32_t>(perMaterial.instanceIDs.size());
+
+					if (perModel.model->VertexBufferOnly())
+						s_Devcon->DrawInstanced(subMesh.vertexNum, numInstances, subMesh.vertexOffset, renderedInstances);
+					else
+						s_Devcon->DrawIndexedInstanced(subMesh.indexNum, numInstances, subMesh.indexOffset, subMesh.vertexOffset, renderedInstances);
+
+					renderedInstances += numInstances;
+				}
+			}
+		}
+	}
+
+	void OpaqueInstances::Render(Sky::IblResources iblResources)
+	{
+		if (m_InstanceBuffer.GetVertexCount() == 0 || !m_InstanceBuffer.IsValid())
+			return;
+
+		if (iblResources.hasResources)
+		{
+			ShaderManager::Get().GetShader("opaqueIBL").SetShaders();
+			iblResources.irradiance->BindToPS(ShaderDescription::Bindings::IRRADIANCE_TEXTURE);
+			iblResources.reflection->BindToPS(ShaderDescription::Bindings::REFLECTION_TEXTURE);
+			iblResources.reflectance->BindToPS(ShaderDescription::Bindings::REFLECTANCE_TEXTURE);
+		}
+		else {
+			ShaderManager::Get().GetShader("opaque").SetShaders();
+		}
+
+		LightSystem::Get().GetShadowMap().BindToPS(ShaderDescription::Bindings::SHADOWMAP_TEXTURE);
+
 		m_InstanceBuffer.SetBuffer(ShaderDescription::Bindings::INSTANCE_BUFFER);
 
 		uint32_t renderedInstances = 0;
@@ -85,13 +136,13 @@ namespace engine
 
 					material.texture->BindToPS(ShaderDescription::Bindings::ALBEDO_TEXTURE);
 
-					if(material.roughness != nullptr)
+					if (material.roughness != nullptr)
 						material.roughness->BindToPS(ShaderDescription::Bindings::ROUGHNESS_TEXTURE);
-					
+
 					if (material.metallic != nullptr)
 						material.metallic->BindToPS(ShaderDescription::Bindings::METALLIC_TEXTURE);
 
-					if(material.normalMap != nullptr)
+					if (material.normalMap != nullptr)
 						material.normalMap->BindToPS(ShaderDescription::Bindings::NORMAL_MAP_TEXTURE);
 
 					uint32_t numInstances = static_cast<uint32_t>(perMaterial.instanceIDs.size());
@@ -100,7 +151,7 @@ namespace engine
 						s_Devcon->DrawInstanced(subMesh.vertexNum, numInstances, subMesh.vertexOffset, renderedInstances);
 					else
 						s_Devcon->DrawIndexedInstanced(subMesh.indexNum, numInstances, subMesh.indexOffset, subMesh.vertexOffset, renderedInstances);
-					
+
 					renderedInstances += numInstances;
 				}
 			}
@@ -109,6 +160,7 @@ namespace engine
 
 	void OpaqueInstances::AddInstance(Model* model, std::vector<Material>& materials, TransformSystem::Transform transform)
 	{
+
 		m_ResizeInstanceBuffer = true;
 
 		uint32_t numMeshes = model->GetSubMeshes().size();

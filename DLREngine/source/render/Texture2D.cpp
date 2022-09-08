@@ -23,7 +23,7 @@ namespace engine
 		return *this;
 	}
 
-	Texture2D& Texture2D::CreateFromDescription(const D3D11_TEXTURE2D_DESC& desc)
+	Texture2D& Texture2D::CreateFromDescription(const D3D11_TEXTURE2D_DESC& desc, const D3D11_SHADER_RESOURCE_VIEW_DESC* viewDesc)
 	{
 		ALWAYS_ASSERT(s_Device != nullptr);
 		ALWAYS_ASSERT(s_Devcon != nullptr);
@@ -34,7 +34,7 @@ namespace engine
 
 		if ((m_Desc.BindFlags & D3D11_BIND_SHADER_RESOURCE) == D3D11_BIND_SHADER_RESOURCE)
 		{
-			result = s_Device->CreateShaderResourceView(m_Texture.ptr(), NULL, m_TextureView.reset());
+			result = s_Device->CreateShaderResourceView(m_Texture.ptr(), viewDesc, m_TextureView.reset());
 			ALWAYS_ASSERT(SUCCEEDED(result));
 		}
 

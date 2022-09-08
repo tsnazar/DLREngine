@@ -16,6 +16,7 @@ namespace engine
 		void Update(const T* data, const uint32_t size);
 		
 		void BindToVS(uint32_t slot);
+		void BindToGS(uint32_t slot);
 		void BindToPS(uint32_t slot);
 
 	private:
@@ -70,6 +71,11 @@ namespace engine
 	inline void ConstantBuffer::BindToVS(uint32_t slot)
 	{
 		s_Devcon->VSSetConstantBuffers(slot, 1, m_Buffer.ptrAdr());
+	}
+
+	inline void ConstantBuffer::BindToGS(uint32_t slot)
+	{
+		s_Devcon->GSSetConstantBuffers(slot, 1, m_Buffer.ptrAdr());
 	}
 
 	inline void ConstantBuffer::BindToPS(uint32_t slot)

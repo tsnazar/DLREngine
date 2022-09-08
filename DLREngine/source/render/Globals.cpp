@@ -101,7 +101,16 @@ namespace engine
 		depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 		depthStencilDesc.DepthFunc = D3D11_COMPARISON_GREATER_EQUAL;
 
-		HRESULT result = m_Device5->CreateDepthStencilState(&depthStencilDesc, m_DepthState.reset());
+		HRESULT result = m_Device5->CreateDepthStencilState(&depthStencilDesc, m_DepthStateReversed.reset());
+		ALWAYS_ASSERT(SUCCEEDED(result));
+
+		ZeroMemory(&depthStencilDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
+
+		depthStencilDesc.DepthEnable = true;
+		depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+		depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+
+		result = m_Device5->CreateDepthStencilState(&depthStencilDesc, m_DepthState.reset());
 		ALWAYS_ASSERT(SUCCEEDED(result));
 
 		// Create Sampler states 
@@ -145,8 +154,8 @@ namespace engine
 		descDepth.MipLevels = 1;
 		descDepth.ArraySize = 1;
 		descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		descDepth.SampleDesc.Count = 1;
-		descDepth.SampleDesc.Quality = 0;
+		descDepth.SampleDesc.Count = 4;
+		descDepth.SampleDesc.Quality = D3D11_STANDARD_MULTISAMPLE_PATTERN;
 		descDepth.Usage = D3D11_USAGE_DEFAULT;
 		descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 		descDepth.CPUAccessFlags = 0;
@@ -162,7 +171,6 @@ namespace engine
 
 	void Globals::Update()
 	{
-		m_Devcon->OMSetDepthStencilState(m_DepthState.ptr(), 0);
 
 		m_PerFrameBuffer.BindToVS(0);
 		m_PerFrameBuffer.BindToPS(0);
@@ -175,6 +183,8 @@ namespace engine
 			m_Devcon->PSSetSamplers(0, 1, m_SamplerStateLinear.ptrAdr());
 		else if (m_CurrentSampler == 4)
 			m_Devcon->PSSetSamplers(0, 1, m_SamplerStateAnisotropic.ptrAdr());
+
+		m_Devcon->PSSetSamplers(1, 1, m_SamplerStateLinear.ptrAdr());
 
 		this->UpdateConstants();
 	}

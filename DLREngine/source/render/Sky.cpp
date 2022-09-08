@@ -7,10 +7,18 @@ namespace engine
 		
 	}
 
-	void Sky::SetSky(const std::string& name, const std::string& shaderPath, const std::string& texturePath)
+	void Sky::SetSky(const std::string& name, const std::string& shaderPath, const std::string& texturePath, const char* irradiancePath, const char* reflectionPath, const char* reflectancePath)
 	{
-		m_Shader = &ShaderManager::Get().LoadShader(name, shaderPath, nullptr);
-		m_Texture = &TextureManager::Get().LoadCubemap(name, texturePath);
+		m_Shader = &ShaderManager::Get().LoadShader(shaderPath, shaderPath, nullptr);
+		m_Texture = &TextureManager::Get().LoadCubemap(texturePath, texturePath);
+
+		if (irradiancePath != nullptr && reflectionPath != nullptr && reflectancePath != nullptr)
+		{
+			m_hasIBLTextures = true;
+			m_Irradiance = &TextureManager::Get().LoadCubemap(std::string(irradiancePath), std::string(irradiancePath));
+			m_Reflection = &TextureManager::Get().LoadCubemap(std::string(reflectionPath), std::string(reflectionPath));
+			m_Reflectance = &TextureManager::Get().LoadTexture2D(std::string(reflectancePath), std::string(reflectancePath));
+		}
 	}
 
 	void Sky::Render(Camera& camera)
