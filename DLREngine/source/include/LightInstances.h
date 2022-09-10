@@ -44,8 +44,6 @@ namespace engine
 
 		void Render();
 
-		void RenderToShadowMap();
-
 		void AddInstance(Model* model, const DirectX::XMFLOAT3& color, const uint32_t& transformId);
 
 	private:

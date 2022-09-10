@@ -33,7 +33,6 @@ namespace engine
 	void MeshSystem::RenderToShadowMap()
 	{
 		m_OpaqueInstances.RenderToShadowMap();
-		m_LightInstances.RenderToShadowMap();
 	}
 
 	void MeshSystem::Update()

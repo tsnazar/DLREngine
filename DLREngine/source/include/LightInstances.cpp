@@ -71,35 +71,6 @@ namespace engine
 		}
 	}
 
-	void LightInstances::RenderToShadowMap()
-	{
-		if (m_InstanceBuffer.GetVertexCount() == 0 || !m_InstanceBuffer.IsValid())
-			return;
-
-		m_InstanceBuffer.SetBuffer(ShaderDescription::Bindings::INSTANCE_BUFFER);
-
-		uint32_t renderedInstances = 0;
-		for (const auto& perModel : m_PerModel)
-		{
-			perModel.model->Bind(ShaderDescription::Bindings::MESH_BUFFER);
-			auto& subMeshes = perModel.model->GetSubMeshes();
-
-			uint32_t numInstances = static_cast<uint32_t>(perModel.instanceRefs.size());
-
-			for (uint32_t index = 0; index < subMeshes.size(); ++index)
-			{
-				const Model::SubMesh& subMesh = subMeshes[index];
-
-				if (perModel.model->VertexBufferOnly())
-					s_Devcon->DrawInstanced(subMesh.vertexNum, numInstances, subMesh.vertexOffset, renderedInstances);
-				else
-					s_Devcon->DrawIndexedInstanced(subMesh.indexNum, numInstances, subMesh.indexOffset, subMesh.vertexOffset, renderedInstances);
-
-				renderedInstances += numInstances;
-			}
-		}
-	}
-
 	void LightInstances::AddInstance(Model* model, const DirectX::XMFLOAT3& color, const uint32_t& transformId)
 	{
 		m_ResizeInstanceBuffer = true;
