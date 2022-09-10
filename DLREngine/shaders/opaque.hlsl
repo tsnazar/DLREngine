@@ -117,7 +117,8 @@ float4 ps_main(VS_OUTPUT input) : SV_TARGET
 
     float NdotV = max(dot(N, V), MIN_DOT);
 
-    float3 reflection = 2.0 * N * NdotV - V;
+    //float3 reflection = 2.0 * N * NdotV - V;
+    float3 reflection = reflect(-V, N);
 
     View view;
     view.reflection = reflection;
@@ -139,12 +140,12 @@ float4 ps_main(VS_OUTPUT input) : SV_TARGET
 
     for (uint i = 0; i < MAX_POINT_LIGHTS; ++i)
     {
+        float3 shadowFragPos = input.worldPos + N * 0.003;
+        float3 lightToFrag = shadowFragPos - g_lights[i].position;
         float3 L = g_lights[i].position - input.worldPos;
-        float3 shadowFragPos = input.worldPos + N * 0.0005;
-        //if (shadowCalculation(-L, shadowFragPos, g_shadowMap, i))
-            //continue;
+        float NdotL = dot(normalize(L), N);
 
-        resultColor += calculatePointLighting(N, GN, V, L, view, g_lights[i].radius, g_lights[i].radiance, material, shadowCalculation(-L, shadowFragPos, g_shadowMap, i));
+        resultColor += calculatePointLighting(N, GN, V, L, view, g_lights[i].radius, g_lights[i].radiance, material, shadowCalculation(lightToFrag, shadowFragPos, NdotL, g_shadowMap, i));
     }
     
     #ifdef IBL

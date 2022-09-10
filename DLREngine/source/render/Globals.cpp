@@ -131,8 +131,14 @@ namespace engine
 		result = m_Device5->CreateSamplerState(&sampDesc, m_SamplerStateAnisotropic.reset());
 		ALWAYS_ASSERT(SUCCEEDED(result));
 
+		ZeroMemory(&sampDesc, sizeof(D3D11_SAMPLER_DESC));
 		sampDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
+		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_MIRROR;
+		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_MIRROR;
+		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_MIRROR;
 		sampDesc.ComparisonFunc = D3D11_COMPARISON_GREATER;
+		sampDesc.MinLOD = 0;
+		sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 		result = m_Device5->CreateSamplerState(&sampDesc, m_SamplerCmp.reset());
 		ALWAYS_ASSERT(SUCCEEDED(result));
 	}

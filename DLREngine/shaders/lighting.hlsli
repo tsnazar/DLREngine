@@ -32,22 +32,12 @@ struct IBLTextures
 
 uint getCubemapFace(float3 dir)
 {
-    float maxComponent = max(max(abs(dir.x), abs(dir.y)), abs(dir.z));
-    uint faceId = 0;
-
-    if (dir.x == maxComponent)
-        faceId = 0;
-    else if (-dir.x == maxComponent)
-        faceId = 1;
-    else if (dir.y == maxComponent)
-        faceId = 2;
-    else if (-dir.y == maxComponent)
-        faceId = 3;
-    else if (dir.z == maxComponent)
-        faceId = 4;
-    else if (-dir.z == maxComponent)
-        faceId = 5;
-
+    uint maxComponentId = abs(dir.x) > abs(dir.y) ? 0u : 1u; 
+   
+    maxComponentId = abs(dir[maxComponentId]) > abs(dir.z) ? maxComponentId : 2u; 
+   
+    uint faceId = 2 * maxComponentId + (dir[maxComponentId] < 0.f); 
+    
     return faceId;
 }
 
@@ -103,19 +93,14 @@ void clampDirToHorizon(inout float3 dir, inout float NdotD, float3 normal, float
     }
 }
 
-float shadowCalculation(float3 fragToLight, float3 fragPos, TextureCubeArray tex, uint index)
+float shadowCalculation(float3 fragToLight, float3 fragPos, float NdotL, TextureCubeArray tex, uint index)
 {
-    float3 norm = normalize(fragToLight);
-    float4x4 mat = g_shadowMapTransforms[index * 6 + getCubemapFace(norm)];
+    float4x4 mat = g_shadowMapTransforms[index * 6 + getCubemapFace(fragToLight)];
     float4 pos = mul(float4(fragPos, 1.0), mat);
     pos.xyz /= pos.w;
     float currentDepth = pos.z;
-    float closestDepth = tex.SampleCmp(g_cmpSampler, float4(norm, index), currentDepth + 0.001);
-    //float closestDepth = tex.Sample(g_linearClampSampler, float4(norm, index));
-    //bool shadow = currentDepth + 0.001 < closestDepth ? true: false;
-    //bool shadow = currentDepth  < closestDepth ? true: false;
-    //return shadow;
-    return closestDepth;
+    float shadow = tex.SampleCmp(g_cmpSampler, float4(fragToLight, index), currentDepth + 0.0005);
+    return shadow;
 }
 
 #ifdef IBL
