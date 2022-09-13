@@ -172,12 +172,12 @@ namespace engine
 		m_Renderer->GetSky().SetSky("skybox", "shaders/sky.hlsl", "assets/NightStreet/night_street.dds", "assets/NightStreet/night_street_irradiance.dds", "assets/NightStreet/night_street_reflection.dds", "assets/NightStreet/night_street_reflectance.dds");
 
 		{
-			LightSystem::PointLight light({ -2.0f, 5.0f, -3.0f }, { 1.0f, 1.0f, 1.0f }, 0.15f, 4.0f);
+			LightSystem::PointLight light({ -2.0f, 5.0f, -3.0f }, { 0.0f, 1.0f, 1.0f }, 0.15f, 4.0f);
 			LightSystem::Get().AddPointLight(light);
 		}
 
 		{
-			LightSystem::PointLight light({ 2.0f, 5.0f, -3.0f }, { 1.0f, 1.0f, 1.0f }, 0.15f, 4.0f);
+			LightSystem::PointLight light({ 2.0f, 5.0f, -3.0f }, { 0.2f, 0.0f, 0.1f }, 0.15f, 4.0f);
 			LightSystem::Get().AddPointLight(light);
 		}
 
