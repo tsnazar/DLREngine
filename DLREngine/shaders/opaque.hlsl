@@ -87,6 +87,10 @@ static const float3 basicF0 = float3(0.04, 0.04, 0.04);
 
 float4 ps_main(VS_OUTPUT input) : SV_TARGET
 {
+    float shadowMapWidth = 0, shadowMapHeight = 0, shadowMapElements = 0;
+    
+    g_shadowMap.GetDimensions(shadowMapWidth, shadowMapHeight, shadowMapElements);
+
     float3 albedo = g_colorTexture.Sample(g_sampler, input.texCoord);
 
     float3 resultColor = float3(0, 0, 0);
@@ -140,12 +144,10 @@ float4 ps_main(VS_OUTPUT input) : SV_TARGET
 
     for (uint i = 0; i < MAX_POINT_LIGHTS; ++i)
     {
-        float3 shadowFragPos = input.worldPos + N * 0.003;
-        float3 lightToFrag = shadowFragPos - g_lights[i].position;
         float3 L = g_lights[i].position - input.worldPos;
-        float NdotL = dot(normalize(L), N);
+        float3 shadowFragPos = input.worldPos + L * 0.005;
 
-        resultColor += calculatePointLighting(N, GN, V, L, view, g_lights[i].radius, g_lights[i].radiance, material, shadowCalculation(lightToFrag, shadowFragPos, NdotL, g_shadowMap, i));
+        resultColor += calculatePointLighting(N, GN, V, L, view, g_lights[i].radius, g_lights[i].radiance, material, shadowCalculation(N, shadowFragPos, g_lights[i].position, g_shadowMap, shadowMapWidth, i));
     }
     
     #ifdef IBL

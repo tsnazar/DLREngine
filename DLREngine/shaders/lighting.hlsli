@@ -93,13 +93,19 @@ void clampDirToHorizon(inout float3 dir, inout float NdotD, float3 normal, float
     }
 }
 
-float shadowCalculation(float3 fragToLight, float3 fragPos, float NdotL, TextureCubeArray tex, uint index)
+float shadowCalculation(float3 N, float3 fragPos, float3 lightPos, TextureCubeArray tex, float texWidth, uint index)
 {
-    float4x4 mat = g_shadowMapTransforms[index * 6 + getCubemapFace(fragToLight)];
+    float3 sampleVec = fragPos - lightPos;
+    float4x4 mat = g_shadowMapTransforms[index * 6 + getCubemapFace(sampleVec)];
     float4 pos = mul(float4(fragPos, 1.0), mat);
     pos.xyz /= pos.w;
     float currentDepth = pos.z;
-    float shadow = tex.SampleCmp(g_cmpSampler, float4(fragToLight, index), currentDepth + 0.0005);
+
+    fragPos += N * length(sampleVec) * 2 / texWidth;
+
+    sampleVec = fragPos - lightPos;
+
+    float shadow = tex.SampleCmp(g_cmpSampler, float4(sampleVec, index), currentDepth);
     return shadow;
 }
 
