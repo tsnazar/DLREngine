@@ -7,6 +7,7 @@
 #include "TransformSystem.h"
 #include "Sky.h"
 #include <xhash>
+#include "LightSystem.h"
 
 namespace engine
 {
@@ -19,7 +20,8 @@ namespace engine
 		{
 			enum Bindings : uint32_t { ALBEDO_TEXTURE = 0, ROUGHNESS_TEXTURE = 1, METALLIC_TEXTURE = 2, NORMAL_MAP_TEXTURE = 3, 
 									   SHADOWMAP_TEXTURE = 4, IRRADIANCE_TEXTURE = 5, REFLECTION_TEXTURE = 6, REFLECTANCE_TEXTURE = 7, 
-									   MESH_BUFFER = 0, MESH_TO_MODEL_BUFFER = 1, INSTANCE_BUFFER = 1, MATERIAL_CONSTANTS = 2};
+									   MESH_BUFFER = 0, MESH_TO_MODEL_BUFFER = 1, INSTANCE_BUFFER = 1, MATERIAL_CONSTANTS = 2,
+									   SHADOWMAP_MATRICES = 1};
 		};
 
 		struct GpuInstance
@@ -109,7 +111,7 @@ namespace engine
 		
 		void Render(Sky::IblResources iblResources);
 
-		void RenderToShadowMap();
+		void RenderToShadowMap(ConstantBuffer& shadowMatrixBuffer, std::vector<LightSystem::ShadowMapConstants>& matrices, uint32_t numLights);
 
 		void AddInstance(Model* model, std::vector<Material>& materials, TransformSystem::Transform transform);
 

@@ -1,6 +1,5 @@
 #include "OpaqueInstances.h"
 #include "windows/winapi.hpp"
-#include "LightSystem.h"
 
 namespace engine
 {
@@ -52,7 +51,7 @@ namespace engine
 		m_InstanceBuffer.UnMap();
 	}
 
-	void OpaqueInstances::RenderToShadowMap()
+	void OpaqueInstances::RenderToShadowMap(ConstantBuffer& shadowMatrixBuffer, std::vector<LightSystem::ShadowMapConstants>& matrices, uint32_t numLights)
 	{
 		if (m_InstanceBuffer.GetVertexCount() == 0 || !m_InstanceBuffer.IsValid())
 			return;
@@ -60,6 +59,8 @@ namespace engine
 		ShaderManager::Get().GetShader("shadows").SetShaders();
 
 		m_InstanceBuffer.SetBuffer(ShaderDescription::Bindings::INSTANCE_BUFFER);
+
+		LightSystem::ShadowMapGeometryShaderConstants con;
 
 		uint32_t renderedInstances = 0;
 		for (const auto& perModel : m_PerModel)
@@ -81,10 +82,18 @@ namespace engine
 
 					uint32_t numInstances = static_cast<uint32_t>(perMaterial.instanceIDs.size());
 
-					if (perModel.model->VertexBufferOnly())
-						s_Devcon->DrawInstanced(subMesh.vertexNum, numInstances, subMesh.vertexOffset, renderedInstances);
-					else
-						s_Devcon->DrawIndexedInstanced(subMesh.indexNum, numInstances, subMesh.indexOffset, subMesh.vertexOffset, renderedInstances);
+					for (uint32_t i = 0; i < numLights; ++i)
+					{
+						memcpy(&con.matrices, &matrices[i], sizeof(DirectX::XMFLOAT4X4[6]));
+						con.sliceOffset = i * 6;
+						shadowMatrixBuffer.Update(&con, 1);
+						shadowMatrixBuffer.BindToGS(ShaderDescription::Bindings::SHADOWMAP_MATRICES);
+
+						if (perModel.model->VertexBufferOnly())
+							s_Devcon->DrawInstanced(subMesh.vertexNum, numInstances, subMesh.vertexOffset, renderedInstances);
+						else
+							s_Devcon->DrawIndexedInstanced(subMesh.indexNum, numInstances, subMesh.indexOffset, subMesh.vertexOffset, renderedInstances);
+					}
 
 					renderedInstances += numInstances;
 				}

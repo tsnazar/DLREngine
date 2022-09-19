@@ -148,17 +148,7 @@ namespace engine
 		s_Devcon->OMSetRenderTargets(1, pRTV, m_ShadowMap.GetDepthView().ptr());
 		s_Devcon->ClearDepthStencilView(m_ShadowMap.GetDepthView(), D3D11_CLEAR_DEPTH, 0.0f, 0);
 
-		ShadowMapGeometryShaderConstants con;
-
-		for (uint32_t i = 0; i < m_NumLights; ++i)
-		{
-			memcpy(&con.matrices, &m_Matrices[i], sizeof(DirectX::XMFLOAT4X4[6]));
-			con.sliceOffset = i * 6;
-			m_ShadowMatrixBuffer.Update(&con, 1);
-			m_ShadowMatrixBuffer.BindToGS(ShaderDescription::Bindings::SHADOWMAP_MATRICES);
-
-			MeshSystem::Get().RenderToShadowMap();
-		}
+		MeshSystem::Get().RenderToShadowMap(m_ShadowMatrixBuffer, m_Matrices, m_NumLights);
 	}
 
 	void LightSystem::GenerateShadowTransforms(DirectX::XMFLOAT4X4* arr, const DirectX::XMFLOAT3& position)

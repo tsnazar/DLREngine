@@ -49,13 +49,6 @@ namespace engine
 			float radius;
 		};
 
-		struct ShaderDescription
-		{
-			enum Bindings : uint32_t {
-				SHADOWMAP_MATRICES = 1,
-			};
-		};
-
 	public:
 
 		LightSystem();

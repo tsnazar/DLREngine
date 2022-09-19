@@ -30,9 +30,9 @@ namespace engine
 		m_LightInstances.Render();
 	}
 
-	void MeshSystem::RenderToShadowMap()
+	void MeshSystem::RenderToShadowMap(ConstantBuffer& shadowMatrixBuffer, std::vector<LightSystem::ShadowMapConstants>& matrices, uint32_t numLights)
 	{
-		m_OpaqueInstances.RenderToShadowMap();
+		m_OpaqueInstances.RenderToShadowMap(shadowMatrixBuffer, matrices, numLights);
 	}
 
 	void MeshSystem::Update()

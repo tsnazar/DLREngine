@@ -109,7 +109,7 @@ float shadowCalculation(float3 N, float3 L, float3 fragPos, float3 lightPos, Tex
 void addEnvironmentReflection(inout float3 diffuseReflection, inout float3 specularReflection, float3 N, in View v, in Material m)
 {
     diffuseReflection += m.albedo * (1.0 - m.metallic) * g_irradiance.SampleLevel(g_linearClampSampler, N, 0.0);
-    float2 reflectanceLUT = g_reflectance.Sample(g_linearClampSampler, float2(m.roughness, v.NdotV));
+    float2 reflectanceLUT = g_reflectance.SampleLevel(g_linearClampSampler, float2(m.roughness, 1.0 - v.NdotV), 0);
     float3 reflectance = reflectanceLUT.x * m.f0 + reflectanceLUT.y;
     float3 samplel = g_reflection.SampleLevel(g_linearClampSampler, v.reflection, m.roughness * 9);
     specularReflection += reflectance * samplel;
