@@ -20,15 +20,10 @@ struct View
 };
 
 #ifdef IBL
-struct IBLTextures
-{
-    Texture2D reflectance;
-    TextureCube irradiance;
-    TextureCube reflection;
-    uint reflectionMips;
-};
+TextureCube g_irradiance : register(t5);
+TextureCube g_reflection : register(t6);
+Texture2D g_reflectance : register(t7);
 #endif
-
 
 uint getCubemapFace(float3 dir)
 {
@@ -93,15 +88,16 @@ void clampDirToHorizon(inout float3 dir, inout float NdotD, float3 normal, float
     }
 }
 
-float shadowCalculation(float3 N, float3 fragPos, float3 lightPos, TextureCubeArray tex, float texWidth, uint index)
+float shadowCalculation(float3 N, float3 L, float3 fragPos, float3 lightPos, TextureCubeArray tex, float texWidth, uint index)
 {
+    fragPos += L * 0.005;
     float3 sampleVec = fragPos - lightPos;
     float4x4 mat = g_shadowMapTransforms[index * 6 + getCubemapFace(sampleVec)];
     float4 pos = mul(float4(fragPos, 1.0), mat);
     pos.xyz /= pos.w;
     float currentDepth = pos.z;
 
-    fragPos += N * length(sampleVec) * 2 / texWidth;
+    fragPos += N * pos.w * 2 / texWidth;
 
     sampleVec = fragPos - lightPos;
 
@@ -110,12 +106,12 @@ float shadowCalculation(float3 N, float3 fragPos, float3 lightPos, TextureCubeAr
 }
 
 #ifdef IBL
-void addEnvironmentReflection(inout float3 diffuseReflection, inout float3 specularReflection, float3 N, in View v, in Material m, in IBLTextures textures)
+void addEnvironmentReflection(inout float3 diffuseReflection, inout float3 specularReflection, float3 N, in View v, in Material m)
 {
-    diffuseReflection += m.albedo * (1.0 - m.metallic) * textures.irradiance.SampleLevel(g_linearClampSampler, N, 0.0);
-    float2 reflectanceLUT = textures.reflectance.Sample(g_linearClampSampler, float2(m.roughness, v.NdotV));
+    diffuseReflection += m.albedo * (1.0 - m.metallic) * g_irradiance.SampleLevel(g_linearClampSampler, N, 0.0);
+    float2 reflectanceLUT = g_reflectance.Sample(g_linearClampSampler, float2(m.roughness, v.NdotV));
     float3 reflectance = reflectanceLUT.x * m.f0 + reflectanceLUT.y;
-    float3 samplel = textures.reflection.SampleLevel(g_linearClampSampler, v.reflection, m.roughness * textures.reflectionMips);
+    float3 samplel = g_reflection.SampleLevel(g_linearClampSampler, v.reflection, m.roughness * 9);
     specularReflection += reflectance * samplel;
 }
 #endif

@@ -175,8 +175,8 @@ namespace engine
 		for (uint32_t i = 0; i < m_triangles.size(); ++i)
 		{
 			const DirectX::XMFLOAT3& V1 = getPos(*m_mesh, m_triangles[i], 0);
-			const DirectX::XMFLOAT3& V2 = getPos(*m_mesh, m_triangles[i], 1);
-			const DirectX::XMFLOAT3& V3 = getPos(*m_mesh, m_triangles[i], 2);
+			const DirectX::XMFLOAT3& V2 = getPos(*m_mesh, m_triangles[i], 2);
+			const DirectX::XMFLOAT3& V3 = getPos(*m_mesh, m_triangles[i], 1);
 
 			if (ray.intersect(nearest, V1, V2, V3))
 			{

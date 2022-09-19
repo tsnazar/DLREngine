@@ -13,6 +13,7 @@ struct VS_INPUT {
 struct VS_OUTPUT {
     float4 position : WPOS;
 };
+
 // vertex shader
 VS_OUTPUT vs_main(VS_INPUT input) {
     VS_OUTPUT output = (VS_OUTPUT)0;
@@ -32,6 +33,8 @@ struct GS_OUTPUT
 cbuffer ShadowTransforms : register(b1)
 {
     float4x4 g_shadowTransforms[6];
+    uint g_sliceOffset;
+    float3 padding;
 }
 
 //geometry shader
@@ -43,7 +46,7 @@ void gs_main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> output
         [unroll]for (uint i = 0; i < 3; ++i)
         {
             GS_OUTPUT output = (GS_OUTPUT)0;
-            output.slice = face;
+            output.slice = g_sliceOffset + face;
             output.position = mul(input[i].position, g_shadowTransforms[face]);
 
             outputStream.Append(output);

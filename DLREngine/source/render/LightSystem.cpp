@@ -15,7 +15,7 @@ namespace engine
 	const float LightSystem::SHADOW_MAP_ASPECT = (float)SHADOW_MAP_WIDTH / (float)SHADOW_MAP_HEIGHT;
 	const float LightSystem::SHADOW_MAP_NEAR = 25.0f;
 	const float LightSystem::SHADOW_MAP_FAR = 0.1f;
-	const DirectX::XMMATRIX LightSystem::SHADOW_MAP_PROJECTION = DirectX::XMMatrixPerspectiveFovLH(1.57f, SHADOW_MAP_ASPECT, SHADOW_MAP_NEAR, SHADOW_MAP_FAR);
+	const DirectX::XMMATRIX LightSystem::SHADOW_MAP_PROJECTION = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PI / 2.0f, SHADOW_MAP_ASPECT, SHADOW_MAP_NEAR, SHADOW_MAP_FAR);
 
 	LightSystem::LightSystem()
 	{
@@ -34,7 +34,7 @@ namespace engine
 		s_Instance = nullptr;
 	}
 
-	void LightSystem::AddPointLight(const PointLight& light)
+	void LightSystem::AddPointLight(const GpuPointLight& light)
 	{
 		TransformSystem::Transform transform;
 		transform.position = light.position;
@@ -44,7 +44,7 @@ namespace engine
 		auto& transforms = TransformSystem::Get().GetTransforms();
 		uint32_t id = transforms.insert(transform);
 
-		PointLightRef ref;
+		PointLight ref;
 		ref.transformId = id;
 		ref.radiance = light.radiance;
 		ref.radius = light.radius;
@@ -89,20 +89,12 @@ namespace engine
 		ZeroMemory(&depthStencilViewDesc, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
 		depthStencilViewDesc.Format = DXGI_FORMAT_D32_FLOAT;
 		depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
-		depthStencilViewDesc.Texture2DArray.ArraySize = 6;
+		depthStencilViewDesc.Texture2DArray.ArraySize = 6 * m_NumLights;
 		depthStencilViewDesc.Texture2DArray.FirstArraySlice = 0;
 
-		DepthTarget target;
-		target.CreateFromDescription(desc, &shaderResourceViewDesc, &depthStencilViewDesc);
+		m_ShadowMap.CreateFromDescription(desc, &shaderResourceViewDesc, &depthStencilViewDesc);
 
-		for (uint32_t i = 0; i < m_NumLights; ++i)
-		{
-			m_ShadowMaps[i] = target;
-			depthStencilViewDesc.Texture2DArray.FirstArraySlice = i * 6;
-			m_ShadowMaps[i].RecreateDSV(depthStencilViewDesc);
-		}
-
-		m_ShadowMatrixBuffer.Create<ShadowMapConstants>(D3D11_USAGE_DYNAMIC, nullptr, 1);
+		m_ShadowMatrixBuffer.Create<ShadowMapGeometryShaderConstants>(D3D11_USAGE_DYNAMIC, nullptr, 1);
 		m_ShadowMatricesBuffer.Create<ShadowMapConstants>(D3D11_USAGE_DYNAMIC, nullptr, m_NumLights);
 
 	}
@@ -117,7 +109,7 @@ namespace engine
 
 		for (uint32_t i = 0; i < m_NumLights; ++i)
 		{
-			PointLight light; 
+			GpuPointLight light;
 			light.position = transforms[m_PointLightRefs[i].transformId].position;
 			light.radiance = m_PointLightRefs[i].radiance;
 			light.radius = m_PointLightRefs[i].radius;
@@ -148,20 +140,22 @@ namespace engine
 
 		s_Devcon->RSSetViewports(1, &viewport);
 
-		ShaderManager::Get().GetShader("shadows").SetShaders();
-
 		auto& transforms = TransformSystem::Get().GetTransforms();
 
 		ID3D11ShaderResourceView* const pSRV[1] = { NULL };
 		s_Devcon->PSSetShaderResources(4, 1, pSRV);
 
+		s_Devcon->OMSetRenderTargets(1, pRTV, m_ShadowMap.GetDepthView().ptr());
+		s_Devcon->ClearDepthStencilView(m_ShadowMap.GetDepthView(), D3D11_CLEAR_DEPTH, 0.0f, 0);
+
+		ShadowMapGeometryShaderConstants con;
+
 		for (uint32_t i = 0; i < m_NumLights; ++i)
 		{
-			m_ShadowMatrixBuffer.Update(&m_Matrices[i], 1);
+			memcpy(&con.matrices, &m_Matrices[i], sizeof(DirectX::XMFLOAT4X4[6]));
+			con.sliceOffset = i * 6;
+			m_ShadowMatrixBuffer.Update(&con, 1);
 			m_ShadowMatrixBuffer.BindToGS(ShaderDescription::Bindings::SHADOWMAP_MATRICES);
-
-			s_Devcon->OMSetRenderTargets(1, pRTV, m_ShadowMaps[i].GetDepthView().ptr());
-			s_Devcon->ClearDepthStencilView(m_ShadowMaps[i].GetDepthView(), D3D11_CLEAR_DEPTH, 0.0f, 0);
 
 			MeshSystem::Get().RenderToShadowMap();
 		}

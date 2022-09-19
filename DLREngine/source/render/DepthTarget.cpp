@@ -4,7 +4,7 @@ namespace engine
 {
 	DepthTarget& DepthTarget::CreateFromDescription(const D3D11_TEXTURE2D_DESC& desc, const D3D11_SHADER_RESOURCE_VIEW_DESC* viewDesc, const D3D11_DEPTH_STENCIL_VIEW_DESC* depthDesc)
 	{
-		ALWAYS_ASSERT((m_Desc.BindFlags & D3D11_BIND_DEPTH_STENCIL) == D3D11_BIND_DEPTH_STENCIL);
+		ALWAYS_ASSERT((desc.BindFlags & D3D11_BIND_DEPTH_STENCIL) == D3D11_BIND_DEPTH_STENCIL);
 		Texture2D::CreateFromDescription(desc, viewDesc);
 
 		HRESULT result = s_Device->CreateDepthStencilView(m_Texture.ptr(), depthDesc, m_DepthTarget.reset());

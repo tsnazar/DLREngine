@@ -19,10 +19,10 @@ namespace engine
 		static const float SHADOW_MAP_FAR;
 		static const DirectX::XMMATRIX SHADOW_MAP_PROJECTION;
 
-		struct PointLight
+		struct GpuPointLight
 		{
-			PointLight() = default;
-			PointLight(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 irradiance, float radius, float distance) : position(position), radius(radius), radiance(RadianceFromDistance(distance, radius, irradiance)) {};
+			GpuPointLight() = default;
+			GpuPointLight(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 irradiance, float radius, float distance) : position(position), radius(radius), radiance(RadianceFromDistance(distance, radius, irradiance)) {};
 
 			DirectX::XMFLOAT3 position;
 			float radius;
@@ -35,7 +35,14 @@ namespace engine
 			DirectX::XMFLOAT4X4 matrices[6];
 		};
 
-		struct PointLightRef
+		struct ShadowMapGeometryShaderConstants
+		{
+			DirectX::XMFLOAT4X4 matrices[6];
+			uint32_t sliceOffset;
+			DirectX::XMFLOAT3 padding;
+		};
+
+		struct PointLight
 		{
 			DirectX::XMFLOAT3 radiance;
 			uint32_t transformId;
@@ -59,7 +66,7 @@ namespace engine
 
 		static LightSystem& Get() { return *s_Instance; }
 
-		void AddPointLight(const PointLight& light);
+		void AddPointLight(const GpuPointLight& light);
 
 		void Update();
 
@@ -67,7 +74,7 @@ namespace engine
 
 		void InitShadowMaps();
 
-		Texture2D& GetShadowMap() { return m_ShadowMaps[0]; }
+		Texture2D& GetShadowMap() { return m_ShadowMap; }
 
 		ConstantBuffer& GetShadowMatrices() { return m_ShadowMatricesBuffer; }
 
@@ -76,8 +83,8 @@ namespace engine
 
 	private:
 		uint32_t m_NumLights = 0;
-		std::array<PointLightRef, MAX_POINT_LIGHTS> m_PointLightRefs;
-		std::array<DepthTarget, MAX_POINT_LIGHTS> m_ShadowMaps;
+		std::array<PointLight, MAX_POINT_LIGHTS> m_PointLightRefs;
+		DepthTarget m_ShadowMap;
 		std::vector<ShadowMapConstants> m_Matrices;
 		ConstantBuffer m_ShadowMatrixBuffer;
 		ConstantBuffer m_ShadowMatricesBuffer;

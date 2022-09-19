@@ -41,9 +41,6 @@ namespace engine
 			dstMesh.box.max = reinterpret_cast<DirectX::XMFLOAT3&>(srcMesh->mAABB.mMax);
 			dstMesh.meshToModel = reinterpret_cast<DirectX::XMFLOAT4X4&>(mat);
 			DirectX::XMStoreFloat4x4(&dstMesh.modelToMesh, DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&dstMesh.meshToModel)))));
-			//DirectX::XMStoreFloat4x4(&dstMesh.modelToMesh, DirectX::XMMatrixIdentity());
-			//DirectX::XMStoreFloat4x4(&dstMesh.meshToModel, DirectX::XMMatrixIdentity());
-
 
 			uint32_t numVertices = srcMesh->mNumVertices;
 			uint32_t numFaces = srcMesh->mNumFaces;
@@ -105,9 +102,6 @@ namespace engine
 	void Model::InitUnitCube()
 	{
 		const uint32_t SIDES = 6;
-		//const uint32_t GRID_SIZE = 1;
-		//const uint32_t TRIS_PER_SIDE = GRID_SIZE * GRID_SIZE * 2;
-		//const uint32_t VERT_PER_SIDE = 3 * TRIS_PER_SIDE;
 		const uint32_t VERTEX_COUNT = SIDES * 6;
 
 		std::vector<VertexPosTexNorTanBitan> vertices;
@@ -240,7 +234,7 @@ namespace engine
 	void Model::InitUnitSphere()
 	{
 		const uint32_t SIDES = 6;
-		const uint32_t GRID_SIZE = 24;
+		const uint32_t GRID_SIZE = 12;
 		const uint32_t TRIS_PER_SIDE = GRID_SIZE * GRID_SIZE * 2;
 		const uint32_t VERT_PER_SIDE = 3 * TRIS_PER_SIDE;
 		const uint32_t VERTEX_COUNT = VERT_PER_SIDE * SIDES;

@@ -57,6 +57,8 @@ namespace engine
 		if (m_InstanceBuffer.GetVertexCount() == 0 || !m_InstanceBuffer.IsValid())
 			return;
 
+		ShaderManager::Get().GetShader("shadows").SetShaders();
+
 		m_InstanceBuffer.SetBuffer(ShaderDescription::Bindings::INSTANCE_BUFFER);
 
 		uint32_t renderedInstances = 0;

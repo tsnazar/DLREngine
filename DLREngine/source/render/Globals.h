@@ -12,7 +12,7 @@ namespace engine
 		DirectX::XMFLOAT4X4 viewProj;
 		DirectX::XMFLOAT4 cameraPos;
 		DirectX::XMFLOAT4 frustumCorners[3];
-		LightSystem::PointLight pointLights[LightSystem::MAX_POINT_LIGHTS];
+		LightSystem::GpuPointLight pointLights[LightSystem::MAX_POINT_LIGHTS];
 	};
 
 	class Globals
