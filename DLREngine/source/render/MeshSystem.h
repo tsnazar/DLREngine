@@ -14,7 +14,9 @@ namespace engine
 		
 		static void Fini();
 		
-		void Render();
+		void Render(Sky::IblResources iblResources);
+
+		void RenderToShadowMap(ConstantBuffer& shadowMatrixBuffer, std::vector<LightSystem::ShadowMapConstants>& matrices, uint32_t numLights);
 
 		void Update();
 

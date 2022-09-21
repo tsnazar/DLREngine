@@ -12,7 +12,7 @@ namespace engine
 		DirectX::XMFLOAT4X4 viewProj;
 		DirectX::XMFLOAT4 cameraPos;
 		DirectX::XMFLOAT4 frustumCorners[3];
-		LightSystem::PointLight pointLights[LightSystem::MAX_POINT_LIGHTS];
+		LightSystem::GpuPointLight pointLights[LightSystem::MAX_POINT_LIGHTS];
 	};
 
 	class Globals
@@ -44,6 +44,8 @@ namespace engine
 
 		DxResPtr<ID3D11DepthStencilView>& GetDepthBuffer() { return m_Depthbuffer; }
 
+		void SetReversedDepthState() { m_Devcon->OMSetDepthStencilState(m_DepthStateReversed.ptr(), 0); }
+
 	private:
 		DxResPtr<IDXGIFactory> m_Factory;
 		DxResPtr<IDXGIFactory5> m_Factory5;
@@ -57,11 +59,12 @@ namespace engine
 		DxResPtr<ID3D11SamplerState> m_SamplerStateLinearMipPoint;
 		DxResPtr<ID3D11SamplerState> m_SamplerStateLinear;
 		DxResPtr<ID3D11SamplerState> m_SamplerStateAnisotropic;
+		DxResPtr<ID3D11SamplerState> m_SamplerCmp;
 
 		int m_CurrentSampler = 3;
 
 		DxResPtr<ID3D11DepthStencilView> m_Depthbuffer;
-		DxResPtr<ID3D11DepthStencilState> m_DepthState;
+		DxResPtr<ID3D11DepthStencilState> m_DepthStateReversed;
 
 		PerFrame m_PerFrame;
 		ConstantBuffer m_PerFrameBuffer;

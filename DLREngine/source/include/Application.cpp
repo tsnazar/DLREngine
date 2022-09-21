@@ -59,15 +59,25 @@ namespace engine
 
 		std::vector<D3D11_INPUT_ELEMENT_DESC> emissive = {
 			D3D11_INPUT_ELEMENT_DESC{ "POS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTexNorTan, pos), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(LightInstances::GpuInstance, matrix[0]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(LightInstances::GpuInstance, matrix[1]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(LightInstances::GpuInstance, matrix[2]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(LightInstances::GpuInstance, matrix[3]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 			D3D11_INPUT_ELEMENT_DESC{ "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 1, offsetof(LightInstances::GpuInstance, color), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+		};
+
+		std::vector<D3D11_INPUT_ELEMENT_DESC> shadows = {
+			D3D11_INPUT_ELEMENT_DESC{ "POS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTexNorTan, pos), D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			D3D11_INPUT_ELEMENT_DESC{ "MAT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(LightInstances::GpuInstance, matrix[0]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 			D3D11_INPUT_ELEMENT_DESC{ "MAT", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(LightInstances::GpuInstance, matrix[1]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 			D3D11_INPUT_ELEMENT_DESC{ "MAT", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(LightInstances::GpuInstance, matrix[2]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 			D3D11_INPUT_ELEMENT_DESC{ "MAT", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(LightInstances::GpuInstance, matrix[3]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 		};
 
-		ShaderManager::Get().LoadShader("instanceBRDF", "shaders/opaque.hlsl", &opaque);
+		ShaderManager::Get().LoadShader("opaque", "shaders/opaque.hlsl", &opaque);
+		ShaderManager::Get().LoadShader("opaqueIBL", "shaders/opaqueIBL.hlsl", &opaque);
 		ShaderManager::Get().LoadShader("lightInstance", "shaders/emissive.hlsl", &emissive);
+		ShaderManager::Get().LoadShader("shadows", "shaders/shadows.hlsl", &shadows, true);
 		ShaderManager::Get().LoadShader("skybox", "shaders/sky.hlsl", nullptr);
 		ShaderManager::Get().LoadShader("resolve", "shaders/resolve.hlsl", nullptr);
 
@@ -159,17 +169,19 @@ namespace engine
 			MeshSystem::Get().GetOpaqueInstances().AddInstance(pHorse, horseTextures, transform);
 		}
 
-		m_Renderer->GetSky().SetSky("skybox", "shaders/sky.hlsl", "assets/night_street.dds");
+		m_Renderer->GetSky().SetSky("skybox", "shaders/sky.hlsl", "assets/NightStreet/night_street.dds", "assets/NightStreet/night_street_irradiance.dds", "assets/NightStreet/night_street_reflection.dds", "assets/NightStreet/night_street_reflectance.dds");
 
 		{
-			LightSystem::PointLight light({ -2.0f, 5.0f, -3.0f }, { 1.0f, 1.0f, 1.0f }, 0.15f, 4.0f);
+			LightSystem::GpuPointLight light({ -2.0f, 5.0f, -3.0f }, { 0.0f, 1.0f, 1.0f }, 0.15f, 4.0f);
 			LightSystem::Get().AddPointLight(light);
 		}
 
 		{
-			LightSystem::PointLight light({ 2.0f, 5.0f, -3.0f }, { 1.0f, 1.0f, 1.0f }, 0.15f, 4.0f);
+			LightSystem::GpuPointLight light({ 2.0f, 5.0f, -3.0f }, { 0.2f, 0.0f, 0.1f }, 0.15f, 4.0f);
 			LightSystem::Get().AddPointLight(light);
 		}
+
+		LightSystem::Get().InitShadowMaps();
 		//init camera
 		m_CameraController = std::unique_ptr<CameraController>(new CameraController(FOV, (float)width/(float)height, ZNEAR, ZFAR));
 		m_CameraController->GetCamera().SetWorldOffset({0.f, 1.f, -10.0f});

@@ -54,34 +54,18 @@ namespace engine
 		m_Backbuffer.Release();
 		m_Swapchain->ResizeBuffers(0, width, height, DXGI_FORMAT_UNKNOWN, 0);
 		
-		/*if (m_Backbuffer.valid())
-		{
-			m_Backbuffer.release();
-		}*/
-
-		// Create Backbuffer
-		//ID3D11Texture2D* pTextureInterface = nullptr;
-		//HRESULT result = m_Swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pTextureInterface);
-		//ALWAYS_ASSERT(SUCCEEDED(result));
-
-		//result = s_Device->CreateRenderTargetView(pTextureInterface, NULL, m_Backbuffer.reset());
-		//ALWAYS_ASSERT(SUCCEEDED(result));
-		//pTextureInterface->Release();
-
 		m_Backbuffer.GetBackbufferFromSwapchain(m_Swapchain.ptr());
 
-		// Create Viewport
-		D3D11_VIEWPORT viewport;
-		ZeroMemory(&viewport, sizeof(D3D11_VIEWPORT));
+		ZeroMemory(&m_Viewport, sizeof(D3D11_VIEWPORT));
 
-		viewport.TopLeftX = 0;
-		viewport.TopLeftY = 0;
-		viewport.Width = m_ClientWidth;
-		viewport.Height = m_ClientHeight;
-		viewport.MinDepth = 0.0f;
-		viewport.MaxDepth = 1.0f;
+		m_Viewport.TopLeftX = 0;
+		m_Viewport.TopLeftY = 0;
+		m_Viewport.Width = m_ClientWidth;
+		m_Viewport.Height = m_ClientHeight;
+		m_Viewport.MinDepth = 0.0f;
+		m_Viewport.MaxDepth = 1.0f;
 
-		s_Devcon->RSSetViewports(1, &viewport);
+		
 	}
 
 	void MainWindow::ClearColor(const float color[4])

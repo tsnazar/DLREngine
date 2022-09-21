@@ -114,7 +114,7 @@ namespace engine
 		auto& camera = GetCamera();
 		DirectX::XMVECTOR cameraPos = camera.Position();
 		DirectX::XMVECTOR worldPos = camera.Unproject(DirectX::XMVectorSet(xNDC, yNDC, 1.0f, 1.0f));
-		DirectX::XMVECTOR direction = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(worldPos, cameraPos));
+		DirectX::XMVECTOR direction = DirectX::XMVectorSubtract(worldPos, cameraPos);
 
 		DirectX::XMFLOAT3 dir, org;
 		DirectX::XMStoreFloat3(&dir, direction);

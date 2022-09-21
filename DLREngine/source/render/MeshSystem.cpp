@@ -2,6 +2,7 @@
 #include "LightSystem.h"
 #include "Application.h"
 #include "Query.h"
+#include "Sky.h"
 
 namespace engine
 {
@@ -23,10 +24,15 @@ namespace engine
 		s_Instance = nullptr;
 	}
 
-	void MeshSystem::Render()
+	void MeshSystem::Render(Sky::IblResources iblResources)
 	{
-		m_OpaqueInstances.Render();
+		m_OpaqueInstances.Render(iblResources);
 		m_LightInstances.Render();
+	}
+
+	void MeshSystem::RenderToShadowMap(ConstantBuffer& shadowMatrixBuffer, std::vector<LightSystem::ShadowMapConstants>& matrices, uint32_t numLights)
+	{
+		m_OpaqueInstances.RenderToShadowMap(shadowMatrixBuffer, matrices, numLights);
 	}
 
 	void MeshSystem::Update()

@@ -26,9 +26,9 @@ namespace engine
 
 		struct GpuInstance
 		{
+			DirectX::XMFLOAT4 matrix[4];
 			DirectX::XMFLOAT3 color;
 			float padding;
-			DirectX::XMFLOAT4 matrix[4];
 		};
 
 		struct PerModel

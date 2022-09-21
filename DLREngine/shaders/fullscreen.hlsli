@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef FULLSCREEN
+#define FULLSCREEN
 struct VSQuadOut {
     float4 position : SV_Position;
     float3 dir: SampleDir;
@@ -14,3 +14,4 @@ VSQuadOut vs_main(uint vertexID : SV_VertexID) {
 
     return result;
 }
+#endif

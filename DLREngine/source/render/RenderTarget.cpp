@@ -4,8 +4,8 @@ namespace engine
 {
 	RenderTarget& RenderTarget::CreateFromDescription(const D3D11_TEXTURE2D_DESC& desc)
 	{
+		ALWAYS_ASSERT((desc.BindFlags & D3D11_BIND_RENDER_TARGET) == D3D11_BIND_RENDER_TARGET);
 		Texture2D::CreateFromDescription(desc);
-		ALWAYS_ASSERT((m_Desc.BindFlags & D3D11_BIND_RENDER_TARGET) == D3D11_BIND_RENDER_TARGET);
 		
 		HRESULT result = s_Device->CreateRenderTargetView(m_Texture.ptr(), NULL, m_RenderTarget.reset());
 		ALWAYS_ASSERT(SUCCEEDED(result));

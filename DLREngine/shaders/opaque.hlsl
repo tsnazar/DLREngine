@@ -74,12 +74,18 @@ Texture2D g_colorTexture : TEXTURE: register(t0);
 Texture2D g_roughnessTexture : ROUGHNESS: register(t1);
 Texture2D g_metallicTexture : METALIC: register(t2);
 Texture2D g_normalTexture : NORMAL_MAP: register(t3);
+TextureCubeArray g_shadowMap : register(t4);
 
 static const float3 basicF0 = float3(0.04, 0.04, 0.04);
+
 ///pixel shader
 
 float4 ps_main(VS_OUTPUT input) : SV_TARGET
 {
+    float shadowMapWidth = 0, shadowMapHeight = 0, shadowMapElements = 0;
+    
+    g_shadowMap.GetDimensions(shadowMapWidth, shadowMapHeight, shadowMapElements);
+
     float3 albedo = g_colorTexture.Sample(g_sampler, input.texCoord);
 
     float3 resultColor = float3(0, 0, 0);
@@ -110,18 +116,33 @@ float4 ps_main(VS_OUTPUT input) : SV_TARGET
 
     float NdotV = max(dot(N, V), MIN_DOT);
 
-    float3 reflection = 2.0 * N * NdotV - V;
+    float3 reflection = reflect(-V, N);
+
+    View view;
+    view.reflection = reflection;
+    view.NdotV = NdotV;
+
+    Material material;
+    material.albedo = albedo;
+    material.f0 = f0;
+    material.roughness = roughness;
+    material.metallic = metallic;
 
     for (uint i = 0; i < MAX_POINT_LIGHTS; ++i)
     {
-        Material material;
-        material.albedo = albedo;
-        material.f0 = f0;
-        material.roughness = roughness;
-        material.metallic = metallic;
         float3 L = g_lights[i].position - input.worldPos;
-        resultColor += calculatePointLighting(N, GN, V, L, NdotV, reflection, g_lights[i].radius, g_lights[i].radiance, material);
+        float3 shadowFragPos = input.worldPos;
+
+        resultColor += calculatePointLighting(N, GN, V, L, view, g_lights[i].radius, g_lights[i].radiance, material, shadowCalculation(N, L, shadowFragPos, g_lights[i].position, g_shadowMap, shadowMapWidth, i));
     }
     
+    #ifdef IBL
+        float3 diff = float3(0, 0, 0);
+        float3 spec = float3(0, 0, 0);
+        addEnvironmentReflection(diff, spec, N, view, material);
+
+        resultColor += diff + spec;
+    #endif
+
     return float4(resultColor.xyz, 1.0);
 }

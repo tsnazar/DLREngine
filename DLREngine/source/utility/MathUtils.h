@@ -1,8 +1,10 @@
 #pragma once
 #include <DirectXMath.h>
+#include <array>
 
 namespace engine
 {
+
 	void LoadMatrixInArray(const DirectX::XMMATRIX& matrix, DirectX::XMFLOAT4 arr[4]);
 	DirectX::XMVECTOR FindMaxComponent(const DirectX::XMVECTOR& vec);
 	DirectX::XMFLOAT3 RadianceFromDistance(float distance, float radius, DirectX::XMFLOAT3 irradiance);
