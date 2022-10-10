@@ -38,7 +38,65 @@ namespace engine
 			ALWAYS_ASSERT(SUCCEEDED(result));
 		}
 
+		if (viewDesc != nullptr)
+		{
+			m_HasSRVDesc = true;
+			m_SRVDesc = *viewDesc;
+		}
+
 		return *this;
+	}
+
+	void Texture2D::CopyTexture(Texture2D& texture)
+	{
+		ALWAYS_ASSERT(s_Device != nullptr);
+		ALWAYS_ASSERT(s_Devcon != nullptr);
+
+		m_Desc = *texture.GetDesc();
+		HRESULT result = s_Device->CreateTexture2D(&m_Desc, NULL, m_Texture.reset());
+		ALWAYS_ASSERT(SUCCEEDED(result));
+
+		if ((m_Desc.BindFlags & D3D11_BIND_SHADER_RESOURCE) == D3D11_BIND_SHADER_RESOURCE)
+		{
+			result = s_Device->CreateShaderResourceView(m_Texture.ptr(), texture.GetSRVDesc(), m_TextureView.reset());
+			ALWAYS_ASSERT(SUCCEEDED(result));
+		}
+
+		if (texture.GetSRVDesc() != nullptr)
+		{
+			m_HasSRVDesc = true;
+			m_SRVDesc = *texture.GetSRVDesc();
+		}
+
+		s_Devcon->CopyResource(m_Texture.ptr(), texture.GetTexture().ptr());
+	}
+
+	void Texture2D::ResolveTexture(Texture2D& texture)
+	{
+		ALWAYS_ASSERT(s_Device != nullptr);
+		ALWAYS_ASSERT(s_Devcon != nullptr);
+
+		m_Desc = *texture.GetDesc();
+		m_Desc.SampleDesc.Count = 1;
+		m_Desc.SampleDesc.Quality = 0;
+		m_Desc.Usage = D3D11_USAGE_DEFAULT;
+		HRESULT result = s_Device->CreateTexture2D(&m_Desc, NULL, m_Texture.reset());
+		ALWAYS_ASSERT(SUCCEEDED(result));
+
+		if ((m_Desc.BindFlags & D3D11_BIND_SHADER_RESOURCE) == D3D11_BIND_SHADER_RESOURCE)
+		{
+			m_Desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+			result = s_Device->CreateShaderResourceView(m_Texture.ptr(), texture.GetSRVDesc(), m_TextureView.reset());
+			ALWAYS_ASSERT(SUCCEEDED(result));
+		}
+
+		if (texture.GetSRVDesc() != nullptr)
+		{
+			m_HasSRVDesc = true;
+			m_SRVDesc = *texture.GetSRVDesc();
+		}
+
+		s_Devcon->ResolveSubresource(m_Texture.ptr(), 0, texture.GetTexture().ptr(), 0, m_SRVDesc.Format);
 	}
 
 	void Texture2D::BindToVS(uint32_t slot)

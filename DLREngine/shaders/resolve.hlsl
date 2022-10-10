@@ -30,11 +30,11 @@ float3 adjustExposure(float3 color, float EV100)
     return color * (1.0f / LMax);
 }
 
-Texture2DMS<float4, 4> g_texture : TEXTURE : register(t0);
+Texture2DMS<float4, 4> g_texture : register(t0);
 
 cbuffer Constants : register(b0)
 {
-    float EV100;
+    float g_EV100;
     float3 padding;
 }
 
@@ -46,7 +46,7 @@ float4 ps_main(VSQuadOut input) : SV_TARGET
     for (uint i = 0; i < 4; ++i)
     {
         float4 pixelColor = g_texture.Load(int3(input.position.xy, 0), i);
-        pixelColor.xyz = adjustExposure(float3(pixelColor.xyz), EV100);
+        pixelColor.xyz = adjustExposure(float3(pixelColor.xyz), g_EV100);
         pixelColor.xyz = acesHdr2Ldr(pixelColor.xyz);
         result += pixelColor;
     }

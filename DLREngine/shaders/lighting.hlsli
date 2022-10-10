@@ -2,9 +2,6 @@
 #define LIGHTING
 #include "globals.hlsli"
 
-static const float PI = 3.14;
-static const float MIN_DOT = 0.0005;
-
 struct Material
 {
     float3 albedo;
@@ -90,7 +87,24 @@ void clampDirToHorizon(inout float3 dir, inout float NdotD, float3 normal, float
 
 float shadowCalculation(float3 N, float3 L, float3 fragPos, float3 lightPos, TextureCubeArray tex, float texWidth, uint index)
 {
-    fragPos += L * 0.005;
+    fragPos += L * 0.001;
+    float3 sampleVec = fragPos - lightPos;
+    float4x4 mat = g_shadowMapTransforms[index * 6 + getCubemapFace(sampleVec)];
+    float4 pos = mul(float4(fragPos, 1.0), mat);
+    pos.xyz /= pos.w;
+    float currentDepth = pos.z;
+
+    fragPos += N * pos.w * 2 / texWidth;
+
+    sampleVec = fragPos - lightPos;
+
+    float shadow = tex.SampleCmp(g_cmpSampler, float4(sampleVec, index), currentDepth);
+    return shadow;
+}
+
+float shadowCalculationGrass(float3 N, float3 L, float3 fragPos, float3 lightPos, TextureCubeArray tex, float texWidth, uint index)
+{
+    fragPos -= L * 0.1;
     float3 sampleVec = fragPos - lightPos;
     float4x4 mat = g_shadowMapTransforms[index * 6 + getCubemapFace(sampleVec)];
     float4 pos = mul(float4(fragPos, 1.0), mat);
@@ -113,6 +127,11 @@ void addEnvironmentReflection(inout float3 diffuseReflection, inout float3 specu
     float3 reflectance = reflectanceLUT.x * m.f0 + reflectanceLUT.y;
     float3 samplel = g_reflection.SampleLevel(g_linearClampSampler, v.reflection, m.roughness * 9);
     specularReflection += reflectance * samplel;
+}
+
+void addEnvironmentDiffuse(inout float3 diffuseReflection, float3 N, in Material m)
+{
+    diffuseReflection += m.albedo * (1.0 - m.metallic) * g_irradiance.SampleLevel(g_linearClampSampler, N, 0.0);
 }
 #endif
 

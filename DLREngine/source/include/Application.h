@@ -5,10 +5,11 @@
 #include "Event.h"
 #include "CameraController.h"
 #include "Query.h"
+#include "SpawnModule.h"
 
 namespace engine
 {
-	class MouseButtonPressedEvent;
+	class SpawnModule;
 
 	class Application
 	{
@@ -37,6 +38,7 @@ namespace engine
 
 		bool m_FirstRMB = true;
 		Query m_Query;
+		SpawnModule m_SpawnModule;
 	private:
 		static Application* s_Instance;
 	};

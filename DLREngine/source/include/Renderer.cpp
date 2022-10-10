@@ -5,6 +5,7 @@
 #include "Application.h"
 #include "Postprocess.h"
 #include "ParticleSystem.h"
+#include "VegetationSystem.h"
 
 namespace engine
 {
@@ -25,6 +26,8 @@ namespace engine
 		desc.CPUAccessFlags = 0;
 
 		m_HDRTarget.CreateFromDescription(desc);
+
+		//m_Grass.CreateField({ 0,0,0 }, 5.f, 0.5f);
 	}
 
 	bool Renderer::Render(MainWindow& win, Camera& camera)
@@ -34,18 +37,37 @@ namespace engine
 		Globals::Get().Update();
 
 		Globals::Get().SetReversedDepthState();
+		Globals::Get().SetDefaultBlendState();
+		Globals::Get().SetDefaultRasterizerState();
 		LightSystem::Get().RenderToShadowMaps();
 
-		LightSystem::Get().GetShadowMatrices().BindToPS(1);
-		s_Devcon->GSSetShader(nullptr, NULL, 0);
+		Globals::Get().SetDefaultRasterizerState();
+		//LightSystem::Get().GetShadowMatricesBuffer().BindToPS(1);
 		s_Devcon->RSSetViewports(1, &win.GetViewport());
-		s_Devcon->OMSetRenderTargets(1, m_HDRTarget.GetRenderTarget().ptrAdr(), Globals::Get().GetDepthBuffer().ptr());
-		s_Devcon->ClearDepthStencilView(Globals::Get().GetDepthBuffer().ptr(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 0.0f, 0);
+		s_Devcon->OMSetRenderTargets(1, m_HDRTarget.GetRenderTarget().ptrAdr(), Globals::Get().GetDepthBufferView().ptr());
+		s_Devcon->ClearDepthStencilView(Globals::Get().GetDepthBufferView().ptr(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 0.0f, 0);
 		s_Devcon->ClearRenderTargetView(m_HDRTarget.GetRenderTarget().ptr(), color);
 
 		MeshSystem::Get().Render(m_Sky.GetIBLResources());
+
 		m_Sky.Render(camera);
 
+		Globals::Get().SetRasterizerStateCullOff();
+		Globals::Get().SetAlphaToCoverageBlendState();
+		VegetationSystem::Get().Render(m_Sky.GetIBLResources());
+
+		Globals::Get().SetDefaultRasterizerState();
+		Globals::Get().SetDefaultBlendState();
+		MeshSystem::Get().GetDissolutionInstances().Render(m_Sky.GetIBLResources());
+
+		ParticleSystem::Get().CreateAndResolveDepthCopy();
+
+		s_Devcon->OMSetRenderTargets(1, m_HDRTarget.GetRenderTarget().ptrAdr(), Globals::Get().GetDepthBufferView().ptr());
+		Globals::Get().SetReversedDepthStateReadOnly();
+		Globals::Get().SetBlendState();
+		ParticleSystem::Get().Render(m_Sky.GetIBLResources());
+
+		Globals::Get().SetDefaultBlendState();
 		Postprocess::Get().Resolve(m_HDRTarget, win.GetBackBuffer());
 
 		ID3D11ShaderResourceView* const pSRV[1] = { NULL };
@@ -60,7 +82,7 @@ namespace engine
 
 		Postprocess::Get().Update(constants);
 		LightSystem::Get().Update();
-		MeshSystem::Get().Update();
+		MeshSystem::Get().Update(dt);
 		ParticleSystem::Get().Update(dt, camera);
 
 	}

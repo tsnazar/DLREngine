@@ -21,7 +21,7 @@ namespace engine
 			enum Bindings : uint32_t { ALBEDO_TEXTURE = 0, ROUGHNESS_TEXTURE = 1, METALLIC_TEXTURE = 2, NORMAL_MAP_TEXTURE = 3, 
 									   SHADOWMAP_TEXTURE = 4, IRRADIANCE_TEXTURE = 5, REFLECTION_TEXTURE = 6, REFLECTANCE_TEXTURE = 7, 
 									   MESH_BUFFER = 0, MESH_TO_MODEL_BUFFER = 1, INSTANCE_BUFFER = 1, MATERIAL_CONSTANTS = 2,
-									   SHADOWMAP_MATRICES = 1};
+									   SHADOWMAP_MATRICES = 1, SHADOWMAP_DIMENSIONS = 3};
 		};
 
 		struct GpuInstance
@@ -111,9 +111,9 @@ namespace engine
 		
 		void Render(Sky::IblResources iblResources);
 
-		void RenderToShadowMap(ConstantBuffer& shadowMatrixBuffer, std::vector<LightSystem::ShadowMapConstants>& matrices, uint32_t numLights);
+		void RenderToShadowMap(ConstantBuffer& shadowMatrixBuffer, std::vector<LightSystem::ShadowMapMatrices>& matrices, uint32_t numLights);
 
-		void AddInstance(Model* model, std::vector<Material>& materials, TransformSystem::Transform transform);
+		void AddInstance(Model* model, std::vector<Material>& materials, uint32_t transformId);
 
 	private:
 		bool m_ResizeInstanceBuffer = false;

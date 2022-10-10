@@ -10,6 +10,12 @@ namespace engine
 		HRESULT result = s_Device->CreateDepthStencilView(m_Texture.ptr(), depthDesc, m_DepthTarget.reset());
 		ALWAYS_ASSERT(SUCCEEDED(result));
 
+		if (depthDesc != nullptr)
+		{
+			m_HasDSVDesc = true;
+			m_DSVDesc = *depthDesc;
+		}
+
 		return *this;
 	}
 

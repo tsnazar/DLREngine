@@ -51,7 +51,7 @@ namespace engine
 		m_InstanceBuffer.UnMap();
 	}
 
-	void OpaqueInstances::RenderToShadowMap(ConstantBuffer& shadowMatrixBuffer, std::vector<LightSystem::ShadowMapConstants>& matrices, uint32_t numLights)
+	void OpaqueInstances::RenderToShadowMap(ConstantBuffer& shadowMatrixBuffer, std::vector<LightSystem::ShadowMapMatrices>& matrices, uint32_t numLights)
 	{
 		if (m_InstanceBuffer.GetVertexCount() == 0 || !m_InstanceBuffer.IsValid())
 			return;
@@ -118,6 +118,8 @@ namespace engine
 		}
 
 		LightSystem::Get().GetShadowMap().BindToPS(ShaderDescription::Bindings::SHADOWMAP_TEXTURE);
+		LightSystem::Get().GetShadowMatricesBuffer().BindToPS(ShaderDescription::Bindings::SHADOWMAP_MATRICES);
+		LightSystem::Get().GetShadowMapDimensions().BindToPS(ShaderDescription::Bindings::SHADOWMAP_DIMENSIONS);
 
 		m_InstanceBuffer.SetBuffer(ShaderDescription::Bindings::INSTANCE_BUFFER);
 
@@ -169,7 +171,7 @@ namespace engine
 		}
 	}
 
-	void OpaqueInstances::AddInstance(Model* model, std::vector<Material>& materials, TransformSystem::Transform transform)
+	void OpaqueInstances::AddInstance(Model* model, std::vector<Material>& materials, uint32_t transformId)
 	{
 
 		m_ResizeInstanceBuffer = true;
@@ -188,8 +190,8 @@ namespace engine
 		}
 
 		auto& perModel = m_PerModel[m_ModelIndexMap[model]];
-		auto& transforms = TransformSystem::Get().GetTransforms();
-		uint32_t instanceID = transforms.insert(transform);
+		//auto& transforms = TransformSystem::Get().GetTransforms();
+		//uint32_t instanceID = transforms.insert(transform);
 
 		for (uint32_t i = 0; i < numMeshes; ++i)
 		{
@@ -204,7 +206,7 @@ namespace engine
 				perModel.perMesh[i].perMaterial[materialIndex].material = materials[i];
 			}
 
-			perModel.perMesh[i].perMaterial[materialIndexMap[materials[i]]].instanceIDs.push_back(instanceID);
+			perModel.perMesh[i].perMaterial[materialIndexMap[materials[i]]].instanceIDs.push_back(transformId);
 		}
 	}
 }

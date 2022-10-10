@@ -2,6 +2,7 @@
 #include "Globals.h"
 #include "MeshSystem.h"
 #include "ModelManager.h"
+#include "VegetationSystem.h"
 
 namespace
 {
@@ -95,8 +96,10 @@ namespace engine
 		m_ShadowMap.CreateFromDescription(desc, &shaderResourceViewDesc, &depthStencilViewDesc);
 
 		m_ShadowMatrixBuffer.Create<ShadowMapGeometryShaderConstants>(D3D11_USAGE_DYNAMIC, nullptr, 1);
-		m_ShadowMatricesBuffer.Create<ShadowMapConstants>(D3D11_USAGE_DYNAMIC, nullptr, m_NumLights);
+		m_ShadowMatricesBuffer.Create<ShadowMapMatrices>(D3D11_USAGE_DYNAMIC, nullptr, m_NumLights);
 
+		ShadowMapDimensions dimensions = { SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT, {0,0} };
+		m_ShadowMapDimensions.Create<ShadowMapDimensions>(D3D11_USAGE_DYNAMIC, &dimensions, 1);
 	}
 
 	void LightSystem::Update()
@@ -105,7 +108,7 @@ namespace engine
 		auto& transforms = TransformSystem::Get().GetTransforms();
 		
 		m_Matrices.clear();
-		ShadowMapConstants con;
+		ShadowMapMatrices con;
 
 		for (uint32_t i = 0; i < m_NumLights; ++i)
 		{
@@ -144,11 +147,16 @@ namespace engine
 
 		ID3D11ShaderResourceView* const pSRV[1] = { NULL };
 		s_Devcon->PSSetShaderResources(4, 1, pSRV);
+		s_Devcon->PSSetShaderResources(5, 1, pSRV);
 
 		s_Devcon->OMSetRenderTargets(1, pRTV, m_ShadowMap.GetDepthView().ptr());
 		s_Devcon->ClearDepthStencilView(m_ShadowMap.GetDepthView(), D3D11_CLEAR_DEPTH, 0.0f, 0);
 
 		MeshSystem::Get().RenderToShadowMap(m_ShadowMatrixBuffer, m_Matrices, m_NumLights);
+
+		Globals::Get().SetRasterizerStateCullOff();
+		VegetationSystem::Get().RenderToShadowMap(m_ShadowMatrixBuffer, m_Matrices, m_NumLights);
+
 	}
 
 	void LightSystem::GenerateShadowTransforms(DirectX::XMFLOAT4X4* arr, const DirectX::XMFLOAT3& position)

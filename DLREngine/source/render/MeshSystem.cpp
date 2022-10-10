@@ -26,19 +26,23 @@ namespace engine
 
 	void MeshSystem::Render(Sky::IblResources iblResources)
 	{
+
 		m_OpaqueInstances.Render(iblResources);
 		m_LightInstances.Render();
+		//m_DissolutionInstances.Render(iblResources);
 	}
 
-	void MeshSystem::RenderToShadowMap(ConstantBuffer& shadowMatrixBuffer, std::vector<LightSystem::ShadowMapConstants>& matrices, uint32_t numLights)
+	void MeshSystem::RenderToShadowMap(ConstantBuffer& shadowMatrixBuffer, std::vector<LightSystem::ShadowMapMatrices>& matrices, uint32_t numLights)
 	{
 		m_OpaqueInstances.RenderToShadowMap(shadowMatrixBuffer, matrices, numLights);
 	}
 
-	void MeshSystem::Update()
+	void MeshSystem::Update(float dt)
 	{
 		m_OpaqueInstances.UpdateInstanceBuffers();
 		m_LightInstances.UpdateInstanceBuffers();
+		m_DissolutionInstances.Update(dt);
+		m_DissolutionInstances.UpdateInstanceBuffers();
 	}
 
 	bool MeshSystem::PickMesh(const Ray& ray, Query& query)

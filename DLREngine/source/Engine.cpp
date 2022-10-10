@@ -8,6 +8,7 @@
 #include "TransformSystem.h"
 #include "Postprocess.h"
 #include "ParticleSystem.h"
+#include "VegetationSystem.h"
 
 namespace engine
 {
@@ -22,9 +23,11 @@ namespace engine
 		TransformSystem::Init();
 		Postprocess::Init();
 		ParticleSystem::Init();
+		VegetationSystem::Init();
 	}
 	void Engine::Fini()
 	{
+		VegetationSystem::Fini();
 		ParticleSystem::Fini();
 		Postprocess::Fini();
 		TransformSystem::Fini();

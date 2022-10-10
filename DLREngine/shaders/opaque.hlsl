@@ -11,7 +11,7 @@ cbuffer PerMaterial : register(b2)
     int g_flags;
     float g_roughness;
     float g_metallic;
-    float padding;
+    float paddingPMat1;
 }
 
 //flags
@@ -82,10 +82,6 @@ static const float3 basicF0 = float3(0.04, 0.04, 0.04);
 
 float4 ps_main(VS_OUTPUT input) : SV_TARGET
 {
-    float shadowMapWidth = 0, shadowMapHeight = 0, shadowMapElements = 0;
-    
-    g_shadowMap.GetDimensions(shadowMapWidth, shadowMapHeight, shadowMapElements);
-
     float3 albedo = g_colorTexture.Sample(g_sampler, input.texCoord);
 
     float3 resultColor = float3(0, 0, 0);
@@ -133,7 +129,7 @@ float4 ps_main(VS_OUTPUT input) : SV_TARGET
         float3 L = g_lights[i].position - input.worldPos;
         float3 shadowFragPos = input.worldPos;
 
-        resultColor += calculatePointLighting(N, GN, V, L, view, g_lights[i].radius, g_lights[i].radiance, material, shadowCalculation(N, L, shadowFragPos, g_lights[i].position, g_shadowMap, shadowMapWidth, i));
+        resultColor += calculatePointLighting(N, GN, V, L, view, g_lights[i].radius, g_lights[i].radiance, material, shadowCalculation(N, L, shadowFragPos, g_lights[i].position, g_shadowMap, g_shadowMapWidth, i));
     }
     
     #ifdef IBL
