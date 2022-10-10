@@ -9,6 +9,7 @@
 #include "MathUtils.h"
 #include "Ray.h"
 #include "MeshSystem.h"
+#include "ParticleSystem.h"
 
 namespace
 {
@@ -315,7 +316,7 @@ namespace engine
 		}
 
 		m_Renderer->SetEV100(EV100);
-		m_Renderer->Update();
+		m_Renderer->Update(delta, camera);
 	}
 	
 	void Application::Render()

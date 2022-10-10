@@ -7,6 +7,7 @@
 #include "LightSystem.h"
 #include "TransformSystem.h"
 #include "Postprocess.h"
+#include "ParticleSystem.h"
 
 namespace engine
 {
@@ -20,9 +21,11 @@ namespace engine
 		LightSystem::Init();
 		TransformSystem::Init();
 		Postprocess::Init();
+		ParticleSystem::Init();
 	}
 	void Engine::Fini()
 	{
+		ParticleSystem::Fini();
 		Postprocess::Fini();
 		TransformSystem::Fini();
 		LightSystem::Fini();

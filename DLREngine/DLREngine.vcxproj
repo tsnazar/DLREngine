@@ -110,6 +110,7 @@ copy /Y "$(ProjectDir)shaders" "$(OutDir)shaders"</Command>
     <ClCompile Include="source\render\LightSystem.cpp" />
     <ClCompile Include="source\render\MeshSystem.cpp" />
     <ClCompile Include="source\render\Model.cpp" />
+    <ClCompile Include="source\render\ParticleSystem.cpp" />
     <ClCompile Include="source\render\RenderTarget.cpp" />
     <ClCompile Include="source\render\Sky.cpp" />
     <ClCompile Include="source\Engine.cpp" />

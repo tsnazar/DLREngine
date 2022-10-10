@@ -4,6 +4,7 @@
 #include "MeshSystem.h"
 #include "Application.h"
 #include "Postprocess.h"
+#include "ParticleSystem.h"
 
 namespace engine
 {
@@ -53,12 +54,14 @@ namespace engine
 		return true;
 	}
 
-	void Renderer::Update()
+	void Renderer::Update(float dt, Camera& camera)
 	{
 		const Postprocess::ResolveConstants constants = { m_EV100, {0,0,0} };
 
 		Postprocess::Get().Update(constants);
 		LightSystem::Get().Update();
 		MeshSystem::Get().Update();
+		ParticleSystem::Get().Update(dt, camera);
+
 	}
 }
