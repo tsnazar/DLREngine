@@ -1,7 +1,7 @@
 #ifndef GLOBALS
 #define GLOBALS
 
-static const uint MAX_POINT_LIGHTS = 2;
+static const uint MAX_POINT_LIGHTS = 1;
 static const float PI = 3.1415926;
 static const float MIN_DOT = 0.0005;
 

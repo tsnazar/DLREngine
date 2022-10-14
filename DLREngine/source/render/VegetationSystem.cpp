@@ -51,6 +51,8 @@ namespace engine
 
 		//instance.scale = 1.0f;
 		//instance.pos = { m_Center.x, m_Center.y, m_Center.z };
+		//instance.rot[0] = { 1, 0 };
+		//instance.rot[1] = { 0, 1 };
 		DirectX::XMFLOAT3 TL = { m_Center.x - m_Length / 2.f, m_Center.y, m_Center.z - m_Length / 2.f };
 
 		//instances.push_back(instance);
@@ -101,13 +103,13 @@ namespace engine
 		if (m_InstanceBuffer.GetVertexCount() == 0 || !m_InstanceBuffer.IsValid())
 			return;
 
+		m_WindBuffer.BindToGS(ShaderDescription::Bindings::WIND_BUFFER);
+
 		TextureManager::Get().GetTexture("grassOpacity").BindToPS(ShaderDescription::Bindings::OPACITY_TEXTURE);
 
 		ShaderManager::Get().GetShader("shadowsGrass").SetShaders();
 
 		m_InstanceBuffer.SetBuffer(ShaderDescription::Bindings::INSTANCE_BUFFER, D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-
-		m_WindBuffer.BindToGS(4);
 
 		LightSystem::ShadowMapGeometryShaderConstants con;
 

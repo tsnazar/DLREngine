@@ -229,17 +229,17 @@ namespace engine
 			LightSystem::Get().AddPointLight(light);
 		}
 
-		{
+		/*{
 			LightSystem::GpuPointLight light({ 2.0f, 5.0f, -3.0f }, { 0.2f, 0.0f, 0.1f }, 0.15f, 4.0f);
 			LightSystem::Get().AddPointLight(light);
-		}
+		}*/
 
 		{
 			ParticleSystem::SmokeEmitter smoke({ -3.f, 0.f, -3.f }, 0.3f, 1, { 1.f, 1.f, 1.f }, 3.f, { 0.2f, 0.2f }, {0.7f, 0.7f});
 			ParticleSystem::Get().AddSmoke(smoke);
 		}
 
-		VegetationSystem::Get().CreateField({ 0,0,0 }, 10.f, 0.5f, 0.7f, 1.0f, DirectX::XM_PI / 2.0f);
+		VegetationSystem::Get().CreateField({ 0,0,0 }, 10.f, 0.3f, 0.7f, 1.0f, 0);
 
 		LightSystem::Get().InitShadowMaps();
 		//init camera

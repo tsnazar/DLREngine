@@ -83,15 +83,13 @@ TextureCubeArray g_shadowMap : register(t4);
 Texture2D g_noiseTexture : register(t8);
 
 static const float3 basicF0 = float3(0.04, 0.04, 0.04);
+static const float3 emission = float3(3, 0, 0);
+static const float edgeSize = 0.1;
 
 ///pixel shader
 
 float4 ps_main(VS_OUTPUT input) : SV_TARGET
 {
-    float shadowMapWidth = 0, shadowMapHeight = 0, shadowMapElements = 0;
-
-    g_shadowMap.GetDimensions(shadowMapWidth, shadowMapHeight, shadowMapElements);
-
     float4 albedo = g_colorTexture.Sample(g_sampler, input.texCoord);
 
     float3 resultColor = float3(0, 0, 0);
@@ -139,7 +137,7 @@ float4 ps_main(VS_OUTPUT input) : SV_TARGET
         float3 L = g_lights[i].position - input.worldPos;
         float3 shadowFragPos = input.worldPos;
 
-        resultColor += calculatePointLighting(N, GN, V, L, view, g_lights[i].radius, g_lights[i].radiance, material, shadowCalculation(N, L, shadowFragPos, g_lights[i].position, g_shadowMap, g_shadowMapWidth, i));
+        resultColor += calculatePointLighting(N, GN, V, L, view, g_lights[i].radius, g_lights[i].radiance, material, visibilityCalculation(N, normalize(L), shadowFragPos, g_shadowMap, i));
     }
 
     #ifdef IBL
@@ -150,19 +148,18 @@ float4 ps_main(VS_OUTPUT input) : SV_TARGET
         resultColor += diff + spec;
     #endif
 
-    float3 dissolveNoise = g_noiseTexture.Sample(g_sampler, input.texCoord);
-    float3 remappedDissolve =  input.animationTime;
-    float3 step1 = step(dissolveNoise, remappedDissolve);
+    float dissolveNoise = g_noiseTexture.Sample(g_sampler, input.texCoord);
+    float step1 = step(dissolveNoise, input.animationTime);
 
     #ifndef DIS_ALPHA
         if (!step1.r)
             discard;
     #endif
 
-    float3 step2 = step(dissolveNoise, remappedDissolve - 0.1);
-    float3 edge = step1 - step2;
+    float step2 = step(dissolveNoise, input.animationTime - edgeSize);
+    float edge = step1 - step2;
     
-    float4 result = lerp(float4(resultColor.xyz, albedo.a * step1.r), float4(0 * edge.r, 0 * edge.r, 0.5 * edge.r, albedo.a), edge.r);
+    float4 result = lerp(float4(resultColor.xyz, albedo.a * step1), float4(emission * edge, albedo.a), edge);
 
     return result;
 }

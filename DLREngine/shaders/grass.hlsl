@@ -98,6 +98,9 @@ void gs_main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> output
             output.position = input[i].position;
             output.position.xz = mul(output.position.xz, bladeRotation);
 
+            output.normal = input[i].normal;
+            output.normal.xz = mul(output.normal.xz, bladeRotation);
+
             float waveSin = 0;
             float waveCos = 0;
             sincos(windAngle * (1 - input[i].tex.y), waveSin, waveCos);
@@ -117,12 +120,13 @@ void gs_main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> output
 
             output.position.xz = mul(output.position.xz, float2x2(g_windInvRotation));
 
+
             output.position.xyz += input[i].worldOffset;
             output.worldPos = output.position;
             output.position = mul(output.position, g_viewProj);
 
-            output.normal = input[i].normal;
-            output.normal.xz = mul(output.normal.xz, bladeRotation);
+            //output.normal = input[i].normal;
+            //output.normal.xz = mul(output.normal.xz, bladeRotation);
 
             output.uv = input[i].tex;
 
@@ -145,12 +149,6 @@ static const float3 basicF0 = float3(0.04, 0.04, 0.04);
 
 float4 ps_main(GS_OUTPUT input, bool isFrontFace : SV_IsFrontFace) : SV_TARGET
 {
-    //return float4(1,1,1,1);
-
-    float shadowMapWidth = 0, shadowMapHeight = 0, shadowMapElements = 0;
-
-    g_shadowMap.GetDimensions(shadowMapWidth, shadowMapHeight, shadowMapElements);
-
     float3 albedo = g_albedo.Sample(g_sampler, input.uv);
  
     input.normal = isFrontFace ? input.normal : -input.normal;
@@ -194,7 +192,6 @@ float4 ps_main(GS_OUTPUT input, bool isFrontFace : SV_IsFrontFace) : SV_TARGET
     for (uint i = 0; i < MAX_POINT_LIGHTS; ++i)
     {
         float3 L = g_lights[i].position - input.worldPos;
-        float3 shadowFragPos = input.worldPos;
 
         float LdotV = pow(max(dot(normalize(-L), V), 0), 4);
 
@@ -203,17 +200,14 @@ float4 ps_main(GS_OUTPUT input, bool isFrontFace : SV_IsFrontFace) : SV_TARGET
         float lightAngleSin = g_lights[i].radius / dist;
         float angularCos = sqrt(1.0 - lightAngleSin * lightAngleSin);
 
-        float shadow = shadowCalculation(N, L, shadowFragPos, g_lights[i].position, g_shadowMap, g_shadowMapWidth, i);
+        float visibility = visibilityCalculationGrass(GN, normalize(L), input.worldPos, g_shadowMap, i);
 
-        resultColor.rgb += g_translucency.Sample(g_sampler, input.uv) * g_lights[i].radiance * (1 - angularCos) * 2 * PI * LdotV * shadow;
+        resultColor.rgb += g_translucency.Sample(g_sampler, input.uv) * g_lights[i].radiance * (1 - angularCos) * 2 * PI * LdotV * visibility;
 
-        resultColor.rgb += calculatePointLighting(N, GN, V, L, view, g_lights[i].radius, g_lights[i].radiance, material, shadow);
+        resultColor.rgb += calculatePointLighting(N, GN, V, L, view, g_lights[i].radius, g_lights[i].radiance, material, visibility);
     }
 
     addEnvironmentDiffuse(resultColor.rgb, N, material);
-
-    //resultColor.xyz += diff * g_ao.Sample(g_sampler, input.uv);
-    //resultColor.xyz *= g_ao.Sample(g_sampler, input.uv);
 
     resultColor.a = g_opacity.Sample(g_sampler, input.uv).r;
 

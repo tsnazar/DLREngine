@@ -43,6 +43,7 @@ static const float NUM_GRASS_SECTIONS = 3;
 VS_OUTPUT vs_main(VS_INPUT input) {
     VS_OUTPUT output = (VS_OUTPUT)0;
     output.tex = float2(input.inId % 2, ((input.inId % 8) >> 1) / NUM_GRASS_SECTIONS);
+    //output.position = float4((output.tex.x - 0.5), (1 - output.tex.y), ZFAR, 1);
     output.position = float4((output.tex.x - 0.5), 0, ZFAR, 1);
     output.position.xyz *= input.inScale;
     output.position.xz = mul(output.position.xz, input.inRotation);
@@ -69,7 +70,6 @@ struct GS_OUTPUT
 {
     float4 position : SV_Position;
     float2 uv : UV;
-    float depth : DEPTH;
     nointerpolation uint slice : SV_RenderTargetArrayIndex;
 };
 
@@ -107,9 +107,9 @@ void gs_main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> output
                 float2x2 waveRotationInv = { waveCos, -waveSin,
                                              waveSin, waveCos };
 
-                output.position.xz = mul(output.position.xz, float2x2(g_windRotation));
-
                 float R = input[i].scale / windAngle;
+
+                output.position.xz = mul(output.position.xz, float2x2(g_windRotation));
 
                 output.position.x += R;
                 output.position.xy = mul(output.position.xy, waveRotation);
@@ -120,8 +120,6 @@ void gs_main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> output
 
                 output.position.xyz += input[i].worldOffset;
                 output.position = mul(output.position, g_shadowTransforms[face]);
-
-                output.depth = output.position.z / output.position.w;
 
                 output.slice = g_sliceOffset + face;
 
@@ -136,10 +134,8 @@ void gs_main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> output
 
 Texture2D g_opacity : register(t8);
 
-float ps_main(GS_OUTPUT input) : SV_Depth
+void ps_main(GS_OUTPUT input)
 {
     if (g_opacity.Sample(g_sampler, input.uv).r == 0)
         discard;
-    
-    return input.depth;
 }

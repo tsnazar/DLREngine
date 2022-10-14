@@ -129,9 +129,9 @@ float4 ps_main(VS_OUTPUT input) : SV_TARGET
 
         coef = lerp(coef, coef1, input.time);
 
-        float shadow = shadowCalculation(input.worldNormal, normalize(g_lights[i].position - input.worldPos), input.worldPos, g_lights[i].position, g_shadowMap, g_shadowMapWidth, i);
+        float visibility = visibilityCalculation(input.worldNormal, normalize(g_lights[i].position - input.worldPos), input.worldPos, g_shadowMap, i);
 
-        result.xyz += input.color.xyz * coef * g_lights[i].radiance * (1 - angularCos) * 2 * PI * shadow;
+        result.xyz += input.color.xyz * coef * g_lights[i].radiance * (1 - angularCos) * 2 * PI * visibility;
     }
 
     Material material;
