@@ -20,7 +20,7 @@ namespace
 	const float FRAME_DURATION = 1.f / 60.f;
 	const float EXPOSURE_DELTA = 1.0f;
 	const float MESH_SPAWN_DISTANCE = 50.0f;
-	const float MESH_SPAWN_ANIMATION_TIME = 3.0f;
+	const float MESH_SPAWN_ANIMATION_TIME = 10.0f;
 }
 
 namespace engine
@@ -74,6 +74,16 @@ namespace engine
 			D3D11_INPUT_ELEMENT_DESC{ "TIME", 0, DXGI_FORMAT_R32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, time), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 		};
 
+		std::vector<D3D11_INPUT_ELEMENT_DESC> dissolutionShadows = {
+			D3D11_INPUT_ELEMENT_DESC{ "POS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTexNorTanBitan, pos), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			D3D11_INPUT_ELEMENT_DESC{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(VertexPosTexNorTanBitan, texCoord), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, matrix[0]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, matrix[1]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, matrix[2]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, matrix[3]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "TIME", 0, DXGI_FORMAT_R32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, time), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+		};
+
 		std::vector<D3D11_INPUT_ELEMENT_DESC> emissive = {
 			D3D11_INPUT_ELEMENT_DESC{ "POS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTexNorTan, pos), D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			D3D11_INPUT_ELEMENT_DESC{ "NORM", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTexNorTan, nor), D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -114,7 +124,8 @@ namespace engine
 		ShaderManager::Get().LoadShader("particles", "shaders/particles.hlsl", &particles);
 		ShaderManager::Get().LoadShader("dissolution", "shaders/dissolution.hlsl", &dissolution);
 		ShaderManager::Get().LoadShader("dissolutionAlpha", "shaders/dissolutionAlpha.hlsl", &dissolution);
-		ShaderManager::Get().LoadShader("grass", "shaders/grass.hlsl", &grass, true);
+		ShaderManager::Get().LoadShader("dissolutionShadows", "shaders/dissolutionShadows.hlsl", &dissolutionShadows, true);
+		ShaderManager::Get().LoadShader("grass", "shaders/grass.hlsl", &grass);
 		ShaderManager::Get().LoadShader("shadows", "shaders/shadows.hlsl", &shadows, true);
 		ShaderManager::Get().LoadShader("shadowsGrass", "shaders/shadowsGrass.hlsl", &grass, true);
 		ShaderManager::Get().LoadShader("skybox", "shaders/sky.hlsl", nullptr);
@@ -229,17 +240,17 @@ namespace engine
 			LightSystem::Get().AddPointLight(light);
 		}
 
-		/*{
+		{
 			LightSystem::GpuPointLight light({ 2.0f, 5.0f, -3.0f }, { 0.2f, 0.0f, 0.1f }, 0.15f, 4.0f);
 			LightSystem::Get().AddPointLight(light);
-		}*/
+		}
 
 		{
-			ParticleSystem::SmokeEmitter smoke({ -3.f, 0.f, -3.f }, 0.3f, 1, { 1.f, 1.f, 1.f }, 3.f, { 0.2f, 0.2f }, {0.7f, 0.7f});
+			ParticleSystem::SmokeEmitter smoke({ -3.f, 0.f, -3.f }, 0.2f, 0.032f, { 1.f, 1.f, 1.f }, 3.f, { 0.4f, 0.4f }, {0.7f, 0.7f});
 			ParticleSystem::Get().AddSmoke(smoke);
 		}
 
-		VegetationSystem::Get().CreateField({ 0,0,0 }, 10.f, 0.3f, 0.7f, 1.0f, 0);
+		VegetationSystem::Get().CreateField({ 0,0,0 }, 10.f, 0.3f, 0.7f, 1.0f, 225);
 
 		LightSystem::Get().InitShadowMaps();
 		//init camera
@@ -304,17 +315,30 @@ namespace engine
 					transform.scale = { 1.f, 1.f, 1.f };
 					transform.rotation = { 0.f, 0.f, 0.f };
 
-					m_SpawnModule.SpawnInstance(&ModelManager::Get().GetUnitCube(), { DissolutionInstances::Material(&TextureManager::Get().GetTexture("BambooWall"),
-																					&TextureManager::Get().GetTexture("BambooWallRoughness"),
-																					nullptr, &TextureManager::Get().GetTexture("BambooWallNormal"),  0.9f, 0.0f, true) }, 
-																					TransformSystem::Get().GetTransforms().insert(transform), MESH_SPAWN_ANIMATION_TIME);
+					Model* pHorse = &ModelManager::Get().LoadModel("Horse", "assets/KnightHorse/KnightHorse.fbx");
+					std::vector<DissolutionInstances::Material> horseTextures =
+					{
+						DissolutionInstances::Material(&TextureManager::Get().LoadTexture2D("Armor", "assets/KnightHorse/dds/Armor_BaseColor.dds"),
+												  &TextureManager::Get().LoadTexture2D("ArmorRoughness", "assets/KnightHorse/dds/Armor_Roughness.dds"),
+												  &TextureManager::Get().LoadTexture2D("ArmorMetallic", "assets/KnightHorse/dds/Armor_Metallic.dds"),
+												  &TextureManager::Get().LoadTexture2D("ArmorNormal", "assets/KnightHorse/dds/Armor_Normal.dds"), 0.9f, 0.0f),
+						DissolutionInstances::Material(&TextureManager::Get().LoadTexture2D("Horse", "assets/KnightHorse/dds/Horse_BaseColor.dds"),
+												  &TextureManager::Get().LoadTexture2D("HorseRoughness", "assets/KnightHorse/dds/Horse_Roughness.dds"), nullptr,
+												  &TextureManager::Get().LoadTexture2D("HorseNormal", "assets/KnightHorse/dds/Horse_Normal.dds"), 0.9f, 0.0f),
+						DissolutionInstances::Material(&TextureManager::Get().LoadTexture2D("Tail", "assets/KnightHorse/dds/Tail_BaseColor.dds"), nullptr, nullptr,
+												  &TextureManager::Get().LoadTexture2D("TailNormal", "assets/KnightHorse/dds/Tail_Normal.dds"),  0.9f, 0.0f),
+					};
+
+					m_SpawnModule.SpawnInstance(pHorse, horseTextures, TransformSystem::Get().GetTransforms().insert(transform), MESH_SPAWN_ANIMATION_TIME);
 				}
 				case Key::C:
-					MeshSystem::Get().GetDissolutionInstances().SetDissolutionMode(0);
+					Globals::Get().SetTestvar(0);
 					break;
+					//MeshSystem::Get().GetDissolutionInstances().SetDissolutionMode(0);
 				case Key::V:
-					MeshSystem::Get().GetDissolutionInstances().SetDissolutionMode(1);
+					Globals::Get().SetTestvar(1);
 					break;
+					//MeshSystem::Get().GetDissolutionInstances().SetDissolutionMode(1);
 				}
 				return true;
 			});

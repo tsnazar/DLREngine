@@ -135,7 +135,7 @@ namespace engine
 
 		blendDesc.AlphaToCoverageEnable = true;
 		blendDesc.IndependentBlendEnable = false;
-		blendDesc.RenderTarget[0].BlendEnable = true;
+		blendDesc.RenderTarget[0].BlendEnable = false;
 		blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
 		blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
 		blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
@@ -206,6 +206,18 @@ namespace engine
 		sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 		result = m_Device5->CreateSamplerState(&sampDesc, m_SamplerCmp.reset());
 		ALWAYS_ASSERT(SUCCEEDED(result));
+
+		ZeroMemory(&sampDesc, sizeof(D3D11_SAMPLER_DESC));
+		sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+		sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+		sampDesc.MinLOD = 0;
+		sampDesc.MaxLOD = 5;
+
+		result = m_Device5->CreateSamplerState(&sampDesc, m_SamplerStateGrass.reset());
+		ALWAYS_ASSERT(SUCCEEDED(result));
 	}
 
 	void Globals::CreateDepthBuffer(uint32_t width, uint32_t height)
@@ -254,7 +266,13 @@ namespace engine
 			m_Devcon->PSSetSamplers(0, 1, m_SamplerStateAnisotropic.ptrAdr());
 
 		m_Devcon->PSSetSamplers(1, 1, m_SamplerStateLinear.ptrAdr());
-		m_Devcon->PSSetSamplers(2, 1, m_SamplerCmp.ptrAdr());
+
+		if(m_Var == 0)
+			m_Devcon->PSSetSamplers(2, 1, m_SamplerStateGrass.ptrAdr());
+		else
+			m_Devcon->PSSetSamplers(2, 1, m_SamplerStateLinear.ptrAdr());
+
+		m_Devcon->PSSetSamplers(3, 1, m_SamplerCmp.ptrAdr());
 
 		this->UpdateConstants();
 	}

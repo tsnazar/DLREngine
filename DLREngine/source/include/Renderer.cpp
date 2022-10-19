@@ -56,10 +56,12 @@ namespace engine
 		Globals::Get().SetAlphaToCoverageBlendState();
 		VegetationSystem::Get().Render(m_Sky.GetIBLResources());
 
-		Globals::Get().SetDefaultRasterizerState();
+		Globals::Get().SetRasterizerStateCullOff();
 		Globals::Get().SetDefaultBlendState();
 		MeshSystem::Get().GetDissolutionInstances().Render(m_Sky.GetIBLResources());
 
+		Globals::Get().SetDefaultRasterizerState();
+		Globals::Get().SetDefaultBlendState();
 		ParticleSystem::Get().CreateAndResolveDepthCopy();
 
 		s_Devcon->OMSetRenderTargets(1, m_HDRTarget.GetRenderTarget().ptrAdr(), Globals::Get().GetDepthBufferView().ptr());

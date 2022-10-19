@@ -73,6 +73,58 @@ namespace engine
 		}
 	}
 
+	void DissolutionInstances::RenderToShadowMap(ConstantBuffer& shadowMatrixBuffer, std::vector<LightSystem::ShadowMapMatrices>& matrices, uint32_t numLights)
+	{
+		if (m_InstanceBuffer.GetVertexCount() == 0 || !m_InstanceBuffer.IsValid())
+			return;
+
+		ShaderManager::Get().GetShader("dissolutionShadows").SetShaders();
+
+		TextureManager::Get().GetTexture("noise").BindToPS(ShaderDescription::Bindings::NOISE_TEXTURE);
+
+		m_InstanceBuffer.SetBuffer(ShaderDescription::Bindings::INSTANCE_BUFFER);
+
+		LightSystem::ShadowMapGeometryShaderConstants con;
+
+		uint32_t renderedInstances = 0;
+		for (const auto& perModel : m_PerModel)
+		{
+			perModel.model->Bind(ShaderDescription::Bindings::MESH_BUFFER);
+			auto& subMeshes = perModel.model->GetSubMeshes();
+
+			for (uint32_t meshIndex = 0; meshIndex < perModel.perMesh.size(); ++meshIndex)
+			{
+				const Model::SubMesh& subMesh = subMeshes[meshIndex];
+				const Mesh& mesh = perModel.model->GetMeshes()[meshIndex];
+
+				m_PerMeshConstants.Update(&mesh.meshToModel, 1);
+				m_PerMeshConstants.BindToVS(ShaderDescription::Bindings::MESH_TO_MODEL_BUFFER);
+
+				for (const auto& perMaterial : perModel.perMesh[meshIndex].perMaterial)
+				{
+					if (perMaterial.instances.empty()) continue;
+
+					uint32_t numInstances = static_cast<uint32_t>(perMaterial.instances.size());
+
+					for (uint32_t i = 0; i < numLights; ++i)
+					{
+						memcpy(&con.matrices, &matrices[i], sizeof(DirectX::XMFLOAT4X4[6]));
+						con.sliceOffset = i * 6;
+						shadowMatrixBuffer.Update(&con, 1);
+						shadowMatrixBuffer.BindToGS(ShaderDescription::Bindings::SHADOWMAP_MATRICES);
+
+						if (perModel.model->VertexBufferOnly())
+							s_Devcon->DrawInstanced(subMesh.vertexNum, numInstances, subMesh.vertexOffset, renderedInstances);
+						else
+							s_Devcon->DrawIndexedInstanced(subMesh.indexNum, numInstances, subMesh.indexOffset, subMesh.vertexOffset, renderedInstances);
+					}
+
+					renderedInstances += numInstances;
+				}
+			}
+		}
+	}
+
 	void DissolutionInstances::Render(Sky::IblResources iblResources)
 	{
 		if (m_InstanceBuffer.GetVertexCount() == 0 || !m_InstanceBuffer.IsValid())

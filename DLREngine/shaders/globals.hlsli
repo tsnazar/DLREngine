@@ -1,7 +1,7 @@
 #ifndef GLOBALS
 #define GLOBALS
 
-static const uint MAX_POINT_LIGHTS = 1;
+static const uint MAX_POINT_LIGHTS = 2;
 static const float PI = 3.1415926;
 static const float MIN_DOT = 0.0005;
 
@@ -40,7 +40,8 @@ cbuffer ShadowMapDimensions : register(b3)
 
 SamplerState g_sampler : register(s0);
 SamplerState g_linearClampSampler : register(s1);
-SamplerComparisonState g_cmpSampler : register(s2);
+SamplerState g_grassSampler: register(s2);
+SamplerComparisonState g_cmpSampler : register(s3);
 
 static const float ZNEAR = 1.0f;
 static const float ZFAR = 0.0f;

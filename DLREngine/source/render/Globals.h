@@ -37,12 +37,14 @@ namespace engine
 		void InitStates();
 
 		void CreateDepthBuffer(uint32_t width, uint32_t height);
-		
+
 		void Update();
-		
+
 		void UpdateConstants();
 
 		void SetCurrentSampler(int sampler);
+
+		void SetTestvar(int var) { m_Var = var; }
 
 		ConstantBuffer& GetPerFrameBuffer() { return m_PerFrameBuffer; }
 		
@@ -62,8 +64,8 @@ namespace engine
 
 		void SetDefaultBlendState() { m_Devcon->OMSetBlendState(NULL, NULL, 0xffffffff); }
 
-		void SetRasterizerStateCullOff() { m_Devcon->RSSetState(m_RasterizerStateCullingOff.ptr());
-		}
+		void SetRasterizerStateCullOff() { m_Devcon->RSSetState(m_RasterizerStateCullingOff.ptr());}
+
 		void SetDefaultRasterizerState() { m_Devcon->RSSetState(m_RasterizerState.ptr()); }
 
 	private:
@@ -80,6 +82,7 @@ namespace engine
 		DxResPtr<ID3D11SamplerState> m_SamplerStateLinear;
 		DxResPtr<ID3D11SamplerState> m_SamplerStateAnisotropic;
 		DxResPtr<ID3D11SamplerState> m_SamplerCmp;
+		DxResPtr<ID3D11SamplerState> m_SamplerStateGrass;
 
 		DxResPtr<ID3D11BlendState> m_BlendState;
 		DxResPtr<ID3D11BlendState> m_AlphaToCoverageBlendState;
@@ -88,6 +91,8 @@ namespace engine
 		DxResPtr<ID3D11RasterizerState> m_RasterizerState;
 
 		int m_CurrentSampler = 3;
+
+		int m_Var = 0;
 
 		DepthTarget m_DepthBuffer;
 		DxResPtr<ID3D11DepthStencilState> m_DepthStateReversed;

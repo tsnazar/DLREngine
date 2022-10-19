@@ -77,7 +77,7 @@ namespace engine
 		if (m_InstanceBuffer.GetVertexCount() == 0 || !m_InstanceBuffer.IsValid())
 			return;
 
-		m_WindBuffer.BindToGS(ShaderDescription::Bindings::WIND_BUFFER);
+		m_WindBuffer.BindToVS(ShaderDescription::Bindings::WIND_BUFFER);
 
 		LightSystem::Get().GetShadowMap().BindToPS(ShaderDescription::Bindings::SHADOWMAP_TEXTURE);
 		LightSystem::Get().GetShadowMatricesBuffer().BindToPS(ShaderDescription::Bindings::SHADOWMAP_MATRICES);
@@ -93,9 +93,9 @@ namespace engine
 		TextureManager::Get().GetTexture("grassAO").BindToPS(ShaderDescription::Bindings::AO_TEXTURE);
 		TextureManager::Get().GetTexture("grassTranslucency").BindToPS(ShaderDescription::Bindings::TRANSLUCENCY_TEXTURE);
 
-		m_InstanceBuffer.SetBuffer(ShaderDescription::Bindings::INSTANCE_BUFFER, D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+		m_InstanceBuffer.SetBuffer(ShaderDescription::Bindings::INSTANCE_BUFFER, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		s_Devcon->DrawInstanced(8, m_InstanceBuffer.GetVertexCount(), 0, 0);
+		s_Devcon->DrawInstanced(72, m_InstanceBuffer.GetVertexCount(), 0, 0);
 	}
 
 	void VegetationSystem::RenderToShadowMap(ConstantBuffer& shadowMatrixBuffer, std::vector<LightSystem::ShadowMapMatrices>& matrices, uint32_t numLights)
@@ -103,7 +103,7 @@ namespace engine
 		if (m_InstanceBuffer.GetVertexCount() == 0 || !m_InstanceBuffer.IsValid())
 			return;
 
-		m_WindBuffer.BindToGS(ShaderDescription::Bindings::WIND_BUFFER);
+		m_WindBuffer.BindToVS(ShaderDescription::Bindings::WIND_BUFFER);
 
 		TextureManager::Get().GetTexture("grassOpacity").BindToPS(ShaderDescription::Bindings::OPACITY_TEXTURE);
 
@@ -120,7 +120,7 @@ namespace engine
 			shadowMatrixBuffer.Update(&con, 1);
 			shadowMatrixBuffer.BindToGS(ShaderDescription::Bindings::SHADOWMAP_MATRICES);
 
-			s_Devcon->DrawInstanced(8, m_InstanceBuffer.GetVertexCount(), 0, 0);
+			s_Devcon->DrawInstanced(72, m_InstanceBuffer.GetVertexCount(), 0, 0);
 		}
 	}
 }

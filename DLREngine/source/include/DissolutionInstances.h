@@ -74,6 +74,7 @@ namespace engine
 			Texture2D* roughness;
 			Texture2D* metallic;
 			Texture2D* normalMap;
+			
 			Contants constants;
 
 			bool operator<(const Material& other)
@@ -124,7 +125,7 @@ namespace engine
 
 		void Render(Sky::IblResources iblResources);
 
-		//void RenderToShadowMap(ConstantBuffer& shadowMatrixBuffer, std::vector<LightSystem::ShadowMapMatrices>& matrices, uint32_t numLights);
+		void RenderToShadowMap(ConstantBuffer& shadowMatrixBuffer, std::vector<LightSystem::ShadowMapMatrices>& matrices, uint32_t numLights);
 
 		void AddInstance(Model* model, const std::vector<Material>& materials, uint32_t transformId, float animationTime);
 

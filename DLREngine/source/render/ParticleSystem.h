@@ -15,6 +15,8 @@ namespace engine
 	class ParticleSystem
 	{
 	public:
+		static const uint32_t MAX_PARTICLES_COUNT = 500;
+
 		struct ShaderDescription
 		{
 			enum Bindings : uint32_t {
@@ -38,15 +40,16 @@ namespace engine
 		{
 			uint32_t transformId;
 			float spawnRadius;
-			uint32_t spawnRate;
+			float spawnRate;
 			DirectX::XMFLOAT3 tint;
 			float maxLifeTime;
 			DirectX::XMFLOAT2 initialSize;
 			DirectX::XMFLOAT2 maxSize;
+			float prevDelta;
 
 			std::vector<Particle> particles;
 
-			SmokeEmitter(DirectX::XMFLOAT3 pos, float spawnRadius, uint32_t spawnRate, DirectX::XMFLOAT3 tint, float maxLifeTime, DirectX::XMFLOAT2 initialSize, DirectX::XMFLOAT2 maxSize)
+			SmokeEmitter(DirectX::XMFLOAT3 pos, float spawnRadius, float spawnRate, DirectX::XMFLOAT3 tint, float maxLifeTime, DirectX::XMFLOAT2 initialSize, DirectX::XMFLOAT2 maxSize)
 				: spawnRadius(spawnRadius), spawnRate(spawnRate), tint(tint), maxLifeTime(maxLifeTime), initialSize(initialSize), maxSize(maxSize)
 			{
 				auto& transforms = TransformSystem::Get().GetTransforms();
@@ -75,26 +78,29 @@ namespace engine
 				auto& transforms = TransformSystem::Get().GetTransforms();
 				DirectX::XMFLOAT3 pos = transforms[transformId].position;
 
-				if (particles.size() < 1000)
-				{
-					for (uint32_t i = 0; i < spawnRate; ++i)
-					{
-						Particle p;
-						p.lifeTime = 1.0f;
-						float angle = ((rand() % 360) * DirectX::XM_PI) / 180.f;
-						float cos = cosf(angle);
-						float sin = sinf(angle);
-						p.rot[0] = { cos, sin };
-						p.rot[1] = { -sin, cos };
-						p.pos = pos;
-						p.pos.x += spawnRadius * std::sqrtf((rand() % 100) / 100.f) * cos;
-						p.pos.z += spawnRadius * std::sqrtf((rand() % 100) / 100.f) * sin;
-						p.thickness = 0.05f;
-						p.size = initialSize;
-						p.tint = { tint.x,tint.y, tint.z, 0.0f };
+				prevDelta += dt;
+				uint32_t newParticlesCount = prevDelta / spawnRate;
 
-						particles.push_back(p);
-					}
+				if (newParticlesCount > 0)
+					prevDelta = 0;
+
+				for (uint32_t i = 0; i < newParticlesCount && particles.size() < MAX_PARTICLES_COUNT; ++i)
+				{
+					Particle p;
+					p.lifeTime = 1.0f;
+					float angle = ((rand() % 360) * DirectX::XM_PI) / 180.f;
+					float cos = cosf(angle);
+					float sin = sinf(angle);
+					p.rot[0] = { cos, sin };
+					p.rot[1] = { -sin, cos };
+					p.pos = pos;
+					p.pos.x += spawnRadius * std::sqrtf((rand() % 100) / 100.f) * cos;
+					p.pos.z += spawnRadius * std::sqrtf((rand() % 100) / 100.f) * sin;
+					p.thickness = 0.05f;
+					p.size = initialSize;
+					p.tint = { tint.x,tint.y, tint.z, 0.0f };
+
+					particles.push_back(p);
 				}
 			}
 		};

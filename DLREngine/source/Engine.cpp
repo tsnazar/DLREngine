@@ -18,9 +18,9 @@ namespace engine
 		ShaderManager::Init();
 		TextureManager::Init();
 		ModelManager::Init();
+		TransformSystem::Init();
 		MeshSystem::Init();
 		LightSystem::Init();
-		TransformSystem::Init();
 		Postprocess::Init();
 		ParticleSystem::Init();
 		VegetationSystem::Init();
@@ -30,9 +30,9 @@ namespace engine
 		VegetationSystem::Fini();
 		ParticleSystem::Fini();
 		Postprocess::Fini();
-		TransformSystem::Fini();
 		LightSystem::Fini();
 		MeshSystem::Fini();
+		TransformSystem::Fini();
 		ModelManager::Fini();
 		TextureManager::Fini();
 		ShaderManager::Fini();
