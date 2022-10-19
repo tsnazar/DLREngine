@@ -16,11 +16,9 @@ struct View
     float NdotV;
 };
 
-#ifdef IBL
 TextureCube g_irradiance : register(t5);
 TextureCube g_reflection : register(t6);
 Texture2D g_reflectance : register(t7);
-#endif
 
 uint getCubemapFace(float3 dir)
 {
@@ -118,7 +116,6 @@ float visibilityCalculationGrass(float3 N, float3 L, float3 posWS, TextureCubeAr
     return visibility;
 }
 
-#ifdef IBL
 void addEnvironmentReflection(inout float3 diffuseReflection, inout float3 specularReflection, float3 N, in View v, in Material m)
 {
     diffuseReflection += m.albedo * (1.0 - m.metallic) * g_irradiance.SampleLevel(g_linearClampSampler, N, 0.0);
@@ -132,7 +129,6 @@ void addEnvironmentDiffuse(inout float3 diffuseReflection, float3 N, in Material
 {
     diffuseReflection += m.albedo * (1.0 - m.metallic) * g_irradiance.SampleLevel(g_linearClampSampler, N, 0.0);
 }
-#endif
 
 float3 calculatePointLighting(float3 N, float3 GN, float3 V, float3 L, View view, float radius, float3 radiance, Material material, float visibility)
 {

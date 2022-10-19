@@ -132,13 +132,11 @@ float4 ps_main(VS_OUTPUT input) : SV_TARGET
         resultColor += calculatePointLighting(N, GN, V, L, view, g_lights[i].radius, g_lights[i].radiance, material, visibilityCalculation(N, normalize(L), shadowFragPos, g_shadowMap, i));
     }
     
-    #ifdef IBL
-        float3 diff = float3(0, 0, 0);
-        float3 spec = float3(0, 0, 0);
-        addEnvironmentReflection(diff, spec, N, view, material);
+    float3 diff = float3(0, 0, 0);
+    float3 spec = float3(0, 0, 0);
+    addEnvironmentReflection(diff, spec, N, view, material);
 
-        resultColor += diff + spec;
-    #endif
+    resultColor += diff + spec;
 
     return float4(resultColor.xyz, 1.0);
 }

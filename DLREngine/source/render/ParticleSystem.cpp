@@ -30,6 +30,8 @@ namespace engine
 		if (m_InstanceBuffer.GetVertexCount() == 0 || !m_InstanceBuffer.IsValid())
 			return;
 
+		ALWAYS_ASSERT(iblResources.hasResources);
+
 		LightSystem::Get().GetShadowMap().BindToPS(ShaderDescription::Bindings::SHADOWMAP_TEXTURE);
 		LightSystem::Get().GetShadowMatricesBuffer().BindToPS(ShaderDescription::Bindings::SHADOWMAP_MATRICES);
 		LightSystem::Get().GetShadowMapDimensions().BindToPS(ShaderDescription::Bindings::SHADOWMAP_DIMENSIONS);
@@ -37,12 +39,13 @@ namespace engine
 		iblResources.irradiance->BindToPS(ShaderDescription::Bindings::IRRADIANCE_TEXTURE);
 
 		ShaderManager::Get().GetShader("particles").SetShaders();
-		m_InstanceBuffer.SetBuffer(ShaderDescription::Bindings::INSTANCE_BUFFER, D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 		TextureManager::Get().GetTexture("smokeEMVA").BindToPS(ShaderDescription::Bindings::SMOKE_TEXTURE);
 		TextureManager::Get().GetTexture("smokeRLT").BindToPS(ShaderDescription::Bindings::LIGHTMAP1_TEXTURE);
 		TextureManager::Get().GetTexture("smokeBotBF").BindToPS(ShaderDescription::Bindings::LIGHTMAP2_TEXTURE);
 		m_DepthCopy.BindToPS(ShaderDescription::Bindings::DEPTH_TEXTURE);
+
+		m_InstanceBuffer.SetBuffer(ShaderDescription::Bindings::INSTANCE_BUFFER, D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 		s_Devcon->DrawInstanced(4, m_InstanceBuffer.GetVertexCount(), 0, 0);
 	}

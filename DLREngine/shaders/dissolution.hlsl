@@ -1,4 +1,3 @@
-#define IBL
 #include "globals.hlsli"
 #include "lighting.hlsli"
 
@@ -140,21 +139,17 @@ float4 ps_main(VS_OUTPUT input) : SV_TARGET
         resultColor += calculatePointLighting(N, GN, V, L, view, g_lights[i].radius, g_lights[i].radiance, material, visibilityCalculation(N, normalize(L), shadowFragPos, g_shadowMap, i));
     }
 
-    #ifdef IBL
-        float3 diff = float3(0, 0, 0);
-        float3 spec = float3(0, 0, 0);
-        addEnvironmentReflection(diff, spec, N, view, material);
+    float3 diff = float3(0, 0, 0);
+    float3 spec = float3(0, 0, 0);
+    addEnvironmentReflection(diff, spec, N, view, material);
 
-        resultColor += diff + spec;
-    #endif
+    resultColor += diff + spec;
 
     float dissolveNoise = g_noiseTexture.Sample(g_sampler, input.texCoord);
     float step1 = step(dissolveNoise, input.animationTime);
 
-    #ifndef DIS_ALPHA
-        if (!step1.r)
-            discard;
-    #endif
+    if (!step1.r)
+        discard;
 
     float step2 = step(dissolveNoise, input.animationTime - edgeSize);
     float edge = step1 - step2;

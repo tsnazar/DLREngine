@@ -77,6 +77,8 @@ namespace engine
 		if (m_InstanceBuffer.GetVertexCount() == 0 || !m_InstanceBuffer.IsValid())
 			return;
 
+		ALWAYS_ASSERT(iblResources.hasResources);
+
 		m_WindBuffer.BindToVS(ShaderDescription::Bindings::WIND_BUFFER);
 
 		LightSystem::Get().GetShadowMap().BindToPS(ShaderDescription::Bindings::SHADOWMAP_TEXTURE);

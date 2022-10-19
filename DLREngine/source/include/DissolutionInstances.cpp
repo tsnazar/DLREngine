@@ -136,16 +136,7 @@ namespace engine
 		iblResources.reflection->BindToPS(ShaderDescription::Bindings::REFLECTION_TEXTURE);
 		iblResources.reflectance->BindToPS(ShaderDescription::Bindings::REFLECTANCE_TEXTURE);
 
-		if (m_DissolutionMode == 0)
-		{
-			Globals::Get().SetAlphaToCoverageBlendState();
-			ShaderManager::Get().GetShader("dissolutionAlpha").SetShaders();
-		}
-		else if(m_DissolutionMode == 1)
-		{
-			Globals::Get().SetDefaultBlendState();
-			ShaderManager::Get().GetShader("dissolution").SetShaders();
-		}
+		ShaderManager::Get().GetShader("dissolution").SetShaders();
 
 		TextureManager::Get().GetTexture("noise").BindToPS(ShaderDescription::Bindings::NOISE_TEXTURE);
 

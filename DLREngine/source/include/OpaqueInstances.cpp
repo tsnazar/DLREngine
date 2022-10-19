@@ -106,16 +106,12 @@ namespace engine
 		if (m_InstanceBuffer.GetVertexCount() == 0 || !m_InstanceBuffer.IsValid())
 			return;
 
-		if (iblResources.hasResources)
-		{
-			ShaderManager::Get().GetShader("opaqueIBL").SetShaders();
-			iblResources.irradiance->BindToPS(ShaderDescription::Bindings::IRRADIANCE_TEXTURE);
-			iblResources.reflection->BindToPS(ShaderDescription::Bindings::REFLECTION_TEXTURE);
-			iblResources.reflectance->BindToPS(ShaderDescription::Bindings::REFLECTANCE_TEXTURE);
-		}
-		else {
-			ShaderManager::Get().GetShader("opaque").SetShaders();
-		}
+		ALWAYS_ASSERT(iblResources.hasResources);
+
+		ShaderManager::Get().GetShader("opaque").SetShaders();
+		iblResources.irradiance->BindToPS(ShaderDescription::Bindings::IRRADIANCE_TEXTURE);
+		iblResources.reflection->BindToPS(ShaderDescription::Bindings::REFLECTION_TEXTURE);
+		iblResources.reflectance->BindToPS(ShaderDescription::Bindings::REFLECTANCE_TEXTURE);
 
 		LightSystem::Get().GetShadowMap().BindToPS(ShaderDescription::Bindings::SHADOWMAP_TEXTURE);
 		LightSystem::Get().GetShadowMatricesBuffer().BindToPS(ShaderDescription::Bindings::SHADOWMAP_MATRICES);

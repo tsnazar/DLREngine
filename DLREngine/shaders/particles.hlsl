@@ -1,5 +1,4 @@
 #include "globals.hlsli"
-#define IBL
 #include "lighting.hlsli"
 
 struct VS_INPUT {

@@ -119,11 +119,11 @@ namespace engine
 		};
 
 		ShaderManager::Get().LoadShader("opaque", "shaders/opaque.hlsl", &opaque);
-		ShaderManager::Get().LoadShader("opaqueIBL", "shaders/opaqueIBL.hlsl", &opaque);
+		//ShaderManager::Get().LoadShader("opaqueIBL", "shaders/opaqueIBL.hlsl", &opaque);
 		ShaderManager::Get().LoadShader("lightInstance", "shaders/emissive.hlsl", &emissive);
 		ShaderManager::Get().LoadShader("particles", "shaders/particles.hlsl", &particles);
 		ShaderManager::Get().LoadShader("dissolution", "shaders/dissolution.hlsl", &dissolution);
-		ShaderManager::Get().LoadShader("dissolutionAlpha", "shaders/dissolutionAlpha.hlsl", &dissolution);
+		//ShaderManager::Get().LoadShader("dissolutionAlpha", "shaders/dissolutionAlpha.hlsl", &dissolution);
 		ShaderManager::Get().LoadShader("dissolutionShadows", "shaders/dissolutionShadows.hlsl", &dissolutionShadows, true);
 		ShaderManager::Get().LoadShader("grass", "shaders/grass.hlsl", &grass);
 		ShaderManager::Get().LoadShader("shadows", "shaders/shadows.hlsl", &shadows, true);
