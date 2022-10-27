@@ -1,4 +1,5 @@
 #include "Sky.h"
+#include "Globals.h"
 
 namespace engine
 {

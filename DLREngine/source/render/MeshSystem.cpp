@@ -26,10 +26,23 @@ namespace engine
 
 	void MeshSystem::Render(Sky::IblResources iblResources)
 	{
-
 		m_OpaqueInstances.Render(iblResources);
 		m_LightInstances.Render();
 		//m_DissolutionInstances.Render(iblResources);
+	}
+
+	void MeshSystem::RenderToGBuffer()
+	{
+		m_OpaqueInstances.RenderToGBuffer();
+		m_DissolutionInstances.RenderToGBuffer();
+		//m_LightInstances.RenderDeferred();
+	}
+
+	void MeshSystem::ResolveGBuffer(Sky::IblResources iblResources, Texture2D& depth, Texture2D& albedo, Texture2D& normals,
+		Texture2D& roughnessMetallic, Texture2D& emission, ConstantBuffer& dimensions)
+	{
+		m_OpaqueInstances.ResolveGBuffer(iblResources, depth, albedo, normals, roughnessMetallic, emission, dimensions);
+		//m_DissolutionInstances.ResolveGBuffer(iblResources, depth, albedo, normals, roughnessMetallic, emission, position, dimensions);
 	}
 
 	void MeshSystem::RenderToShadowMap(ConstantBuffer& shadowMatrixBuffer, std::vector<LightSystem::ShadowMapMatrices>& matrices, uint32_t numLights)
@@ -50,26 +63,30 @@ namespace engine
 		MeshIntersection intersection;
 		intersection.reset(0.0f);
 
+		auto& transforms = TransformSystem::Get().GetTransforms();
+
 		bool result = false;
 		for (auto& perModel : m_OpaqueInstances.m_PerModel)
 		{
 			auto& model = *perModel.model;
 			for (auto& perMesh : perModel.perMesh)
 			{
-				for (auto& perMaterial : perModel.perMesh)
+				for (uint32_t meshIndex = 0; meshIndex < perModel.perMesh.size(); ++meshIndex)
 				{
-					for (auto& material : perMaterial.perMaterial)
+					for (auto& material : perModel.perMesh[meshIndex].perMaterial)
 					{
-						for (auto& instance : material.instanceIDs)
+						for (auto& instance : material.instances)
 						{
-							DirectX::XMFLOAT4X4 mat;
-							DirectX::XMStoreFloat4x4(&mat, TransformSystem::Get().GetTransforms()[instance].GetMatrix());
-							if (model.Intersect(ray, intersection, mat))
+							auto& mesh = model.GetMeshes()[meshIndex];
+							auto& transform = transforms[instance.transformID];
+							if (mesh.Intersect(ray, intersection, transform.GetInvMatrix(), transform.GetMatrix()))
 							{
 								result = true;
-								query.transform = instance;
+								query.transformID = instance.transformID;
+								query.meshID = instance.meshID;
 								query.t = intersection.t;
-								DirectX::XMStoreFloat3(&query.pos, ray.PointAtLine(intersection.t));
+								query.pos = intersection.pos;
+								query.normal = intersection.normal;
 								query.usable = true;
 							}
 						}
@@ -84,12 +101,10 @@ namespace engine
 
 			for (auto& instanceRef : perModel.instanceRefs)
 			{
-				DirectX::XMFLOAT4X4 mat;
-				DirectX::XMStoreFloat4x4(&mat, TransformSystem::Get().GetTransforms()[instanceRef.transformId].GetMatrix());
-				if (model.Intersect(ray, intersection, mat))
+				if (model.Intersect(ray, intersection, transforms[instanceRef.transformId].GetInvMatrix()))
 				{
 					result = true;
-					query.transform = instanceRef.transformId;
+					query.transformID = instanceRef.transformId;
 					query.t = intersection.t;
 					DirectX::XMStoreFloat3(&query.pos, ray.PointAtLine(intersection.t));
 					query.usable = true;

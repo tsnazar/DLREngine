@@ -104,6 +104,44 @@ namespace engine
 		HRESULT result = m_Device5->CreateDepthStencilState(&depthStencilDesc, m_DepthStateReversed.reset());
 		ALWAYS_ASSERT(SUCCEEDED(result));
 
+		depthStencilDesc.DepthEnable = true;
+		depthStencilDesc.StencilEnable = true;
+		depthStencilDesc.StencilReadMask = 0xFF;
+		depthStencilDesc.StencilWriteMask = 0xFF;
+		depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_REPLACE;
+		depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_REPLACE;
+		depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+		depthStencilDesc.BackFace = depthStencilDesc.FrontFace;
+
+		result = m_Device5->CreateDepthStencilState(&depthStencilDesc, m_DepthStencilStateWrite.reset());
+		ALWAYS_ASSERT(SUCCEEDED(result));
+
+		depthStencilDesc.DepthEnable = false;
+		depthStencilDesc.StencilEnable = true;
+		depthStencilDesc.StencilReadMask = 0xFF;
+		depthStencilDesc.StencilWriteMask = 0xFF;
+		depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_REPLACE;
+		depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_REPLACE;
+		depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_REPLACE;
+		depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+		depthStencilDesc.BackFace = depthStencilDesc.FrontFace;
+
+		result = m_Device5->CreateDepthStencilState(&depthStencilDesc, m_DepthStencilStateWriteIgnoreDepth.reset());
+		ALWAYS_ASSERT(SUCCEEDED(result));
+
+		depthStencilDesc.DepthEnable = true;
+		depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+		depthStencilDesc.DepthFunc = D3D11_COMPARISON_ALWAYS;
+		depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+		depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_EQUAL;
+		depthStencilDesc.BackFace = depthStencilDesc.FrontFace;
+
+		result = m_Device5->CreateDepthStencilState(&depthStencilDesc, m_DepthStencilStateRead.reset());
+		ALWAYS_ASSERT(SUCCEEDED(result));
+
 		ZeroMemory(&depthStencilDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
 
 		depthStencilDesc.DepthEnable = true;
@@ -136,15 +174,24 @@ namespace engine
 		blendDesc.AlphaToCoverageEnable = true;
 		blendDesc.IndependentBlendEnable = false;
 		blendDesc.RenderTarget[0].BlendEnable = false;
-		blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-		blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+
+		result = m_Device5->CreateBlendState(&blendDesc, m_AlphaToCoverageBlendState.reset());
+		ALWAYS_ASSERT(SUCCEEDED(result));
+
+		ZeroMemory(&blendDesc, sizeof(D3D11_BLEND_DESC));
+
+		blendDesc.AlphaToCoverageEnable = false;
+		blendDesc.IndependentBlendEnable = false;
+		blendDesc.RenderTarget[0].BlendEnable = true;
+		blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+		blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
 		blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
 		blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
 		blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
 		blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 		blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
-		result = m_Device5->CreateBlendState(&blendDesc, m_AlphaToCoverageBlendState.reset());
+		result = m_Device5->CreateBlendState(&blendDesc, m_BlendStateAddition.reset());
 		ALWAYS_ASSERT(SUCCEEDED(result));
 
 		//Create Rasterizer state
@@ -167,6 +214,15 @@ namespace engine
 
 		rastDesc.CullMode = D3D11_CULL_BACK;
 		result = m_Device5->CreateRasterizerState(&rastDesc, m_RasterizerState.reset());
+		ALWAYS_ASSERT(SUCCEEDED(result));
+
+		rastDesc.CullMode = D3D11_CULL_FRONT;
+		result = m_Device5->CreateRasterizerState(&rastDesc, m_RasterizerStateFrontFaceCull.reset());
+		ALWAYS_ASSERT(SUCCEEDED(result));
+
+		rastDesc.CullMode = D3D11_CULL_FRONT;
+		rastDesc.DepthClipEnable = false;
+		result = m_Device5->CreateRasterizerState(&rastDesc, m_RasterizerStateFrontFaceCullDepthClipOff.reset());
 		ALWAYS_ASSERT(SUCCEEDED(result));
 
 		// Create Sampler states 
@@ -220,33 +276,6 @@ namespace engine
 		ALWAYS_ASSERT(SUCCEEDED(result));
 	}
 
-	void Globals::CreateDepthBuffer(uint32_t width, uint32_t height)
-	{
-		D3D11_TEXTURE2D_DESC descDepth;
-		descDepth.Width = width;
-		descDepth.Height = height;
-		descDepth.MipLevels = 1;
-		descDepth.ArraySize = 1;
-		descDepth.Format = DXGI_FORMAT_R24G8_TYPELESS;
-		descDepth.SampleDesc.Count = 4;
-		descDepth.SampleDesc.Quality = D3D11_STANDARD_MULTISAMPLE_PATTERN;
-		descDepth.Usage = D3D11_USAGE_DEFAULT;
-		descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
-		descDepth.CPUAccessFlags = 0;
-		descDepth.MiscFlags = 0;
-
-		D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
-		ZeroMemory(&shaderResourceViewDesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
-		shaderResourceViewDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
-		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMS;
-
-		D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
-		ZeroMemory(&depthStencilViewDesc, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
-		depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
-
-		m_DepthBuffer.CreateFromDescription(descDepth, &shaderResourceViewDesc, &depthStencilViewDesc);
-	}
 
 	void Globals::Update()
 	{
@@ -256,23 +285,18 @@ namespace engine
 		m_PerFrameBuffer.BindToPS(0);
 		m_PerFrameBuffer.BindToGS(0);
 
+		ID3D11SamplerState* pSS[] = { NULL, m_SamplerStateLinear.ptr(), m_SamplerStateGrass.ptr(), m_SamplerCmp.ptr() };
+
 		if (m_CurrentSampler == 1)
-			m_Devcon->PSSetSamplers(0, 1, m_SamplerStatePoint.ptrAdr());
+			pSS[0] = m_SamplerStatePoint.ptr();
 		else if (m_CurrentSampler == 2)
-			m_Devcon->PSSetSamplers(0, 1, m_SamplerStateLinearMipPoint.ptrAdr());
+			pSS[0] = m_SamplerStateLinearMipPoint.ptr();
 		else if (m_CurrentSampler == 3)
-			m_Devcon->PSSetSamplers(0, 1, m_SamplerStateLinear.ptrAdr());
+			pSS[0] = m_SamplerStateLinear.ptr();
 		else if (m_CurrentSampler == 4)
-			m_Devcon->PSSetSamplers(0, 1, m_SamplerStateAnisotropic.ptrAdr());
+			pSS[0] = m_SamplerStateAnisotropic.ptr();
 
-		m_Devcon->PSSetSamplers(1, 1, m_SamplerStateLinear.ptrAdr());
-
-		if(m_Var == 0)
-			m_Devcon->PSSetSamplers(2, 1, m_SamplerStateGrass.ptrAdr());
-		else
-			m_Devcon->PSSetSamplers(2, 1, m_SamplerStateLinear.ptrAdr());
-
-		m_Devcon->PSSetSamplers(3, 1, m_SamplerCmp.ptrAdr());
+		m_Devcon->PSSetSamplers(0, 4, pSS);
 
 		this->UpdateConstants();
 	}

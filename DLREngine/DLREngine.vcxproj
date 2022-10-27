@@ -108,6 +108,7 @@ copy /Y "$(ProjectDir)shaders" "$(OutDir)shaders"</Command>
     <ClCompile Include="source\include\SpawnModule.cpp" />
     <ClCompile Include="source\math\SolidVector.h" />
     <ClCompile Include="source\math\TriangleOctree.cpp" />
+    <ClCompile Include="source\render\DecalSystem.cpp" />
     <ClCompile Include="source\render\DepthTarget.cpp" />
     <ClCompile Include="source\render\VegetationSystem.cpp" />
     <ClCompile Include="source\render\LightSystem.cpp" />
@@ -153,6 +154,7 @@ copy /Y "$(ProjectDir)shaders" "$(OutDir)shaders"</Command>
     <ClInclude Include="source\math\Ray.h" />
     <ClInclude Include="source\renderer\Pipeline\RenderPipelinePass.h" />
     <ClInclude Include="source\renderer\Pipeline\RenderPipeline.h" />
+    <ClInclude Include="source\render\DecalSystem.h" />
     <ClInclude Include="source\render\DepthTarget.h" />
     <ClInclude Include="source\render\VegetationSystem.h" />
     <ClInclude Include="source\render\IndexBuffer.h" />

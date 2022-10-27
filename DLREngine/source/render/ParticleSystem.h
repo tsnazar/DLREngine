@@ -26,6 +26,21 @@ namespace engine
 			};
 		};
 	public:
+		struct ParticleTextures
+		{
+			Texture2D* EMVA = nullptr;
+			Texture2D* lightMapRLT = nullptr;
+			Texture2D* lightMapBotBF = nullptr;
+
+			ParticleTextures(){}
+			ParticleTextures(Texture2D* EMVA, Texture2D* lightMapRLT, Texture2D* lightMapBotBF) 
+				: EMVA(EMVA), lightMapRLT(lightMapRLT), lightMapBotBF(lightMapBotBF)
+			{}
+
+			bool IsValid() { return !(EMVA == nullptr || lightMapRLT == nullptr || lightMapBotBF == nullptr); }
+
+		};
+
 		struct Particle
 		{
 			DirectX::XMFLOAT3 pos;
@@ -110,6 +125,10 @@ namespace engine
 
 		static void Fini();
 
+		void SetShaders(Shader* forwardShader) { m_ForwardShader = forwardShader; }
+
+		void SetTextures(ParticleTextures textures) { m_Textures = textures; }
+
 		void Render(Sky::IblResources iblResources);
 
 		void Update(float dt, Camera& camera);
@@ -118,14 +137,13 @@ namespace engine
 
 		static ParticleSystem& Get() { return *s_Instance; }
 
-		void CreateAndResolveDepthCopy();
-
 	private:
 		VertexBuffer m_InstanceBuffer;
 
-		DepthTarget m_DepthCopy;
-
 		std::vector<SmokeEmitter>  m_Emmiters;
+
+		Shader* m_ForwardShader = nullptr;
+		ParticleTextures m_Textures;
 	private:
 		static ParticleSystem* s_Instance;
 	};

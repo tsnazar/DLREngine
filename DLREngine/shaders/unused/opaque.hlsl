@@ -129,7 +129,7 @@ float4 ps_main(VS_OUTPUT input) : SV_TARGET
         float3 L = g_lights[i].position - input.worldPos;
         float3 shadowFragPos = input.worldPos;
 
-        resultColor += calculatePointLighting(N, GN, V, L, view, g_lights[i].radius, g_lights[i].radiance, material, visibilityCalculation(N, normalize(L), shadowFragPos, g_shadowMap, i));
+        resultColor += calculatePointLighting(N, GN, V, L, view, g_lights[i].radius, g_lights[i].radiance, material, visibilityCalculation(GN, normalize(L), shadowFragPos, g_shadowMap, i));
     }
     
     float3 diff = float3(0, 0, 0);

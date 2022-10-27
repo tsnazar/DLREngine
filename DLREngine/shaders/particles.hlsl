@@ -145,7 +145,7 @@ float4 ps_main(VS_OUTPUT input) : SV_TARGET
 
     float particleFading = saturate((sceneDepth - input.depth) / input.thickness);
 
-    result.a *= (1 - particleFading);
+    //result.a *= (1 - particleFading);
 
     return result;
 }

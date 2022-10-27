@@ -9,6 +9,7 @@
 #include "Postprocess.h"
 #include "ParticleSystem.h"
 #include "VegetationSystem.h"
+#include "DecalSystem.h"
 
 namespace engine
 {
@@ -24,9 +25,11 @@ namespace engine
 		Postprocess::Init();
 		ParticleSystem::Init();
 		VegetationSystem::Init();
+		DecalSystem::Init();
 	}
 	void Engine::Fini()
 	{
+		DecalSystem::Fini();
 		VegetationSystem::Fini();
 		ParticleSystem::Fini();
 		Postprocess::Fini();

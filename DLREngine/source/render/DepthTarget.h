@@ -13,6 +13,8 @@ namespace engine
 
 		D3D11_DEPTH_STENCIL_VIEW_DESC* GetDSVDesc() { return m_HasDSVDesc ? &m_DSVDesc : nullptr; }
 
+		void CopyDepthTarget(DepthTarget& target);
+
 		void Release();
 
 		DxResPtr<ID3D11DepthStencilView>& GetDepthView() { return m_DepthTarget; }

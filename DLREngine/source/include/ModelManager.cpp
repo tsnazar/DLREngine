@@ -15,8 +15,17 @@ namespace engine
 		ALWAYS_ASSERT(s_Instance == nullptr);
 		s_Instance = new ModelManager();
 
-		s_Instance->CreateModel("Cube").InitUnitCube();
-		s_Instance->CreateModel("Sphere").InitUnitSphere();
+		s_Instance->CreateUnitShapes();
+		//s_Instance->CreateModel("Cube").InitUnitCube();
+		//s_Instance->CreateModel("Sphere").InitUnitSphere();
+	}
+
+	void ModelManager::CreateUnitShapes()
+	{
+		m_Cube = std::make_unique<Model>();
+		m_Sphere = std::make_unique<Model>();
+		m_Cube->InitUnitCube();
+		m_Sphere->InitUnitSphere();
 	}
 
 	void ModelManager::Fini()
@@ -70,10 +79,10 @@ namespace engine
 	}
 	Model& ModelManager::GetUnitCube()
 	{
-		return GetModel("Cube");
+		return *m_Cube;
 	}
 	Model& ModelManager::GetUnitSphere()
 	{
-		return GetModel("Sphere");
+		return *m_Sphere;
 	}
 }

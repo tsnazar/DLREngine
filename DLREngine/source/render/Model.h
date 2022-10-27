@@ -3,6 +3,7 @@
 #include "IndexBuffer.h"
 #include "Box.h"
 #include "TriangleOctree.h"
+#include "Ray.h"
 
 namespace engine
 {
@@ -17,6 +18,41 @@ namespace engine
 			tree.clear();
 			tree.initialize(*this);
 		}
+
+		bool Intersect(const Ray& ray, MeshIntersection& intersection, const DirectX::XMMATRIX& worldToModelMatrix, const DirectX::XMMATRIX& modelToWorldMatrix)
+		{
+			bool intersect = false;
+
+			Ray meshRay;
+
+			DirectX::XMVECTOR origin = DirectX::XMVectorSetW(DirectX::XMLoadFloat3(&ray.origin), 1.0f);
+			DirectX::XMVECTOR direction = DirectX::XMLoadFloat3(&ray.direction);
+			origin = DirectX::XMVector4Transform(origin, worldToModelMatrix);
+			direction = DirectX::XMVector4Transform(direction, worldToModelMatrix);
+
+			DirectX::XMMATRIX modelToMeshMatrix = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&modelToMesh));
+			DirectX::XMVECTOR meshOrigin = DirectX::XMVector4Transform(origin, modelToMeshMatrix);
+			DirectX::XMVECTOR meshDirection = DirectX::XMVector4Transform(direction, modelToMeshMatrix);
+
+			DirectX::XMStoreFloat3(&meshRay.origin, meshOrigin);
+			DirectX::XMStoreFloat3(&meshRay.direction, meshDirection);
+
+			intersect |= tree.intersect(meshRay, intersection);
+
+			if (intersect)
+			{
+				DirectX::XMMATRIX meshToModelMatrix = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&meshToModel));
+				DirectX::XMVECTOR normal = DirectX::XMLoadFloat3(&intersection.normal);
+				normal = DirectX::XMVector4Transform(normal, meshToModelMatrix);
+				normal = DirectX::XMVector4Transform(normal, modelToWorldMatrix);
+				normal = DirectX::XMVector3Normalize(normal);
+				DirectX::XMStoreFloat3(&intersection.normal, normal);
+				DirectX::XMStoreFloat3(&intersection.pos, ray.PointAtLine(intersection.t));
+			}
+
+			return intersect;
+		}
+
 
 		Box box;
 		DirectX::XMFLOAT4X4 meshToModel;
@@ -54,7 +90,7 @@ namespace engine
 
 		void InitUnitSphere();
 
-		bool Intersect(const Ray& ray, MeshIntersection& intersection, const DirectX::XMFLOAT4X4& transform);
+		bool Intersect(const Ray& ray, MeshIntersection& intersection, const DirectX::XMMATRIX& worldToModel);
 
 	private:
 		std::vector<SubMesh> m_Submeshes;

@@ -20,13 +20,24 @@ namespace engine
 		{
 			enum Bindings : uint32_t { ALBEDO_TEXTURE = 0, ROUGHNESS_TEXTURE = 1, METALLIC_TEXTURE = 2, NORMAL_MAP_TEXTURE = 3, 
 									   SHADOWMAP_TEXTURE = 4, IRRADIANCE_TEXTURE = 5, REFLECTION_TEXTURE = 6, REFLECTANCE_TEXTURE = 7, 
-									   MESH_BUFFER = 0, MESH_TO_MODEL_BUFFER = 1, INSTANCE_BUFFER = 1, MATERIAL_CONSTANTS = 2,
-									   SHADOWMAP_MATRICES = 1, SHADOWMAP_DIMENSIONS = 3};
+									   MESH_BUFFER = 0, MESH_TO_MODEL_BUFFER = 1, INSTANCE_BUFFER = 1, MATERIAL_CONSTANTS = 2, TARGET_DIMENSIONS_CONSTANTS = 4,
+									   SHADOWMAP_MATRICES = 1, SHADOWMAP_DIMENSIONS = 3,
+										DEPTH_DS_TEXTURE = 0, ALBEDO_DS_TEXTURE = 1, NORMALS_DS_TEXTURE = 2, ROUGHMETALLIC_DS_TEXTURE = 3, EMISSION_DS_TEXTURE = 5, 
+										EMISSION_GB_TEXTURE = 4,
+										STENCIL_REF = 1,
+			};
+		};
+
+		struct Instance
+		{
+			uint32_t transformID;
+			uint32_t meshID;
 		};
 
 		struct GpuInstance
 		{
 			DirectX::XMFLOAT4 matrix[4];
+			uint32_t meshID;
 		};
 
 		struct Material
@@ -89,7 +100,7 @@ namespace engine
 		struct PerMaterial
 		{
 			Material material;
-			std::vector<uint32_t> instanceIDs;
+			std::vector<Instance> instances;
 		};
 
 		struct PerMesh
@@ -107,13 +118,27 @@ namespace engine
 	public:
 		OpaqueInstances();
 
+		void SetShaders(Shader* forwardShader, Shader* deferredShader, Shader* deferredIBLShader, Shader* GBufferShader, Shader* shadowsShader)
+		{
+			m_ForwardShader = forwardShader;
+			m_DeferredShader = deferredShader;
+			m_DeferredIBLShader = deferredIBLShader;
+			m_GBufferShader = GBufferShader;
+			m_ShadowsShader = shadowsShader;
+		}
+
 		void UpdateInstanceBuffers();
 		
 		void Render(Sky::IblResources iblResources);
 
+		void RenderToGBuffer();
+
+		void ResolveGBuffer(Sky::IblResources iblResources, Texture2D& depth, Texture2D& albedo, Texture2D& normals,
+			Texture2D& roughnessMetallic, Texture2D& emission, ConstantBuffer& dimensions);
+
 		void RenderToShadowMap(ConstantBuffer& shadowMatrixBuffer, std::vector<LightSystem::ShadowMapMatrices>& matrices, uint32_t numLights);
 
-		void AddInstance(Model* model, std::vector<Material>& materials, uint32_t transformId);
+		void AddInstance(Model* model, std::vector<Material>& materials, uint32_t transformId, uint32_t& meshID);
 
 	private:
 		bool m_ResizeInstanceBuffer = false;
@@ -122,6 +147,12 @@ namespace engine
 		VertexBuffer m_InstanceBuffer;
 		ConstantBuffer m_PerMeshConstants;
 		ConstantBuffer m_PerMaterialConstants;
+
+		Shader* m_ForwardShader;
+		Shader* m_DeferredShader;
+		Shader* m_DeferredIBLShader;
+		Shader* m_GBufferShader;
+		Shader* m_ShadowsShader;
 
 		friend MeshSystem;
 	};

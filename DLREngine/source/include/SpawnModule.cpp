@@ -18,7 +18,7 @@ namespace engine
 
 		for (auto iter = ptr; iter < m_Instances.end(); ++iter)
 		{
-			MeshSystem::Get().GetOpaqueInstances().AddInstance(iter->pModel, *reinterpret_cast<std::vector<OpaqueInstances::Material>*>((&(iter->materials))), iter->transformId);
+			MeshSystem::Get().GetOpaqueInstances().AddInstance(iter->pModel, *reinterpret_cast<std::vector<OpaqueInstances::Material>*>((&(iter->materials))), iter->transformId, MeshSystem::Get().GetMeshID());
 			MeshSystem::Get().GetDissolutionInstances().DeleteInstance(iter->pModel, iter->materials, iter->transformId);
 		}
 

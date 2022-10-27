@@ -32,18 +32,24 @@ namespace engine
 
 		ALWAYS_ASSERT(iblResources.hasResources);
 
+		ALWAYS_ASSERT(m_ForwardShader != nullptr && m_Textures.IsValid());
+
+		m_ForwardShader->SetShaders();
+		//ShaderManager::Get().GetShader("particles").SetShaders();
+
 		LightSystem::Get().GetShadowMap().BindToPS(ShaderDescription::Bindings::SHADOWMAP_TEXTURE);
 		LightSystem::Get().GetShadowMatricesBuffer().BindToPS(ShaderDescription::Bindings::SHADOWMAP_MATRICES);
 		LightSystem::Get().GetShadowMapDimensions().BindToPS(ShaderDescription::Bindings::SHADOWMAP_DIMENSIONS);
 
 		iblResources.irradiance->BindToPS(ShaderDescription::Bindings::IRRADIANCE_TEXTURE);
 
-		ShaderManager::Get().GetShader("particles").SetShaders();
-
-		TextureManager::Get().GetTexture("smokeEMVA").BindToPS(ShaderDescription::Bindings::SMOKE_TEXTURE);
-		TextureManager::Get().GetTexture("smokeRLT").BindToPS(ShaderDescription::Bindings::LIGHTMAP1_TEXTURE);
-		TextureManager::Get().GetTexture("smokeBotBF").BindToPS(ShaderDescription::Bindings::LIGHTMAP2_TEXTURE);
-		m_DepthCopy.BindToPS(ShaderDescription::Bindings::DEPTH_TEXTURE);
+		m_Textures.EMVA->BindToPS(ShaderDescription::Bindings::SMOKE_TEXTURE);
+		m_Textures.lightMapRLT->BindToPS(ShaderDescription::Bindings::LIGHTMAP1_TEXTURE);
+		m_Textures.lightMapBotBF->BindToPS(ShaderDescription::Bindings::LIGHTMAP2_TEXTURE);
+		//TextureManager::Get().GetTexture("smokeEMVA").BindToPS(ShaderDescription::Bindings::SMOKE_TEXTURE);
+		//TextureManager::Get().GetTexture("smokeRLT").BindToPS(ShaderDescription::Bindings::LIGHTMAP1_TEXTURE);
+		//TextureManager::Get().GetTexture("smokeBotBF").BindToPS(ShaderDescription::Bindings::LIGHTMAP2_TEXTURE);
+//		m_DepthCopy.BindToPS(ShaderDescription::Bindings::DEPTH_TEXTURE);
 
 		m_InstanceBuffer.SetBuffer(ShaderDescription::Bindings::INSTANCE_BUFFER, D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
@@ -77,40 +83,7 @@ namespace engine
 	void ParticleSystem::AddSmoke(const SmokeEmitter& smoke)
 	{
 		m_Emmiters.push_back(smoke);
-		MeshSystem::Get().GetLightInstances().AddInstance(&ModelManager::Get().GetModel("Sphere"), smoke.tint, smoke.transformId);
+		MeshSystem::Get().GetLightInstances().AddInstance(&ModelManager::Get().GetUnitSphere(), smoke.tint, smoke.transformId);
 	}
 
-	void ParticleSystem::CreateAndResolveDepthCopy()
-	{
-		D3D11_TEXTURE2D_DESC textureDesc = *Globals::Get().GetDepthBuffer().GetDesc();
-		D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc = *Globals::Get().GetDepthBuffer().GetSRVDesc();
-		D3D11_DEPTH_STENCIL_VIEW_DESC DSVDesc = *Globals::Get().GetDepthBuffer().GetDSVDesc();
-
-		textureDesc.SampleDesc.Count = 1;
-		textureDesc.SampleDesc.Quality = 0;
-		
-		SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-		SRVDesc.Texture2D.MipLevels = 1;
-		SRVDesc.Texture2D.MostDetailedMip = 0;
-
-		DSVDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-		DSVDesc.Texture2D.MipSlice = 0;
-
-		m_DepthCopy.CreateFromDescription(textureDesc, &SRVDesc, &DSVDesc);
-
-		ID3D11RenderTargetView* const pRTV[1] = { NULL };
-
-		s_Devcon->OMSetRenderTargets(1, pRTV, m_DepthCopy.GetDepthView().ptr());
-		s_Devcon->ClearDepthStencilView(m_DepthCopy.GetDepthView().ptr(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 0.0f, 0);
-
-		Globals::Get().GetDepthBuffer().BindToPS(0);
-
-		ShaderManager::Get().GetShader("resolveDepth").SetShaders();
-
-		s_Devcon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		s_Devcon->Draw(3, 0);
-
-		ID3D11ShaderResourceView* const pSRV[1] = { NULL };
-		s_Devcon->PSSetShaderResources(0, 1, pSRV);
-	}
 }

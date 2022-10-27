@@ -46,7 +46,10 @@ namespace engine
 		if (m_InstanceBuffer.GetVertexCount() == 0 || !m_InstanceBuffer.IsValid())
 			return;
 
-		ShaderManager::Get().GetShader("lightInstance").SetShaders();
+		ALWAYS_ASSERT(m_ForwardShader != nullptr);
+
+		m_ForwardShader->SetShaders();
+		//ShaderManager::Get().GetShader("lightInstance").SetShaders();
 		m_InstanceBuffer.SetBuffer(ShaderDescription::Bindings::INSTANCE_BUFFER);
 
 		uint32_t renderedInstances = 0;

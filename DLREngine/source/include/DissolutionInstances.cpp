@@ -2,6 +2,7 @@
 #include "windows/winapi.hpp"
 #include <algorithm>
 #include "Globals.h"
+#include "ModelManager.h"
 
 namespace engine
 {
@@ -78,9 +79,14 @@ namespace engine
 		if (m_InstanceBuffer.GetVertexCount() == 0 || !m_InstanceBuffer.IsValid())
 			return;
 
-		ShaderManager::Get().GetShader("dissolutionShadows").SetShaders();
+		ALWAYS_ASSERT(m_ShadowsShader != nullptr && m_NoiseTexture != nullptr);
 
-		TextureManager::Get().GetTexture("noise").BindToPS(ShaderDescription::Bindings::NOISE_TEXTURE);
+		m_ShadowsShader->SetShaders();
+		//ShaderManager::Get().GetShader("dissolutionShadows").SetShaders();
+
+		//TextureManager::Get().GetTexture("noise").BindToPS(ShaderDescription::Bindings::NOISE_TEXTURE);
+
+		m_NoiseTexture->BindToPS(ShaderDescription::Bindings::NOISE_TEXTURE);
 
 		m_InstanceBuffer.SetBuffer(ShaderDescription::Bindings::INSTANCE_BUFFER);
 
@@ -132,13 +138,15 @@ namespace engine
 
 		ALWAYS_ASSERT(iblResources.hasResources);
 
+		ALWAYS_ASSERT(m_ForwardShader != nullptr && m_NoiseTexture != nullptr);
+
+		m_ForwardShader->SetShaders();
+
 		iblResources.irradiance->BindToPS(ShaderDescription::Bindings::IRRADIANCE_TEXTURE);
 		iblResources.reflection->BindToPS(ShaderDescription::Bindings::REFLECTION_TEXTURE);
 		iblResources.reflectance->BindToPS(ShaderDescription::Bindings::REFLECTANCE_TEXTURE);
 
-		ShaderManager::Get().GetShader("dissolution").SetShaders();
-
-		TextureManager::Get().GetTexture("noise").BindToPS(ShaderDescription::Bindings::NOISE_TEXTURE);
+		m_NoiseTexture->BindToPS(ShaderDescription::Bindings::NOISE_TEXTURE);
 
 		LightSystem::Get().GetShadowMap().BindToPS(ShaderDescription::Bindings::SHADOWMAP_TEXTURE);
 		LightSystem::Get().GetShadowMapDimensions().BindToPS(ShaderDescription::Bindings::SHADOWMAP_DIMENSIONS);
@@ -192,6 +200,122 @@ namespace engine
 			}
 		}
 
+	}
+
+	void DissolutionInstances::RenderToGBuffer()
+	{
+		if (m_InstanceBuffer.GetVertexCount() == 0 || !m_InstanceBuffer.IsValid())
+			return;
+
+		ALWAYS_ASSERT(m_GBufferShader != nullptr && m_NoiseTexture != nullptr);
+
+		m_GBufferShader->SetShaders();
+
+		Globals::Get().SetDepthStencilStateWrite(ShaderDescription::Bindings::STENCIL_REF);
+		Globals::Get().SetDefaultBlendState();
+		Globals::Get().SetRasterizerStateCullOff();
+		
+		m_NoiseTexture->BindToPS(ShaderDescription::Bindings::NOISE_TEXTURE);
+
+		m_InstanceBuffer.SetBuffer(ShaderDescription::Bindings::INSTANCE_BUFFER);
+
+		uint32_t renderedInstances = 0;
+		for (const auto& perModel : m_PerModel)
+		{
+			perModel.model->Bind(ShaderDescription::Bindings::MESH_BUFFER);
+			auto& subMeshes = perModel.model->GetSubMeshes();
+
+			for (uint32_t meshIndex = 0; meshIndex < perModel.perMesh.size(); ++meshIndex)
+			{
+				const Model::SubMesh& subMesh = subMeshes[meshIndex];
+				const Mesh& mesh = perModel.model->GetMeshes()[meshIndex];
+
+				m_PerMeshConstants.Update(&mesh.meshToModel, 1);
+				m_PerMeshConstants.BindToVS(ShaderDescription::Bindings::MESH_TO_MODEL_BUFFER);
+
+				for (const auto& perMaterial : perModel.perMesh[meshIndex].perMaterial)
+				{
+					if (perMaterial.instances.empty()) continue;
+
+					const auto& material = perMaterial.material;
+
+					m_PerMaterialConstants.Update(&material.constants, 1);
+					m_PerMaterialConstants.BindToVS(ShaderDescription::Bindings::MATERIAL_CONSTANTS);
+					m_PerMaterialConstants.BindToPS(ShaderDescription::Bindings::MATERIAL_CONSTANTS);
+
+					material.texture->BindToPS(ShaderDescription::Bindings::ALBEDO_TEXTURE);
+
+					if (material.roughness != nullptr)
+						material.roughness->BindToPS(ShaderDescription::Bindings::ROUGHNESS_TEXTURE);
+
+					if (material.metallic != nullptr)
+						material.metallic->BindToPS(ShaderDescription::Bindings::METALLIC_TEXTURE);
+
+					if (material.normalMap != nullptr)
+						material.normalMap->BindToPS(ShaderDescription::Bindings::NORMAL_MAP_TEXTURE);
+
+					uint32_t numInstances = static_cast<uint32_t>(perMaterial.instances.size());
+
+					if (perModel.model->VertexBufferOnly())
+						s_Devcon->DrawInstanced(subMesh.vertexNum, numInstances, subMesh.vertexOffset, renderedInstances);
+					else
+						s_Devcon->DrawIndexedInstanced(subMesh.indexNum, numInstances, subMesh.indexOffset, subMesh.vertexOffset, renderedInstances);
+
+					renderedInstances += numInstances;
+				}
+			}
+		}
+	}
+
+	void DissolutionInstances::ResolveGBuffer(Sky::IblResources iblResources, Texture2D& depth, Texture2D& albedo,
+		Texture2D& normals, Texture2D& roughnessMetallic, Texture2D& emission, ConstantBuffer& dimensions)
+	{
+		auto& instanceBuffer = LightSystem::Get().GetDeferedShadingLightInstances();
+
+		if (instanceBuffer.GetVertexCount() == 0 || !instanceBuffer.IsValid())
+			return;
+
+		ALWAYS_ASSERT(iblResources.hasResources);
+
+		ALWAYS_ASSERT(m_DeferredShader != nullptr && m_DeferredIBLShader != nullptr);
+
+		m_DeferredShader->SetShaders();
+
+		Globals::Get().SetBlendStateAddition();
+		Globals::Get().SetDepthStencilStateRead(ShaderDescription::Bindings::STENCIL_REF);
+		Globals::Get().SetRasterizerStateFrontFaceCullDepthClipOff();
+
+		LightSystem::Get().GetShadowMap().BindToPS(ShaderDescription::Bindings::SHADOWMAP_TEXTURE);
+		LightSystem::Get().GetShadowMatricesBuffer().BindToPS(ShaderDescription::Bindings::SHADOWMAP_MATRICES);
+		LightSystem::Get().GetShadowMapDimensions().BindToPS(ShaderDescription::Bindings::SHADOWMAP_DIMENSIONS);
+
+		dimensions.BindToPS(ShaderDescription::Bindings::TARGET_DIMENSIONS_CONSTANTS);
+
+		depth.BindToPS(ShaderDescription::Bindings::DEPTH_DS_TEXTURE);
+		albedo.BindToPS(ShaderDescription::Bindings::ALBEDO_DS_TEXTURE);
+		normals.BindToPS(ShaderDescription::Bindings::NORMALS_DS_TEXTURE);
+		roughnessMetallic.BindToPS(ShaderDescription::Bindings::ROUGHMETALLIC_DS_TEXTURE);
+		emission.BindToPS(ShaderDescription::Bindings::EMISSION_DS_TEXTURE);
+
+		Model& sphere = ModelManager::Get().GetUnitSphere();
+		sphere.Bind(ShaderDescription::Bindings::MESH_BUFFER);
+
+		instanceBuffer.SetBuffer(ShaderDescription::Bindings::INSTANCE_BUFFER);
+
+		s_Devcon->DrawInstanced(sphere.GetSubMeshes()[0].vertexNum, instanceBuffer.GetVertexCount(), 0, sphere.GetSubMeshes()[0].vertexOffset);
+
+		m_DeferredIBLShader->SetShaders();
+
+		Globals::Get().SetBlendStateAddition();
+		Globals::Get().SetDepthStencilStateRead(ShaderDescription::Bindings::STENCIL_REF);
+		Globals::Get().SetDefaultRasterizerState();
+
+		emission.BindToPS(ShaderDescription::Bindings::EMISSION_GB_TEXTURE);
+		iblResources.irradiance->BindToPS(ShaderDescription::Bindings::IRRADIANCE_TEXTURE);
+		iblResources.reflection->BindToPS(ShaderDescription::Bindings::REFLECTION_TEXTURE);
+		iblResources.reflectance->BindToPS(ShaderDescription::Bindings::REFLECTANCE_TEXTURE);
+
+		s_Devcon->Draw(3, 0);
 	}
 
 	void DissolutionInstances::AddInstance(Model* model, const std::vector<Material>& materials, uint32_t transformId, float animationTime)

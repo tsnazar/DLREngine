@@ -174,4 +174,38 @@ float3 calculatePointLighting(float3 N, float3 GN, float3 V, float3 L, View view
 
     return float3((diff * solidAngle * NdotL + spec) * radiance * faddingGeom * faddingNMap * visibility);
 }
+
+float3 calculatePointLighting(float3 N, float3 GN, float3 V, float3 L, float dist, float angularCos, float lightAngleSin, float solidAngle,
+                        float NdotL, View view, float radius, float3 radiance, Material material, float visibility)
+{
+    //float NdotL = dot(N, L);
+    if (NdotL < -lightAngleSin)
+        return float3(0, 0, 0);
+
+    float GNdotL = dot(GN, L);
+    float faddingGeom = 1.0 - saturate((radius - GNdotL * dist) / (2 * radius));
+    float faddingNMap = 1.0 - saturate((radius - NdotL * dist) / (2 * radius));
+
+    NdotL = max(NdotL, faddingNMap * lightAngleSin);
+
+    float3 C = approximateClosestSphereDir(view.reflection, angularCos, L * dist, L, dist, radius);
+    float NdotC = dot(N, C);
+    clampDirToHorizon(C, NdotC, N, MIN_DOT);
+
+    float3 H = normalize(C + V);
+
+    float NdotH = max(dot(N, H), MIN_DOT);
+    float HdotC = max(dot(H, C), MIN_DOT);
+
+    float3 FL = fresnel(material.f0, NdotL);
+    float3 FH = fresnel(material.f0, HdotC);
+
+    float D = ggx(material.roughness * material.roughness, NdotH);
+    float G = smith(material.roughness * material.roughness, view.NdotV, NdotC);
+
+    float3 spec = brdfCookTorrance(FH, D, G, view.NdotV, solidAngle);
+    float3 diff = brdfLambert(material.albedo.xyz, material.metallic, FL);
+
+    return float3((diff * solidAngle * NdotL + spec) * radiance * faddingGeom * faddingNMap * visibility);
+}
 #endif

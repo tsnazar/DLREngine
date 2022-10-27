@@ -3,7 +3,7 @@
 
 Texture2DMS<float, 4> g_depth: register(t0);
 
-float ps_main(VSQuadOut input) : SV_Depth
+float ps_main(VS_OUTPUT input) : SV_Depth
 {
     float result = 1.0;
 

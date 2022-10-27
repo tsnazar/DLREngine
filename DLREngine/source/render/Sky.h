@@ -3,6 +3,8 @@
 #include "TextureManager.h"
 #include "ShaderManager.h"
 #include "Camera.h"
+#include "RenderTarget.h"
+#include "DepthTarget.h"
 
 namespace engine
 {
@@ -30,7 +32,6 @@ namespace engine
 		bool HasIBLTextures() { return m_hasIBLTextures; }
 
 		IblResources GetIBLResources() { return {m_hasIBLTextures, m_Irradiance, m_Reflection, m_Reflectance}; }
-
 
 	private:
 		Shader* m_Shader = nullptr;

@@ -2,6 +2,7 @@
 #include "ConstantBuffer.h"
 #include "Texture2D.h"
 #include "RenderTarget.h"
+#include "Shader.h"
 #include <DirectXMath.h>
 
 namespace engine
@@ -27,7 +28,11 @@ namespace engine
 
 		void static Fini();
 
+		void SetShader(Shader* resolveShader) { m_ResolveShader = resolveShader; }
+
 		static Postprocess& Get() { return *s_Instance; }
+
+		void ResolveMS(Texture2D& hdrInput, RenderTarget& ldrOutput);
 
 		void Resolve(Texture2D& hdrInput, RenderTarget& ldrOutput);
 
@@ -35,6 +40,9 @@ namespace engine
 
 	private:
 		ConstantBuffer m_ResolveConstants;
+
+		Shader* m_ResolveShader = nullptr;
+
 	private:
 		static Postprocess* s_Instance;
 	};

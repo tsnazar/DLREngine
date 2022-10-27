@@ -8,8 +8,11 @@ namespace engine
 	void LoadMatrixInArray(const DirectX::XMMATRIX& matrix, DirectX::XMFLOAT4 arr[4]);
 	DirectX::XMVECTOR FindMaxComponent(const DirectX::XMVECTOR& vec);
 	DirectX::XMFLOAT3 RadianceFromDistance(float distance, float radius, DirectX::XMFLOAT3 irradiance);
-
+	float MaxIlluminationDistance(float radius, DirectX::XMFLOAT3 radiance);
 	float Length(const DirectX::XMFLOAT3& vec);
+	float Dot(const DirectX::XMFLOAT3& a, const DirectX::XMFLOAT3& b);
+	float Lerp(float a, float b, float s);
+	DirectX::XMFLOAT3 Normalize(const DirectX::XMFLOAT3& vec);
 }
 
 namespace DirectX

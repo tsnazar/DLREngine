@@ -5,6 +5,9 @@
 #include "ConstantBuffer.h"
 #include "MathUtils.h"
 #include "DepthTarget.h"
+#include "RenderTarget.h"
+//#include "Renderer.h"
+#include "VertexBuffer.h"
 
 namespace engine
 {
@@ -22,12 +25,12 @@ namespace engine
 		struct GpuPointLight
 		{
 			GpuPointLight() = default;
-			GpuPointLight(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 irradiance, float radius, float distance) : position(position), radius(radius), radiance(RadianceFromDistance(distance, radius, irradiance)) {};
+			GpuPointLight(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 irradiance, float radius, float distance) : pos(position), rad(radius), radiance(RadianceFromDistance(distance, radius, irradiance)), dist(MaxIlluminationDistance(radius, radiance)) {};
 
-			DirectX::XMFLOAT3 position;
-			float radius;
+			DirectX::XMFLOAT3 pos;
+			float rad;
 			DirectX::XMFLOAT3 radiance;
-			float placeholder;
+			float dist;
 		};
 
 		struct ShadowMapDimensions
@@ -54,6 +57,7 @@ namespace engine
 			DirectX::XMFLOAT3 radiance;
 			uint32_t transformId;
 			float radius;
+			float dist;
 		};
 
 	public:
@@ -74,6 +78,9 @@ namespace engine
 
 		void InitShadowMaps();
 
+		void ResolveGBuffer(DepthTarget& depth, RenderTarget& albedo, RenderTarget& normals, 
+						RenderTarget& roughnessMetallic, RenderTarget& emission, RenderTarget& position, ConstantBuffer& dimensions);
+
 		Texture2D& GetShadowMap() { return m_ShadowMap; }
 
 		std::vector<ShadowMapMatrices>& GetShadowMatrices() { return m_Matrices; }
@@ -83,6 +90,10 @@ namespace engine
 		ConstantBuffer& GetShadowMatrixBuffer() { return m_ShadowMatrixBuffer; }
 
 		ConstantBuffer& GetShadowMapDimensions() { return m_ShadowMapDimensions; }
+
+		VertexBuffer& GetDeferedShadingLightInstances() { return m_LightInstances; }
+
+		uint32_t GetNumberOfLights() { return m_NumLights; }
 
 	protected:
 		void GenerateShadowTransforms(DirectX::XMFLOAT4X4* arr,const DirectX::XMFLOAT3& position);
@@ -95,6 +106,10 @@ namespace engine
 		ConstantBuffer m_ShadowMatrixBuffer;
 		ConstantBuffer m_ShadowMatricesBuffer;
 		ConstantBuffer m_ShadowMapDimensions;
+		
+		VertexBuffer m_LightInstances;
+
+		bool m_ResizeLightInstances = false;
 	private:
 		static LightSystem* s_Instance;
 	};
