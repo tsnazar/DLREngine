@@ -85,28 +85,22 @@ namespace engine
 	bool Renderer::Render(MainWindow& win, Camera& camera)
 	{
 		Globals::Get().Update();
-
-		Globals::Get().SetReversedDepthState();
-		Globals::Get().SetDefaultBlendState();
-		Globals::Get().SetDefaultRasterizerState();
+		
 		LightSystem::Get().RenderToShadowMaps();
 
 		DeferredShading(win, camera);
-
-		Globals::Get().SetDepthStencilStateRead(0);
-		Globals::Get().SetDefaultRasterizerState();
-		Globals::Get().SetDefaultBlendState();
+		
 		m_Sky.Render(camera);
 
-		Globals::Get().SetDefaultBlendState();
-		Globals::Get().SetDefaultRasterizerState();
-		Globals::Get().SetReversedDepthState();
 		MeshSystem::Get().GetLightInstances().Render();
 
-		Globals::Get().SetReversedDepthStateReadOnly();
-		Globals::Get().SetDefaultRasterizerState();
-		Globals::Get().SetBlendState();
-		ParticleSystem::Get().Render(m_Sky.GetIBLResources());
+		Globals::Get().ResetRenderTargets();
+		m_GBuffer.depthCopy.CopyTexture(m_GBuffer.depth);
+
+		s_Devcon->RSSetViewports(1, &win.GetViewport());
+		s_Devcon->OMSetRenderTargets(1, m_HDRTarget.GetRenderTarget().ptrAdr(), m_GBuffer.depth.GetDepthView().ptr());
+
+		ParticleSystem::Get().Render(m_Sky.GetIBLResources(), m_GBuffer.depthCopy, m_GBuffer.dimensions);
 
 		Globals::Get().SetDefaultBlendState();
 		Postprocess::Get().Resolve(m_HDRTarget, win.GetBackBuffer());
@@ -120,8 +114,6 @@ namespace engine
 	void Renderer::DeferredShading(MainWindow& win, Camera& camera)
 	{
 		const float color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-
-		
 
 		ID3D11RenderTargetView* pRTVs[] = { m_GBuffer.albedo.GetRenderTarget().ptr(),
 													m_GBuffer.normals.GetRenderTarget().ptr(),

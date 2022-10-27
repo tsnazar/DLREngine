@@ -56,12 +56,16 @@ namespace engine
 
 		const float color[4] = { 0.0f, 0.2f, 0.4f, 1.0f };
 
-		Globals::Get().Update();
+		//Globals::Get().Update();
 		s_Devcon->OMSetRenderTargets(1, ldrOutput.GetRenderTarget().ptrAdr(), nullptr);
 		s_Devcon->ClearRenderTargetView(ldrOutput.GetRenderTarget().ptr(), color);
 
 		m_ResolveShader->SetShaders();
-		//ShaderManager::Get().GetShader("resolve").SetShaders();
+
+		Globals::Get().SetReversedDepthState();
+		Globals::Get().SetDefaultRasterizerState();
+		Globals::Get().SetDefaultBlendState();
+
 		hdrInput.BindToPS(ShaderDescription::HDR_TEXTURE);
 		m_ResolveConstants.BindToPS(ShaderDescription::CONSTANTS);
 		s_Devcon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

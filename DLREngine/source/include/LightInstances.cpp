@@ -1,4 +1,5 @@
 #include "LightInstances.h"
+#include "Globals.h"
 
 namespace engine
 {
@@ -49,7 +50,11 @@ namespace engine
 		ALWAYS_ASSERT(m_ForwardShader != nullptr);
 
 		m_ForwardShader->SetShaders();
-		//ShaderManager::Get().GetShader("lightInstance").SetShaders();
+
+		Globals::Get().SetDefaultBlendState();
+		Globals::Get().SetDefaultRasterizerState();
+		Globals::Get().SetReversedDepthState();
+
 		m_InstanceBuffer.SetBuffer(ShaderDescription::Bindings::INSTANCE_BUFFER);
 
 		uint32_t renderedInstances = 0;

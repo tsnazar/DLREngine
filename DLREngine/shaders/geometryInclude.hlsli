@@ -19,7 +19,7 @@ float3 unpackOctahedron(float2 oct)
 	return normalize(v);
 }
 
-float3 worldSpacePostionFromDepth(float depth, float2 tex)
+float3 worldSpacePositionFromDepth(float depth, float2 tex)
 {
 	float4 posCS = float4(tex.x * 2.0 - 1.0, (1.0 - tex.y) * 2.0 - 1.0, depth, 1.0);
 	float4 posVS = mul(posCS, g_invProj);
@@ -29,6 +29,16 @@ float3 worldSpacePostionFromDepth(float depth, float2 tex)
 	float4 posWS = mul(posVS, g_invView);
 
 	return posWS.xyz;
+}
+
+float3 viewSpacePositionFromDepth(float depth, float2 tex)
+{
+	float4 posCS = float4(tex.x * 2.0 - 1.0, (1.0 - tex.y) * 2.0 - 1.0, depth, 1.0);
+	float4 posVS = mul(posCS, g_invProj);
+
+	posVS /= posVS.w;
+
+	return posVS.xyz;
 }
 
 #endif

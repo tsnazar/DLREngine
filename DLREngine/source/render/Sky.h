@@ -13,7 +13,7 @@ namespace engine
 	public:
 		struct ShaderDescription
 		{
-			enum Bindings : uint32_t { CUBEMAP_TEXTURE = 0 };
+			enum Bindings : uint32_t { CUBEMAP_TEXTURE = 0, STENCIL_REF = 0 };
 		};
 
 		struct IblResources

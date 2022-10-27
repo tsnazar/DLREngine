@@ -63,7 +63,7 @@ PS_OUTPUT ps_main(VS_OUTPUT input) : SV_TARGET
         discard;
 
     float depth = g_depth.Load(int3(input.position.xy, 0));
-    float3 posWS = worldSpacePostionFromDepth(depth, float2(input.position.x / g_targetWidth, input.position.y / g_targetHeight));
+    float3 posWS = worldSpacePositionFromDepth(depth, float2(input.position.x / g_targetWidth, input.position.y / g_targetHeight));
     float3 posDecal = mul(float4(posWS, 1.0), input.worldToDecal);
 
     posDecal.x += 0.5;

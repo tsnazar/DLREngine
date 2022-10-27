@@ -199,14 +199,20 @@ namespace engine
 		s_Devcon->OMSetRenderTargets(1, pRTV, m_ShadowMap.GetDepthView().ptr());
 		s_Devcon->ClearDepthStencilView(m_ShadowMap.GetDepthView(), D3D11_CLEAR_DEPTH, 0.0f, 0);
 
+		Globals::Get().SetReversedDepthState();
+		Globals::Get().SetDefaultBlendState();
+		Globals::Get().SetDefaultRasterizerState();
 		MeshSystem::Get().GetOpaqueInstances().RenderToShadowMap(m_ShadowMatrixBuffer, m_Matrices, m_NumLights);
 
+		Globals::Get().SetReversedDepthState();
+		Globals::Get().SetDefaultBlendState();
 		Globals::Get().SetRasterizerStateCullOff();
 		MeshSystem::Get().GetDissolutionInstances().RenderToShadowMap(m_ShadowMatrixBuffer, m_Matrices, m_NumLights);
 
+		Globals::Get().SetReversedDepthState();
+		Globals::Get().SetDefaultBlendState();
 		Globals::Get().SetRasterizerStateCullOff();
 		VegetationSystem::Get().RenderToShadowMap(m_ShadowMatrixBuffer, m_Matrices, m_NumLights);
-
 	}
 
 	void LightSystem::GenerateShadowTransforms(DirectX::XMFLOAT4X4* arr, const DirectX::XMFLOAT3& position)

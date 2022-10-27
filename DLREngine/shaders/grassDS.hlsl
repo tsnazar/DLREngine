@@ -61,7 +61,7 @@ static const float power = 4;
 float4 ps_main(VS_OUTPUT input) : SV_Target
 {
     float depth = g_depth.Load(int3(input.position.xy, 0));
-    float3 posWS = worldSpacePostionFromDepth(depth, float2(input.position.x / g_targetWidth, input.position.y / g_targetHeight));
+    float3 posWS = worldSpacePositionFromDepth(depth, float2(input.position.x / g_targetWidth, input.position.y / g_targetHeight));
     float4 albedo = g_albedo.Load(int3(input.position.xy, 0));
     float4 normalCompressed = g_normals.Load(int3(input.position.xy, 0));
     float2 roughnessMetallic = g_roughnessMetallic.Load(int3(input.position.xy, 0));

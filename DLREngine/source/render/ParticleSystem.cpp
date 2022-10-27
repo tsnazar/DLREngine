@@ -25,7 +25,7 @@ namespace engine
 		s_Instance = nullptr;
 	}
 	
-	void ParticleSystem::Render(Sky::IblResources iblResources)
+	void ParticleSystem::Render(Sky::IblResources iblResources, Texture2D& depth, ConstantBuffer& dimensions)
 	{
 		if (m_InstanceBuffer.GetVertexCount() == 0 || !m_InstanceBuffer.IsValid())
 			return;
@@ -35,21 +35,23 @@ namespace engine
 		ALWAYS_ASSERT(m_ForwardShader != nullptr && m_Textures.IsValid());
 
 		m_ForwardShader->SetShaders();
-		//ShaderManager::Get().GetShader("particles").SetShaders();
+
+		Globals::Get().SetReversedDepthStateReadOnly();
+		Globals::Get().SetDefaultRasterizerState();
+		Globals::Get().SetBlendState();
 
 		LightSystem::Get().GetShadowMap().BindToPS(ShaderDescription::Bindings::SHADOWMAP_TEXTURE);
 		LightSystem::Get().GetShadowMatricesBuffer().BindToPS(ShaderDescription::Bindings::SHADOWMAP_MATRICES);
 		LightSystem::Get().GetShadowMapDimensions().BindToPS(ShaderDescription::Bindings::SHADOWMAP_DIMENSIONS);
+
+		dimensions.BindToPS(ShaderDescription::Bindings::TARGET_DIMENSIONS_CONSTANTS);
 
 		iblResources.irradiance->BindToPS(ShaderDescription::Bindings::IRRADIANCE_TEXTURE);
 
 		m_Textures.EMVA->BindToPS(ShaderDescription::Bindings::SMOKE_TEXTURE);
 		m_Textures.lightMapRLT->BindToPS(ShaderDescription::Bindings::LIGHTMAP1_TEXTURE);
 		m_Textures.lightMapBotBF->BindToPS(ShaderDescription::Bindings::LIGHTMAP2_TEXTURE);
-		//TextureManager::Get().GetTexture("smokeEMVA").BindToPS(ShaderDescription::Bindings::SMOKE_TEXTURE);
-		//TextureManager::Get().GetTexture("smokeRLT").BindToPS(ShaderDescription::Bindings::LIGHTMAP1_TEXTURE);
-		//TextureManager::Get().GetTexture("smokeBotBF").BindToPS(ShaderDescription::Bindings::LIGHTMAP2_TEXTURE);
-//		m_DepthCopy.BindToPS(ShaderDescription::Bindings::DEPTH_TEXTURE);
+		depth.BindToPS(ShaderDescription::Bindings::DEPTH_TEXTURE);
 
 		m_InstanceBuffer.SetBuffer(ShaderDescription::Bindings::INSTANCE_BUFFER, D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
