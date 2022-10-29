@@ -27,7 +27,7 @@ struct VS_INPUT {
     float3 inTangent : TANGENT;
     float3 inBitangent : BITANGENT;
     float4x4 inModelToWorld : MAT;
-    uint inMeshID : MESHID;
+    uint inObjectID : OBJECTID;
 };
 
 struct VS_OUTPUT {
@@ -35,7 +35,7 @@ struct VS_OUTPUT {
     float2 texCoord : TCOORD;
     float3 normal : NORM;
     float3x3 TBN : TBN;
-    uint meshID : MESHID;
+    uint objectID : OBJECTID;
 };
 // vertex shader
 
@@ -48,7 +48,7 @@ VS_OUTPUT vs_main(VS_INPUT input) {
     output.position = mul(output.position, g_viewProj);
 
     output.texCoord = input.inTexCoord;
-    output.meshID = input.inMeshID;
+    output.objectID = input.inObjectID;
 
     output.normal = mul(input.inNormal, meshToModel);
     output.normal = mul(output.normal, input.inModelToWorld);
@@ -86,7 +86,7 @@ struct PS_OUTPUT
     float4 normal : SV_Target1;
     float2 roughnessMetalness : SV_Target2;
     float4 emission : SV_Target3;
-    uint meshID : SV_Target4;
+    uint objectID : SV_Target4;
 };
 
 PS_OUTPUT ps_main(VS_OUTPUT input)
@@ -118,7 +118,7 @@ PS_OUTPUT ps_main(VS_OUTPUT input)
 
     output.roughnessMetalness = float2(roughness, metallic);
 
-    output.meshID = input.meshID;
+    output.objectID = input.objectID;
 
     return output;
 }

@@ -61,7 +61,7 @@ namespace engine
 			D3D11_INPUT_ELEMENT_DESC{ "MAT", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(OpaqueInstances::GpuInstance, matrix[1]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 			D3D11_INPUT_ELEMENT_DESC{ "MAT", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(OpaqueInstances::GpuInstance, matrix[2]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 			D3D11_INPUT_ELEMENT_DESC{ "MAT", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(OpaqueInstances::GpuInstance, matrix[3]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-			D3D11_INPUT_ELEMENT_DESC{ "MESHID", 0, DXGI_FORMAT_R32_UINT, 1, offsetof(OpaqueInstances::GpuInstance, meshID), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "OBJECTID", 0, DXGI_FORMAT_R32_UINT, 1, offsetof(OpaqueInstances::GpuInstance, objectID), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 		};
 
 		std::vector<D3D11_INPUT_ELEMENT_DESC> dissolution = {
@@ -141,7 +141,7 @@ namespace engine
 			D3D11_INPUT_ELEMENT_DESC{ "MATW", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DecalSystem::GpuInstance, worldToDecal[3]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 			D3D11_INPUT_ELEMENT_DESC{ "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 1, offsetof(DecalSystem::GpuInstance, color), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 			D3D11_INPUT_ELEMENT_DESC{ "RIGHT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 1, offsetof(DecalSystem::GpuInstance, decalRight), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-			D3D11_INPUT_ELEMENT_DESC{ "MESHID", 0, DXGI_FORMAT_R32_UINT, 1, offsetof(DecalSystem::GpuInstance, meshID), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "OBJECTID", 0, DXGI_FORMAT_R32_UINT, 1, offsetof(DecalSystem::GpuInstance, objectID), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 		};
 
 		auto& opaqueGBShader = ShaderManager::Get().LoadShader("opaqueGB", "shaders/opaqueGB.hlsl", &opaque);
@@ -257,24 +257,24 @@ namespace engine
 		transform.position = { 0.f, 0.5f, -4.f };
 		transform.scale = { 1.f, 1.f, 1.f };
 		transform.rotation = { 0.f, 0.f, 0.f };
-		MeshSystem::Get().GetOpaqueInstances().AddInstance(pCube, cubeContainerTexture, transforms.insert(transform), MeshSystem::Get().GetMeshID());
+		MeshSystem::Get().GetOpaqueInstances().AddInstance(pCube, cubeContainerTexture, transforms.insert(transform), Globals::Get().GetObjectIDCounter());
 
 		transform.position = { 0.f, -5.f, 0.f };
 		transform.scale = { 10.f, 10.f, 10.f };
 		transform.rotation = { 0.f, 0.f, 0.f };
-		MeshSystem::Get().GetOpaqueInstances().AddInstance(pCube, cubeWallTexture, transforms.insert(transform), MeshSystem::Get().GetMeshID());
+		MeshSystem::Get().GetOpaqueInstances().AddInstance(pCube, cubeWallTexture, transforms.insert(transform), Globals::Get().GetObjectIDCounter());
 
 		for (uint32_t i = 0; i < 3; ++i)
 		{
 			transform.position = { -4.0f + i * 3.0f, 0.0f, 0.0f };
 			transform.scale = { 1.f, 1.f, 1.f };
 			transform.rotation = { 0.f, 0.f, 0.f };
-			MeshSystem::Get().GetOpaqueInstances().AddInstance(pSamurai, samuraiTextures, transforms.insert(transform), MeshSystem::Get().GetMeshID());
+			MeshSystem::Get().GetOpaqueInstances().AddInstance(pSamurai, samuraiTextures, transforms.insert(transform), Globals::Get().GetObjectIDCounter());
 
 			transform.position = { -3.0f + i * 3.0f, 0.0f, 0.0f };
 			transform.scale = { 1.f, 1.f, 1.f };
 			transform.rotation = { 0.f, 0.f, 0.f };
-			MeshSystem::Get().GetOpaqueInstances().AddInstance(pHorse, horseTextures, transforms.insert(transform), MeshSystem::Get().GetMeshID());
+			MeshSystem::Get().GetOpaqueInstances().AddInstance(pHorse, horseTextures, transforms.insert(transform), Globals::Get().GetObjectIDCounter());
 		}
 
 		m_Renderer->GetSky().SetSky("skybox", "shaders/sky.hlsl", "assets/NightStreet/night_street.dds", "assets/NightStreet/night_street_irradiance.dds", "assets/NightStreet/night_street_reflection.dds", "assets/NightStreet/night_street_reflectance.dds");

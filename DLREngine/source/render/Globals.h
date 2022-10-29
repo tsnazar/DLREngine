@@ -75,6 +75,8 @@ namespace engine
 
 		void ResetRenderTargets() { ID3D11RenderTargetView* pRTVs[8] = { nullptr,nullptr ,nullptr ,nullptr, nullptr ,nullptr ,nullptr, nullptr }; m_Devcon->OMSetRenderTargets(8, pRTVs, NULL); }
 
+		uint32_t& GetObjectIDCounter() { return m_ObjectIDCounter; }
+
 	private:
 		DxResPtr<IDXGIFactory> m_Factory;
 		DxResPtr<IDXGIFactory5> m_Factory5;
@@ -110,6 +112,8 @@ namespace engine
 
 		PerFrame m_PerFrame;
 		ConstantBuffer m_PerFrameBuffer;
+
+		uint32_t m_ObjectIDCounter = 1;
 	protected:
 		Globals();
 

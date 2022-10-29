@@ -33,7 +33,7 @@ namespace engine
 			Texture2D normalsCopy; // rgba16_snorm
 			RenderTarget roughnessMetalness; // r8g8_unorm
 			RenderTarget emmission; // rgba16_float
-			RenderTarget meshID; // r16_uint
+			RenderTarget objectsIDS; // r16_uint
 			ConstantBuffer dimensions;
 		};
 

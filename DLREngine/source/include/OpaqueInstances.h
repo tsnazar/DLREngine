@@ -31,13 +31,13 @@ namespace engine
 		struct Instance
 		{
 			uint32_t transformID;
-			uint32_t meshID;
+			uint32_t objectID;
 		};
 
 		struct GpuInstance
 		{
 			DirectX::XMFLOAT4 matrix[4];
-			uint32_t meshID;
+			uint32_t objectID;
 		};
 
 		struct Material
@@ -138,7 +138,7 @@ namespace engine
 
 		void RenderToShadowMap(ConstantBuffer& shadowMatrixBuffer, std::vector<LightSystem::ShadowMapMatrices>& matrices, uint32_t numLights);
 
-		void AddInstance(Model* model, std::vector<Material>& materials, uint32_t transformId, uint32_t& meshID);
+		void AddInstance(Model* model, std::vector<Material>& materials, uint32_t transformId, uint32_t& objectID);
 
 	private:
 		bool m_ResizeInstanceBuffer = false;

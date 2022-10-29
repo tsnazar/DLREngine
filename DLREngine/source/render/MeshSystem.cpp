@@ -28,21 +28,18 @@ namespace engine
 	{
 		m_OpaqueInstances.Render(iblResources);
 		m_LightInstances.Render();
-		//m_DissolutionInstances.Render(iblResources);
 	}
 
 	void MeshSystem::RenderToGBuffer()
 	{
 		m_OpaqueInstances.RenderToGBuffer();
 		m_DissolutionInstances.RenderToGBuffer();
-		//m_LightInstances.RenderDeferred();
 	}
 
 	void MeshSystem::ResolveGBuffer(Sky::IblResources iblResources, Texture2D& depth, Texture2D& albedo, Texture2D& normals,
 		Texture2D& roughnessMetallic, Texture2D& emission, ConstantBuffer& dimensions)
 	{
 		m_OpaqueInstances.ResolveGBuffer(iblResources, depth, albedo, normals, roughnessMetallic, emission, dimensions);
-		//m_DissolutionInstances.ResolveGBuffer(iblResources, depth, albedo, normals, roughnessMetallic, emission, position, dimensions);
 	}
 
 	void MeshSystem::RenderToShadowMap(ConstantBuffer& shadowMatrixBuffer, std::vector<LightSystem::ShadowMapMatrices>& matrices, uint32_t numLights)
@@ -83,7 +80,7 @@ namespace engine
 							{
 								result = true;
 								query.transformID = instance.transformID;
-								query.meshID = instance.meshID;
+								query.meshID = instance.objectID;
 								query.t = intersection.t;
 								query.pos = intersection.pos;
 								query.normal = intersection.normal;

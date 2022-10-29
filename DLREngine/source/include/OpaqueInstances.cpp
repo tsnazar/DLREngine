@@ -44,7 +44,7 @@ namespace engine
 					{
 						GpuInstance gpuInstance;
 						LoadMatrixInArray(transforms[instance.transformID].GetTranspose(), gpuInstance.matrix);
-						gpuInstance.meshID = instance.meshID;
+						gpuInstance.objectID = instance.objectID;
 						dst[copiedNum++] = gpuInstance;
 					}
 				}
@@ -63,7 +63,6 @@ namespace engine
 
 		m_ShadowsShader->SetShaders();
 
-		//ShaderManager::Get().GetShader("opaqueShadows").SetShaders();
 
 		m_InstanceBuffer.SetBuffer(ShaderDescription::Bindings::INSTANCE_BUFFER);
 
@@ -121,7 +120,6 @@ namespace engine
 		ALWAYS_ASSERT(m_DeferredShader != nullptr && m_DeferredIBLShader != nullptr);
 
 		m_DeferredShader->SetShaders();
-		//ShaderManager::Get().GetShader("opaqueDS").SetShaders();
 
 		LightSystem::Get().GetShadowMap().BindToPS(ShaderDescription::Bindings::SHADOWMAP_TEXTURE);
 		LightSystem::Get().GetShadowMatricesBuffer().BindToPS(ShaderDescription::Bindings::SHADOWMAP_MATRICES);
@@ -156,7 +154,6 @@ namespace engine
 		iblResources.reflectance->BindToPS(ShaderDescription::Bindings::REFLECTANCE_TEXTURE);
 
 		m_DeferredIBLShader->SetShaders();
-		//ShaderManager::Get().GetShader("opaqueIBLDS").SetShaders();
 
 		s_Devcon->Draw(3, 0);
 	}
@@ -171,7 +168,6 @@ namespace engine
 
 		ALWAYS_ASSERT(m_ForwardShader != nullptr);
 		m_ForwardShader->SetShaders();
-		//ShaderManager::Get().GetShader("opaque").SetShaders();
 	
 		Globals::Get().SetReversedDepthState();
 		Globals::Get().SetDefaultBlendState();
@@ -243,7 +239,6 @@ namespace engine
 		ALWAYS_ASSERT(m_GBufferShader != nullptr);
 
 		m_GBufferShader->SetShaders();
-		//ShaderManager::Get().GetShader("opaqueGB").SetShaders();
 
 		Globals::Get().SetDepthStencilStateWrite(ShaderDescription::Bindings::STENCIL_REF);
 		Globals::Get().SetDefaultBlendState();
@@ -299,7 +294,7 @@ namespace engine
 		}
 	}
 
-	void OpaqueInstances::AddInstance(Model* model, std::vector<Material>& materials, uint32_t transformId, uint32_t& meshID)
+	void OpaqueInstances::AddInstance(Model* model, std::vector<Material>& materials, uint32_t transformId, uint32_t& objectID)
 	{
 
 		m_ResizeInstanceBuffer = true;
@@ -318,6 +313,7 @@ namespace engine
 		}
 
 		auto& perModel = m_PerModel[m_ModelIndexMap[model]];
+		uint32_t objID = objectID++;
 
 		for (uint32_t i = 0; i < numMeshes; ++i)
 		{
@@ -332,7 +328,7 @@ namespace engine
 				perModel.perMesh[i].perMaterial[materialIndex].material = materials[i];
 			}
 
-			perModel.perMesh[i].perMaterial[materialIndexMap[materials[i]]].instances.push_back({ transformId, meshID++ });
+			perModel.perMesh[i].perMaterial[materialIndexMap[materials[i]]].instances.push_back({ transformId, objID });
 		}
 	}
 }

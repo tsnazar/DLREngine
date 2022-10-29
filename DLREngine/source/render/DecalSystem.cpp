@@ -41,7 +41,7 @@ namespace engine
 			LoadMatrixInArray(DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, instance.decalToModel * modelToWorld)), gpuInstance.worldToDecal);
 			
 			gpuInstance.color = instance.color;
-			gpuInstance.meshID = instance.meshID;
+			gpuInstance.objectID = instance.objectID;
 			gpuInstance.decalRight = instance.decalRight;
 
 			gpuInstances.push_back(gpuInstance);
@@ -51,7 +51,7 @@ namespace engine
 			m_InstanceBuffer.Create<GpuInstance>(D3D11_USAGE_DYNAMIC, gpuInstances.data(), gpuInstances.size());
 	}
 
-	void DecalSystem::SpawnDecal(Camera& camera, DirectX::XMFLOAT3 position, float halfSize, float NdotR, uint32_t transformID, uint32_t meshID)
+	void DecalSystem::SpawnDecal(Camera& camera, DirectX::XMFLOAT3 position, float halfSize, float NdotR, uint32_t transformID, uint32_t objectID)
 	{
 		float angle = ((rand() % 180) * DirectX::XM_PI) / 180.f;
 
@@ -77,7 +77,7 @@ namespace engine
 
 		instance.decalToModel = decalToModel;
 		instance.transformID = transformID;
-		instance.meshID = meshID;
+		instance.objectID = objectID;
 		DirectX::XMStoreFloat3(&instance.decalRight, camera.Right());
 
 		instance.color = DirectX::XMFLOAT3(rand() / static_cast<float>(RAND_MAX), rand() / static_cast<float>(RAND_MAX), rand() / static_cast<float>(RAND_MAX));
@@ -85,7 +85,7 @@ namespace engine
 		m_Instances.push_back(instance);
 	}
 	
-	void DecalSystem::RenderToGBuffer(Texture2D& depth, ConstantBuffer& dimensions, Texture2D& normals, Texture2D& meshIDs)
+	void DecalSystem::RenderToGBuffer(Texture2D& depth, ConstantBuffer& dimensions, Texture2D& normals, Texture2D& objectIDs)
 	{
 		if (m_InstanceBuffer.GetVertexCount() == 0 || !m_InstanceBuffer.IsValid())
 			return;
@@ -103,7 +103,7 @@ namespace engine
 		depth.BindToPS(ShaderDescription::Bindings::DEPTH_GB_TEXTURE);
 		normals.BindToPS(ShaderDescription::Bindings::NORMALS_GB_TEXTURE);
 		m_DecalTexture->BindToPS(ShaderDescription::Bindings::DECAL_GB_TEXTURE);
-		meshIDs.BindToPS(ShaderDescription::Bindings::MESHIDS_GB_TEXTURE);
+		objectIDs.BindToPS(ShaderDescription::Bindings::OBJECTIDS_GB_TEXTURE);
 
 		dimensions.BindToPS(ShaderDescription::Bindings::TARGET_DIMENSIONS_CONSTANTS);
 

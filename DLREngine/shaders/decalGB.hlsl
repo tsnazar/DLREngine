@@ -7,15 +7,15 @@ struct VS_INPUT {
     float4x4 inDecalToWorld : MATD;
     float4x4 inWorldToDecal : MATW;
     float3 inRight : RIGHT;
-    uint inMeshID : MESHID;
+    uint inObjectID : OBJECTID;
 };
 
 struct VS_OUTPUT {
     float4 position : SV_POSITION;
-    float4x4 worldToDecal : MATW;
+    nointerpolation float4x4 worldToDecal : MATW;
     float3 color : COL;
     float3 right : RIGHT;
-    nointerpolation uint meshID : MESHID;
+    nointerpolation uint objectID : OBJECTID;
 };
 
 VS_OUTPUT vs_main(VS_INPUT input) {
@@ -26,7 +26,7 @@ VS_OUTPUT vs_main(VS_INPUT input) {
 
     output.worldToDecal = input.inWorldToDecal;
     output.right = input.inRight;
-    output.meshID = input.inMeshID;
+    output.objectID = input.inObjectID;
 
     output.color = input.inColor;
 
@@ -51,15 +51,15 @@ cbuffer RenderDimensions : register(b2)
 Texture2D g_depth : register(t0);
 Texture2D g_normalsGB : register(t1);
 Texture2D g_normalsDecal : register(t2);
-Texture2D<uint> g_meshIDGB : register(t3);
+Texture2D<uint> g_objectIDGB : register(t3);
 
 PS_OUTPUT ps_main(VS_OUTPUT input) : SV_TARGET
 {
     PS_OUTPUT output = (PS_OUTPUT)0;
 
-    uint meshID = g_meshIDGB.Load(int3(input.position.xy, 0));
+    uint objectID = g_objectIDGB.Load(int3(input.position.xy, 0));
 
-    if (meshID != input.meshID)
+    if (objectID != input.objectID)
         discard;
 
     float depth = g_depth.Load(int3(input.position.xy, 0));

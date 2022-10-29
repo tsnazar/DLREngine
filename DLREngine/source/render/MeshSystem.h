@@ -35,14 +35,14 @@ namespace engine
 
 		DissolutionInstances& GetDissolutionInstances() { return m_DissolutionInstances; }
 
-		uint32_t& GetMeshID() { return m_MeshIDCounter; }
+		//uint32_t& GetMeshID() { return m_MeshIDCounter; }
 
 	private:
 		OpaqueInstances m_OpaqueInstances;
 		LightInstances m_LightInstances;
 		DissolutionInstances m_DissolutionInstances;
 		
-		uint32_t m_MeshIDCounter = 1; // start with 1, 0 indicates no mesh
+		//uint32_t m_MeshIDCounter = 1; // start with 1, 0 indicates no mesh
 
 	private:
 		static MeshSystem* s_Instance;

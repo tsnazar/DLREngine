@@ -14,7 +14,7 @@ namespace engine
 		struct ShaderDescription
 		{
 			enum Bindings : uint32_t {
-				DEPTH_GB_TEXTURE = 0, NORMALS_GB_TEXTURE = 1, DECAL_GB_TEXTURE = 2, MESHIDS_GB_TEXTURE = 3, 
+				DEPTH_GB_TEXTURE = 0, NORMALS_GB_TEXTURE = 1, DECAL_GB_TEXTURE = 2, OBJECTIDS_GB_TEXTURE = 3, 
 				TARGET_DIMENSIONS_CONSTANTS = 2, MESH_BUFFER = 0, INSTANCE_BUFFER = 1,
 				STENCIL_REF = 1,
 			};
@@ -28,7 +28,7 @@ namespace engine
 			DirectX::XMMATRIX decalToModel;
 			DirectX::XMFLOAT3 color;
 			uint32_t transformID;
-			uint32_t meshID;
+			uint32_t objectID;
 			DirectX::XMFLOAT3 decalRight;
 		};
 
@@ -37,7 +37,7 @@ namespace engine
 			DirectX::XMFLOAT4 decalToWorld[4];
 			DirectX::XMFLOAT4 worldToDecal[4];
 			DirectX::XMFLOAT3 color;
-			uint32_t meshID;
+			uint32_t objectID;
 			DirectX::XMFLOAT3 decalRight;
 		};
 
@@ -54,9 +54,9 @@ namespace engine
 
 		void Update();
 
-		void SpawnDecal(Camera& camera, DirectX::XMFLOAT3 position, float halfSize, float NdotR, uint32_t transformID, uint32_t meshID);
+		void SpawnDecal(Camera& camera, DirectX::XMFLOAT3 position, float halfSize, float NdotR, uint32_t transformID, uint32_t objectID);
 
-		void RenderToGBuffer(Texture2D& depth, ConstantBuffer& dimensions, Texture2D& normals, Texture2D& meshIDs);
+		void RenderToGBuffer(Texture2D& depth, ConstantBuffer& dimensions, Texture2D& normals, Texture2D& objectIDs);
 
 	private:
 		std::vector<Instance> m_Instances;

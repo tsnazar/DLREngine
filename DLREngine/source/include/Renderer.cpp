@@ -76,7 +76,7 @@ namespace engine
 		m_GBuffer.emmission.CreateFromDescription(desc);
 
 		desc.Format = DXGI_FORMAT_R16_UINT;
-		m_GBuffer.meshID.CreateFromDescription(desc);
+		m_GBuffer.objectsIDS.CreateFromDescription(desc);
 
 		GBuffer::Dimensions dims = { width, height, {0,0} };
 		m_GBuffer.dimensions.Create<GBuffer::Dimensions>(D3D11_USAGE_DEFAULT, &dims, 1);
@@ -119,7 +119,7 @@ namespace engine
 													m_GBuffer.normals.GetRenderTarget().ptr(),
 													m_GBuffer.roughnessMetalness.GetRenderTarget().ptr() ,
 													m_GBuffer.emmission.GetRenderTarget().ptr(),
-													m_GBuffer.meshID.GetRenderTarget().ptr() };
+													m_GBuffer.objectsIDS.GetRenderTarget().ptr() };
 		s_Devcon->RSSetViewports(1, &win.GetViewport());
 		s_Devcon->OMSetRenderTargets(5, pRTVs, m_GBuffer.depth.GetDepthView().ptr());
 		s_Devcon->ClearDepthStencilView(m_GBuffer.depth.GetDepthView().ptr(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 0.0f, 0);
@@ -127,7 +127,7 @@ namespace engine
 		s_Devcon->ClearRenderTargetView(m_GBuffer.normals.GetRenderTarget().ptr(), color);
 		s_Devcon->ClearRenderTargetView(m_GBuffer.roughnessMetalness.GetRenderTarget().ptr(), color);
 		s_Devcon->ClearRenderTargetView(m_GBuffer.emmission.GetRenderTarget().ptr(), color);
-		s_Devcon->ClearRenderTargetView(m_GBuffer.meshID.GetRenderTarget().ptr(), color);
+		s_Devcon->ClearRenderTargetView(m_GBuffer.objectsIDS.GetRenderTarget().ptr(), color);
 
 		MeshSystem::Get().RenderToGBuffer();
 
@@ -137,7 +137,7 @@ namespace engine
 
 		s_Devcon->OMSetRenderTargets(4, pRTVs, m_GBuffer.depth.GetDepthView().ptr());
 
-		DecalSystem::Get().RenderToGBuffer(m_GBuffer.depthCopy, m_GBuffer.dimensions, m_GBuffer.normalsCopy, m_GBuffer.meshID);
+		DecalSystem::Get().RenderToGBuffer(m_GBuffer.depthCopy, m_GBuffer.dimensions, m_GBuffer.normalsCopy, m_GBuffer.objectsIDS);
 
 		VegetationSystem::Get().RenderToGBuffer();
 
