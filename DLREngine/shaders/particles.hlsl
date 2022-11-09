@@ -2,7 +2,6 @@
 #include "lighting.hlsli"
 #include "geometryInclude.hlsli"
 
-
 struct VS_INPUT {
     uint inId : SV_VertexId;
     float3 inPos : POS;
@@ -61,9 +60,9 @@ Texture2D g_smokeBotBF : register(t2);
 Texture2D g_depth : register(t3);
 TextureCubeArray g_shadowMap : register(t4);
 
-static const float g_mvScale = 0.0001;
+static const float MV_SCALE = 0.0001;
 
-static const float3 basicF0 = float3(0.04, 0.04, 0.04);
+static const float3 BASICF0 = float3(0.04, 0.04, 0.04);
 
 float4 ps_main(VS_OUTPUT input) : SV_TARGET
 {
@@ -85,10 +84,10 @@ float4 ps_main(VS_OUTPUT input) : SV_TARGET
     float2 mvB = 2.0 * g_smokeEMVA.Sample(g_sampler, uvNext).gb / 255.0 - 1.0;
 
     float2 uvA = uvThis;
-    uvA -= mvA * g_mvScale * input.time;
+    uvA -= mvA * MV_SCALE * input.time;
 
     float2 uvB = uvNext;
-    uvB -= mvB * g_mvScale * (input.time - 1.f);
+    uvB -= mvB * MV_SCALE * (input.time - 1.f);
 
     float valueA = g_smokeEMVA.Sample(g_sampler, uvA).a;
     float valueB = g_smokeEMVA.Sample(g_sampler, uvB).a;
@@ -142,7 +141,7 @@ float4 ps_main(VS_OUTPUT input) : SV_TARGET
 
     Material material;
     material.albedo = input.color.xyz;
-    material.f0 = basicF0;
+    material.f0 = BASICF0;
     material.roughness = 0.7;
     material.metallic = 0.0;
 

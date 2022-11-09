@@ -2,6 +2,7 @@
 #include "OpaqueInstances.h"
 #include "LightInstances.h"
 #include "DissolutionInstances.h"
+#include "DisintegrationInstances.h"
 
 namespace engine
 {
@@ -35,13 +36,15 @@ namespace engine
 
 		DissolutionInstances& GetDissolutionInstances() { return m_DissolutionInstances; }
 
+		DisintegrationInstances& GetDisintegrationInstances() { return m_DisintegrationInstances; }
 		//uint32_t& GetMeshID() { return m_MeshIDCounter; }
 
 	private:
 		OpaqueInstances m_OpaqueInstances;
 		LightInstances m_LightInstances;
 		DissolutionInstances m_DissolutionInstances;
-		
+		DisintegrationInstances m_DisintegrationInstances;
+
 		//uint32_t m_MeshIDCounter = 1; // start with 1, 0 indicates no mesh
 
 	private:

@@ -70,21 +70,61 @@ namespace engine
 			D3D11_INPUT_ELEMENT_DESC{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTexNorTanBitan, nor), D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			D3D11_INPUT_ELEMENT_DESC{ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTexNorTanBitan, tan), D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			D3D11_INPUT_ELEMENT_DESC{ "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTexNorTanBitan, bitan), D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			D3D11_INPUT_ELEMENT_DESC{ "MAT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, matrix[0]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-			D3D11_INPUT_ELEMENT_DESC{ "MAT", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, matrix[1]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-			D3D11_INPUT_ELEMENT_DESC{ "MAT", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, matrix[2]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-			D3D11_INPUT_ELEMENT_DESC{ "MAT", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, matrix[3]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, modelToWorld[0]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, modelToWorld[1]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, modelToWorld[2]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, modelToWorld[3]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 			D3D11_INPUT_ELEMENT_DESC{ "TIME", 0, DXGI_FORMAT_R32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, time), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 		};
 
 		std::vector<D3D11_INPUT_ELEMENT_DESC> dissolutionShadows = {
 			D3D11_INPUT_ELEMENT_DESC{ "POS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTexNorTanBitan, pos), D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			D3D11_INPUT_ELEMENT_DESC{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(VertexPosTexNorTanBitan, texCoord), D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			D3D11_INPUT_ELEMENT_DESC{ "MAT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, matrix[0]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-			D3D11_INPUT_ELEMENT_DESC{ "MAT", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, matrix[1]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-			D3D11_INPUT_ELEMENT_DESC{ "MAT", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, matrix[2]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-			D3D11_INPUT_ELEMENT_DESC{ "MAT", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, matrix[3]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, modelToWorld[0]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, modelToWorld[1]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, modelToWorld[2]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, modelToWorld[3]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 			D3D11_INPUT_ELEMENT_DESC{ "TIME", 0, DXGI_FORMAT_R32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, time), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+		};
+
+		std::vector<D3D11_INPUT_ELEMENT_DESC> disintegration = {
+			D3D11_INPUT_ELEMENT_DESC{ "POS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTexNorTanBitan, pos), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			D3D11_INPUT_ELEMENT_DESC{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(VertexPosTexNorTanBitan, texCoord), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			D3D11_INPUT_ELEMENT_DESC{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTexNorTanBitan, nor), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			D3D11_INPUT_ELEMENT_DESC{ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTexNorTanBitan, tan), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			D3D11_INPUT_ELEMENT_DESC{ "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTexNorTanBitan, bitan), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DisintegrationInstances::GpuInstance, modelToWorld[0]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DisintegrationInstances::GpuInstance, modelToWorld[1]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DisintegrationInstances::GpuInstance, modelToWorld[2]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DisintegrationInstances::GpuInstance, modelToWorld[3]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "OBJECTID", 0, DXGI_FORMAT_R32_UINT, 1, offsetof(DisintegrationInstances::GpuInstance, objectID), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "SPHEREPOS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 1, offsetof(DisintegrationInstances::GpuInstance, spherePos), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "TIME", 0, DXGI_FORMAT_R32_FLOAT, 1, offsetof(DisintegrationInstances::GpuInstance, spawnTime), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "RADIUS", 0, DXGI_FORMAT_R32_FLOAT, 1, offsetof(DisintegrationInstances::GpuInstance, maxRadius), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+		};
+
+		std::vector<D3D11_INPUT_ELEMENT_DESC> disintegrationShadows = {
+			D3D11_INPUT_ELEMENT_DESC{ "POS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTexNorTanBitan, pos), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			D3D11_INPUT_ELEMENT_DESC{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(VertexPosTexNorTanBitan, texCoord), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DisintegrationInstances::GpuInstance, modelToWorld[0]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DisintegrationInstances::GpuInstance, modelToWorld[1]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DisintegrationInstances::GpuInstance, modelToWorld[2]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DisintegrationInstances::GpuInstance, modelToWorld[3]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "SPHEREPOS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 1, offsetof(DisintegrationInstances::GpuInstance, spherePos), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "TIME", 0, DXGI_FORMAT_R32_FLOAT, 1, offsetof(DisintegrationInstances::GpuInstance, spawnTime), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "RADIUS", 0, DXGI_FORMAT_R32_FLOAT, 1, offsetof(DisintegrationInstances::GpuInstance, maxRadius), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+		};
+
+		std::vector<D3D11_INPUT_ELEMENT_DESC> disintegrationSpawnParticles = {
+			D3D11_INPUT_ELEMENT_DESC{ "POS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTexNorTanBitan, pos), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			D3D11_INPUT_ELEMENT_DESC{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTexNorTanBitan, nor), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DisintegrationInstances::GpuInstance, modelToWorld[0]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DisintegrationInstances::GpuInstance, modelToWorld[1]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DisintegrationInstances::GpuInstance, modelToWorld[2]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DisintegrationInstances::GpuInstance, modelToWorld[3]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "SPHEREPOS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 1, offsetof(DisintegrationInstances::GpuInstance, spherePos), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "TIME", 0, DXGI_FORMAT_R32_FLOAT, 1, offsetof(DisintegrationInstances::GpuInstance, spawnTime), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "RADIUS", 0, DXGI_FORMAT_R32_FLOAT, 1, offsetof(DisintegrationInstances::GpuInstance, maxRadius), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 		};
 
 		std::vector<D3D11_INPUT_ELEMENT_DESC> emissive = {
@@ -144,28 +184,35 @@ namespace engine
 			D3D11_INPUT_ELEMENT_DESC{ "OBJECTID", 0, DXGI_FORMAT_R32_UINT, 1, offsetof(DecalSystem::GpuInstance, objectID), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 		};
 
-		auto& opaqueGBShader = ShaderManager::Get().LoadShader("opaqueGB", "shaders/opaqueGB.hlsl", &opaque);
-		auto& opaqueDSShader = ShaderManager::Get().LoadShader("opaqueDS", "shaders/opaqueDS.hlsl", &deferredShading);
-		auto& opaqueIBLDSShader = ShaderManager::Get().LoadShader("opaqueIBLDS", "shaders/opaqueIBLDS.hlsl", nullptr);
-		auto& opaqueShadowsShader = ShaderManager::Get().LoadShader("opaqueShadows", "shaders/opaqueShadows.hlsl", &opaqueShadows, true);
-		auto& dissolutionGBShader = ShaderManager::Get().LoadShader("dissolutionGB", "shaders/dissolutionGB.hlsl", &dissolution);
-		auto& dissolutionShadowsShader = ShaderManager::Get().LoadShader("dissolutionShadows", "shaders/dissolutionShadows.hlsl", &dissolutionShadows, true);
-		auto& grassGBShader = ShaderManager::Get().LoadShader("grassGB", "shaders/grassGB.hlsl", &grass);
-		auto& grassDSShader = ShaderManager::Get().LoadShader("grassDS", "shaders/grassDS.hlsl", &deferredShading);
-		auto& grassIBLDSShader = ShaderManager::Get().LoadShader("grassIBLDS", "shaders/grassIBLDS.hlsl", nullptr);
-		auto& grassShadowsShader = ShaderManager::Get().LoadShader("grassShadows", "shaders/grassShadows.hlsl", &grass, true);
-		auto& decalGBShader = ShaderManager::Get().LoadShader("decalGB", "shaders/decalGB.hlsl", &decals);
-		auto& lightInstancesShader = ShaderManager::Get().LoadShader("lightInstance", "shaders/emissive.hlsl", &emissive);
-		auto& particlesShader = ShaderManager::Get().LoadShader("particles", "shaders/particles.hlsl", &particles);
-		auto& resolveShader = ShaderManager::Get().LoadShader("resolve", "shaders/resolve.hlsl", nullptr);
-		ShaderManager::Get().LoadShader("skybox", "shaders/sky.hlsl", nullptr);
+		auto& opaqueGBShader = ShaderManager::Get().LoadShader("opaqueGB", "shaders/opaqueGB.hlsl", &opaque, Shader::ShaderType::VertexPixel);
+		auto& opaqueDSShader = ShaderManager::Get().LoadShader("opaqueDS", "shaders/opaqueDS.hlsl", &deferredShading, Shader::ShaderType::VertexPixel);
+		auto& opaqueIBLDSShader = ShaderManager::Get().LoadShader("opaqueIBLDS", "shaders/opaqueIBLDS.hlsl", nullptr, Shader::ShaderType::VertexPixel);
+		auto& opaqueShadowsShader = ShaderManager::Get().LoadShader("opaqueShadows", "shaders/opaqueShadows.hlsl", &opaqueShadows, Shader::ShaderType::VertexPixelGeometry);
+		auto& dissolutionGBShader = ShaderManager::Get().LoadShader("dissolutionGB", "shaders/dissolutionGB.hlsl", &dissolution, Shader::ShaderType::VertexPixel);
+		auto& dissolutionShadowsShader = ShaderManager::Get().LoadShader("dissolutionShadows", "shaders/dissolutionShadows.hlsl", &dissolutionShadows, Shader::ShaderType::VertexPixelGeometry);
+		auto& disintegrationGBShader = ShaderManager::Get().LoadShader("disintegrationGB", "shaders/disintegrationGB.hlsl", &disintegration, Shader::ShaderType::VertexPixel);
+		auto& disintegrationShadowsShader = ShaderManager::Get().LoadShader("disintegrationShadows", "shaders/disintegrationShadows.hlsl", &disintegrationShadows, Shader::ShaderType::VertexPixelGeometry);
+		auto& disintegrationSpawnParticlesShader = ShaderManager::Get().LoadShader("disintegrationSpawnParticles", "shaders/disintegrationSpawnParticles.hlsl", &disintegrationSpawnParticles, Shader::ShaderType::Vertex | Shader::ShaderType::Geometry);
+		auto& disintegrationDrawParticlesShader = ShaderManager::Get().LoadShader("disintegrationDrawParticles", "shaders/disintegrationDrawParticles.hlsl", nullptr, Shader::ShaderType::VertexPixel);
+		auto& disintegrationUpdateParticlesShader = ShaderManager::Get().LoadShader("disintegrationUpdateParticles", "shaders/disintegrationUpdateParticles.hlsl", nullptr, Shader::ShaderType::Compute);
+		auto& disintegrationUpdateRangeShader = ShaderManager::Get().LoadShader("disintegrationUpdateRange", "shaders/disintegrationUpdateRange.hlsl", nullptr, Shader::ShaderType::Compute);
+		auto& grassGBShader = ShaderManager::Get().LoadShader("grassGB", "shaders/grassGB.hlsl", &grass, Shader::ShaderType::VertexPixel);
+		auto& grassDSShader = ShaderManager::Get().LoadShader("grassDS", "shaders/grassDS.hlsl", &deferredShading, Shader::ShaderType::VertexPixel);
+		auto& grassIBLDSShader = ShaderManager::Get().LoadShader("grassIBLDS", "shaders/grassIBLDS.hlsl", nullptr, Shader::ShaderType::VertexPixel);
+		auto& grassShadowsShader = ShaderManager::Get().LoadShader("grassShadows", "shaders/grassShadows.hlsl", &grass, Shader::ShaderType::VertexPixelGeometry);
+		auto& decalGBShader = ShaderManager::Get().LoadShader("decalGB", "shaders/decalGB.hlsl", &decals, Shader::ShaderType::VertexPixel);
+		auto& lightInstancesShader = ShaderManager::Get().LoadShader("lightInstance", "shaders/emissive.hlsl", &emissive, Shader::ShaderType::VertexPixel);
+		auto& particlesShader = ShaderManager::Get().LoadShader("particles", "shaders/particles.hlsl", &particles, Shader::ShaderType::VertexPixel);
+		auto& resolveShader = ShaderManager::Get().LoadShader("resolve", "shaders/resolve.hlsl", nullptr, Shader::ShaderType::VertexPixel);
+		ShaderManager::Get().LoadShader("skybox", "shaders/sky.hlsl", nullptr, Shader::ShaderType::VertexPixel);
 
 		MeshSystem::Get().GetDissolutionInstances().SetShaders(nullptr, nullptr, nullptr, &dissolutionGBShader, &dissolutionShadowsShader);
 		MeshSystem::Get().GetOpaqueInstances().SetShaders(nullptr, &opaqueDSShader, &opaqueIBLDSShader, &opaqueGBShader, &opaqueShadowsShader);
 		MeshSystem::Get().GetLightInstances().SetShaders(&lightInstancesShader);
+		MeshSystem::Get().GetDisintegrationInstances().SetShaders(nullptr, nullptr, nullptr, &disintegrationGBShader, &disintegrationShadowsShader, &disintegrationSpawnParticlesShader);
 		DecalSystem::Get().SetShaders(&decalGBShader);
 		VegetationSystem::Get().SetShaders(nullptr, &grassDSShader, &grassIBLDSShader, &grassGBShader, &grassShadowsShader);
-		ParticleSystem::Get().SetShaders(&particlesShader);
+		ParticleSystem::Get().SetShaders(&particlesShader, &disintegrationUpdateParticlesShader, &disintegrationUpdateRangeShader, &disintegrationDrawParticlesShader);
 		Postprocess::Get().SetShader(&resolveShader);
 
 		Model* pSphere = &ModelManager::Get().GetUnitSphere();
@@ -243,21 +290,22 @@ namespace engine
 		auto& grassAOTexture = TextureManager::Get().LoadTexture2D("grassAO", "assets/grass/ribbonGrass/trimed/AO.dds");
 		auto& grassTranslucencyTexture = TextureManager::Get().LoadTexture2D("grassTranslucency", "assets/grass/ribbonGrass/trimed/Translucency.dds");
 		auto& decalTexture = TextureManager::Get().LoadTexture2D("decal", "assets/decals/splatter-512.dds");
+		auto& gpuParticleNormals = TextureManager::Get().LoadTexture2D("hpuParticleNormals", "assets/particles/sphere_normal.dds");
 
 		MeshSystem::Get().GetDissolutionInstances().SetTextures(&noiseTexture);
+		MeshSystem::Get().GetDisintegrationInstances().SetTextures(&noiseTexture);
 		DecalSystem::Get().SetTextures(&decalTexture);
 		VegetationSystem::Get().SetTextures(VegetationSystem::GrassTextures(&grassAlbedoTexture, &grassRoughnessTexture, &grassMetallicTexture, 
 																		&grassNormalTexture, &grassOpacityTexture, &grassAOTexture, &grassTranslucencyTexture));
-		ParticleSystem::Get().SetTextures(ParticleSystem::ParticleTextures(&smokeEMVATexture, &smokeRLTTexture, &smokeBotBFTexture));
-
+		ParticleSystem::Get().SetTextures(ParticleSystem::ParticleTextures(&smokeEMVATexture, &smokeRLTTexture, &smokeBotBFTexture), &gpuParticleNormals);
 
 		TransformSystem::Transform transform;
 		auto& transforms = TransformSystem::Get().GetTransforms();
 
-		transform.position = { 0.f, 0.5f, -4.f };
+		/*transform.position = { 0.f, 0.5f, -4.f };
 		transform.scale = { 1.f, 1.f, 1.f };
 		transform.rotation = { 0.f, 0.f, 0.f };
-		MeshSystem::Get().GetOpaqueInstances().AddInstance(pCube, cubeContainerTexture, transforms.insert(transform), Globals::Get().GetObjectIDCounter());
+		MeshSystem::Get().GetOpaqueInstances().AddInstance(pCube, cubeContainerTexture, transforms.insert(transform), Globals::Get().GetObjectIDCounter());*/
 
 		transform.position = { 0.f, -5.f, 0.f };
 		transform.scale = { 10.f, 10.f, 10.f };
@@ -266,6 +314,11 @@ namespace engine
 
 		for (uint32_t i = 0; i < 3; ++i)
 		{
+			transform.position = { -4.0f + i * 3.0f, 0.5f, -4.f };
+			transform.scale = { 1.f, 1.f, 1.f };
+			transform.rotation = { 0.f, 0.f, 0.f };
+			MeshSystem::Get().GetOpaqueInstances().AddInstance(pCube, cubeContainerTexture, transforms.insert(transform), Globals::Get().GetObjectIDCounter());
+
 			transform.position = { -4.0f + i * 3.0f, 0.0f, 0.0f };
 			transform.scale = { 1.f, 1.f, 1.f };
 			transform.rotation = { 0.f, 0.f, 0.f };
@@ -284,10 +337,10 @@ namespace engine
 			LightSystem::Get().AddPointLight(light);
 		}
 
-		//{
-			//LightSystem::GpuPointLight light({ 2.0f, 5.0f, -3.0f }, { 0.2f, 0.0f, 0.1f }, 0.15f, 4.0f);
-			//LightSystem::Get().AddPointLight(light);
-		//}
+		{
+			LightSystem::GpuPointLight light({ 2.0f, 5.0f, -3.0f }, { 0.2f, 0.0f, 0.1f }, 0.15f, 4.0f);
+			LightSystem::Get().AddPointLight(light);
+		}
 
 		{
 			ParticleSystem::SmokeEmitter smoke({ -3.f, 0.f, -3.f }, 0.2f, 0.032f, { 1.f, 1.f, 1.f }, 3.f, { 0.4f, 0.4f }, {0.7f, 0.7f});
@@ -374,6 +427,7 @@ namespace engine
 					};
 
 					m_SpawnModule.SpawnInstance(pHorse, horseTextures, TransformSystem::Get().GetTransforms().insert(transform), MESH_SPAWN_ANIMATION_TIME);
+					break;
 				}
 				}
 				return true;
@@ -403,6 +457,7 @@ namespace engine
 		PerFrame& p = Globals::Get().GetPerFrameObj();
 
 		p.time += delta;
+		p.deltaTime = delta;
 
 		Camera& camera = m_CameraController->GetCamera();
 		
@@ -441,17 +496,40 @@ namespace engine
 
 				MeshSystem::Get().PickMesh(ray, m_Query);
 
-				if (m_Query.usable)
+				if (m_Query.usable && m_Query.shadingGroup == Query::ShadingGroup::Opaque)
 				{
 					float NdotR = Dot(m_Query.normal, Normalize(-ray.direction));
 
-					DecalSystem::Get().SpawnDecal(m_CameraController->GetCamera(), m_Query.pos, 0.5f, NdotR, m_Query.transformID, m_Query.meshID);
+					DecalSystem::Get().SpawnDecal(m_CameraController->GetCamera(), m_Query.pos, 0.5f, NdotR, m_Query.transformID, m_Query.objectID);
+					m_Query.reset();
 				}
 			}
 		}
 		else
 		{
 			m_FirstF = true;
+		}
+
+		if (m_Window->IsKeyPressed(Key::M))
+		{
+			Ray ray = m_CameraController->GetPickingRay();
+
+			if (m_FirstM)
+			{
+				m_FirstM = false;
+
+				MeshSystem::Get().PickMesh(ray, m_Query);
+
+				if (m_Query.usable && m_Query.shadingGroup == Query::ShadingGroup::Opaque)
+				{
+					m_SpawnModule.DespawnInstance(m_Query.pModel, m_Query.transformID, m_Query.objectID, m_Query.pos);
+					m_Query.reset();
+				}
+			}
+		}
+		else
+		{
+			m_FirstM = true;
 		}
 		
 		if (m_Window->IsKeyPressed(Key::RMB))
@@ -465,11 +543,12 @@ namespace engine
 				MeshSystem::Get().PickMesh(ray, m_Query);
 			}
 
-			if (m_Query.usable)
+			if (m_Query.usable && TransformSystem::Get().GetTransforms().occupied(m_Query.transformID))
 			{
 				DirectX::XMFLOAT3 off;
 				DirectX::XMVECTOR pos = ray.PointAtLine(m_Query.t);
 				DirectX::XMStoreFloat3(&off, DirectX::XMVectorSubtract(pos, DirectX::XMLoadFloat3(&m_Query.pos)));
+				
 				auto& transform = TransformSystem::Get().GetTransforms()[m_Query.transformID];
 				transform.position.x += off.x;
 				transform.position.y += off.y;

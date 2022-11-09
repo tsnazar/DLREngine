@@ -104,45 +104,6 @@ namespace engine
 		m_ShadowMapDimensions.Create<ShadowMapDimensions>(D3D11_USAGE_DYNAMIC, &dimensions, 1);
 	}
 
-	void LightSystem::ResolveGBuffer(DepthTarget& depth, RenderTarget& albedo, RenderTarget& normals, RenderTarget& roughnessMetallic, 
-		RenderTarget& emission, RenderTarget& position, ConstantBuffer& dimensions)
-	{
-		if (m_LightInstances.GetVertexCount() == 0 || !m_LightInstances.IsValid())
-			return;
-
-		ShaderManager::Get().GetShader("opaqueIBLDS").SetShaders();
-
-		m_ShadowMatricesBuffer.BindToPS(1);
-		m_ShadowMapDimensions.BindToPS(3);
-		dimensions.BindToPS(4);
-
-		//Globals::Get().SetDefaultBlendState();
-		Globals::Get().SetBlendStateAddition();
-		Globals::Get().SetDepthStencilStateRead(1);
-		//Globals::Get().SetDefaultRasterizerState();
-		Globals::Get().SetRasterizerFrontFaceCull();
-		
-		depth.BindToPS(0);
-		albedo.BindToPS(1);
-		normals.BindToPS(2);
-		roughnessMetallic.BindToPS(3);
-		m_ShadowMap.BindToPS(4);
-		emission.BindToPS(5);
-		position.BindToPS(6);
-
-		Model& sphere = ModelManager::Get().GetUnitSphere();
-		sphere.Bind(0);
-		m_LightInstances.SetBuffer(1);
-
-		s_Devcon->DrawInstanced(sphere.GetSubMeshes()[0].vertexNum, m_NumLights, 0, sphere.GetSubMeshes()[0].vertexOffset);
-		//s_Devcon->DrawInstanced(3, m_NumLights, 0, 0);
-
-		Globals::Get().SetDepthStencilStateRead(2);
-		ShaderManager::Get().GetShader("grassDSR").SetShaders();
-		s_Devcon->DrawInstanced(sphere.GetSubMeshes()[0].vertexNum, m_NumLights, 0, sphere.GetSubMeshes()[0].vertexOffset);
-
-	}
-
 	void LightSystem::Update()
 	{
 		auto& perFrame = Globals::Get().GetPerFrameObj();
@@ -190,28 +151,14 @@ namespace engine
 
 		s_Devcon->RSSetViewports(1, &viewport);
 
-		auto& transforms = TransformSystem::Get().GetTransforms();
-
-		ID3D11ShaderResourceView* const pSRV[1] = { NULL };
-		s_Devcon->PSSetShaderResources(4, 1, pSRV);
-		s_Devcon->PSSetShaderResources(5, 1, pSRV);
+		ID3D11ShaderResourceView* const pSRV[2] = { NULL, NULL };
+		s_Devcon->PSSetShaderResources(4, 2, pSRV);
 
 		s_Devcon->OMSetRenderTargets(1, pRTV, m_ShadowMap.GetDepthView().ptr());
 		s_Devcon->ClearDepthStencilView(m_ShadowMap.GetDepthView(), D3D11_CLEAR_DEPTH, 0.0f, 0);
 
-		Globals::Get().SetReversedDepthState();
-		Globals::Get().SetDefaultBlendState();
-		Globals::Get().SetDefaultRasterizerState();
-		MeshSystem::Get().GetOpaqueInstances().RenderToShadowMap(m_ShadowMatrixBuffer, m_Matrices, m_NumLights);
-
-		Globals::Get().SetReversedDepthState();
-		Globals::Get().SetDefaultBlendState();
-		Globals::Get().SetRasterizerStateCullOff();
-		MeshSystem::Get().GetDissolutionInstances().RenderToShadowMap(m_ShadowMatrixBuffer, m_Matrices, m_NumLights);
-
-		Globals::Get().SetReversedDepthState();
-		Globals::Get().SetDefaultBlendState();
-		Globals::Get().SetRasterizerStateCullOff();
+		MeshSystem::Get().RenderToShadowMap(m_ShadowMatrixBuffer, m_Matrices, m_NumLights);
+		
 		VegetationSystem::Get().RenderToShadowMap(m_ShadowMatrixBuffer, m_Matrices, m_NumLights);
 	}
 

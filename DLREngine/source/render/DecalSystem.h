@@ -5,6 +5,7 @@
 #include "ConstantBuffer.h"
 #include "Camera.h"
 #include "DepthTarget.h"
+#include "Shader.h"
 
 namespace engine
 {
@@ -55,6 +56,8 @@ namespace engine
 		void Update();
 
 		void SpawnDecal(Camera& camera, DirectX::XMFLOAT3 position, float halfSize, float NdotR, uint32_t transformID, uint32_t objectID);
+
+		void DespawnDecal(uint32_t transformID);
 
 		void RenderToGBuffer(Texture2D& depth, ConstantBuffer& dimensions, Texture2D& normals, Texture2D& objectIDs);
 

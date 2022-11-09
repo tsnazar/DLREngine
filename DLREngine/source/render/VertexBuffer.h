@@ -3,8 +3,6 @@
 #include "DxRes.h"
 #include "Vertex.h"
 #include "Debug.h"
-#include "InputLayout.h"
-#include "ShaderManager.h"
 
 namespace engine
 {
@@ -29,6 +27,7 @@ namespace engine
 		bool IsValid() { return m_Buffer.valid(); }
 
 	private:
+		bool m_Dynamic;
 		VertexType m_VertexType;
 		uint32_t m_VertexCount;
 		uint32_t m_Stride, m_Offset;
@@ -46,13 +45,14 @@ namespace engine
 		m_Stride = sizeof(T);
 		m_Offset = 0;
 
-		bool dynamic = usage == D3D11_USAGE_DYNAMIC;
+		m_Dynamic = usage == D3D11_USAGE_DYNAMIC ? true : false;
 		
-		D3D11_BUFFER_DESC desc = { 0 };
-		desc.ByteWidth = vertexCount * m_Stride;
+		D3D11_BUFFER_DESC desc;
+		ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+		desc.ByteWidth = m_VertexCount * m_Stride;
 		desc.Usage = usage;
 		desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		desc.CPUAccessFlags = dynamic ? D3D11_CPU_ACCESS_WRITE : 0;
+		desc.CPUAccessFlags = m_Dynamic ? D3D11_CPU_ACCESS_WRITE : 0;
 		desc.MiscFlags = 0;
 		desc.StructureByteStride = 0;
 		
@@ -60,15 +60,21 @@ namespace engine
 		sr_data.pSysMem = data;
 
 		HRESULT result = s_Device->CreateBuffer(&desc, data == nullptr ? nullptr : &sr_data, m_Buffer.reset());
+		if (FAILED(result))
+		{
+			result = s_Device->GetDeviceRemovedReason();
+		}
 		ALWAYS_ASSERT(SUCCEEDED(result));
 	}
 
 	template<typename T>
 	void VertexBuffer::Update(const T* data, const uint32_t size)
 	{
-		m_VertexType = GetVertexTypeFromStruct<T>();
-		m_Offset = 0;
-		m_Stride = sizeof(T);
+		ALWAYS_ASSERT(m_Stride == sizeof(T) && m_Dynamic);
+
+		//m_VertexType = GetVertexTypeFromStruct<T>();
+		//m_Offset = 0;
+		//m_Stride = sizeof(T);
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 
 		HRESULT result = s_Devcon->Map(m_Buffer.ptr(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
@@ -87,6 +93,8 @@ namespace engine
 
 	inline void* VertexBuffer::Map()
 	{
+		ALWAYS_ASSERT(m_Dynamic);
+
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 
 		HRESULT result = s_Devcon->Map(m_Buffer.ptr(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
@@ -97,6 +105,8 @@ namespace engine
 
 	inline void VertexBuffer::UnMap()
 	{
+		ALWAYS_ASSERT(m_Dynamic);
+
 		s_Devcon->Unmap(m_Buffer.ptr(), 0);
 	}
 }

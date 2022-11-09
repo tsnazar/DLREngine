@@ -27,6 +27,7 @@ namespace engine
 		void BindToVS(uint32_t slot);
 		void BindToGS(uint32_t slot);
 		void BindToPS(uint32_t slot);
+		void BindToCS(uint32_t slot);
 
 	protected:
 		DxResPtr<ID3D11ShaderResourceView> m_TextureView;

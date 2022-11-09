@@ -76,8 +76,6 @@ Texture2D g_roughnessTexture : ROUGHNESS: register(t1);
 Texture2D g_metallicTexture : METALIC: register(t2);
 Texture2D g_normalTexture : NORMAL_MAP: register(t3);
 
-static const float3 basicF0 = float3(0.04, 0.04, 0.04);
-
 ///pixel shader
 
 struct PS_OUTPUT

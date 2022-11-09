@@ -154,6 +154,9 @@
     <ClCompile Include="source\render\DecalSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\include\DisintegrationInstances.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\decorators\math\TransformMover.h">
@@ -301,5 +304,8 @@
     <ClInclude Include="source\render\VegetationSystem.h" />
     <ClInclude Include="source\utility\PoissonDiskSampling.h" />
     <ClInclude Include="source\render\DecalSystem.h" />
+    <ClInclude Include="source\include\DisintegrationInstances.h" />
+    <ClInclude Include="source\render\StructuredBuffer.h" />
+    <ClInclude Include="source\render\Buffer.h" />
   </ItemGroup>
 </Project>

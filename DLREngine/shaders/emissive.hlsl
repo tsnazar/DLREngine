@@ -36,5 +36,4 @@ float4 ps_main(VS_OUTPUT input) : SV_TARGET
     float NdotV = dot(cameraDir, normal);
 
     return float4(lerp(normedEmission * 0.33, input.color.xyz, pow(max(0.0, NdotV), 8)), 1);
-    //return float4(input.color, 1.0f);
 }

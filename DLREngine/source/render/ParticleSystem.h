@@ -9,13 +9,18 @@
 #include "TransformSystem.h"
 #include "Sky.h"
 #include "DepthTarget.h"
+#include "StructuredBuffer.h"
+#include "Buffer.h"
 
 namespace engine
 {
 	class ParticleSystem
 	{
 	public:
-		static const uint32_t MAX_PARTICLES_COUNT = 500;
+		static const uint32_t CPU_PARTICLES_COUNT = 512;
+		static const uint32_t GPU_PARTICLES_COUNT = 2048;
+		static const float GPU_LIFETIME;
+		static const float EDGE_SIZE;
 
 		struct ShaderDescription
 		{
@@ -23,10 +28,29 @@ namespace engine
 				SMOKE_TEXTURE = 0, LIGHTMAP1_TEXTURE = 1, LIGHTMAP2_TEXTURE = 2, DEPTH_TEXTURE = 3,
 				SHADOWMAP_TEXTURE = 4, IRRADIANCE_TEXTURE = 5,INSTANCE_BUFFER = 0,
 				TARGET_DIMENSIONS_CONSTANTS = 4,
-				SHADOWMAP_MATRICES = 1, SHADOWMAP_DIMENSIONS = 3
+				SHADOWMAP_MATRICES = 1, SHADOWMAP_DIMENSIONS = 3,
+				GPU_PARTICLES_UAV = 0, RANGE_UAV = 1, INDIRECT_ARGS_UAV = 2, 
+				GBUFFER_DIMENSIONS = 2, GBUFFER_DEPTH = 0, GBUFFER_NORMALS = 1, NORMALS_PARTICLES = 0,
+				GPU_CONSTANTS = 1, 
 			};
 		};
 	public:
+		struct GpuParticle
+		{
+			DirectX::XMFLOAT3 pos;
+			float spawnTime;
+			DirectX::XMFLOAT3 vel;
+			float padding;
+		};
+
+		struct GpuParticleConstants
+		{
+			uint32_t bufferSize;
+			float animationTime;
+			float edgeSize;
+			float padding;
+		};
+		
 		struct ParticleTextures
 		{
 			Texture2D* EMVA = nullptr;
@@ -101,7 +125,7 @@ namespace engine
 				if (newParticlesCount > 0)
 					prevDelta = 0;
 
-				for (uint32_t i = 0; i < newParticlesCount && particles.size() < MAX_PARTICLES_COUNT; ++i)
+				for (uint32_t i = 0; i < newParticlesCount && particles.size() < CPU_PARTICLES_COUNT; ++i)
 				{
 					Particle particle;
 					particle.lifeTime = 1.0f;
@@ -123,29 +147,59 @@ namespace engine
 		};
 
 	public:
+		ParticleSystem();
+
 		static void Init();
 
 		static void Fini();
 
-		void SetShaders(Shader* forwardShader) { m_ForwardShader = forwardShader; }
+		void SetShaders(Shader* forwardShader, Shader* updateGpuParticlesShader, Shader* updateGpuRangeShader, Shader* forwardGpuParticlesShader)
+		{
+			m_ForwardShader = forwardShader; m_UpdateGpuParticlesShader = updateGpuParticlesShader; m_UpdateGpuRangeShader = updateGpuRangeShader; m_ForwardGpuParticlesShader = forwardGpuParticlesShader;
+		}
 
-		void SetTextures(ParticleTextures textures) { m_Textures = textures; }
+		void SetTextures(ParticleTextures textures, Texture2D* gpuNormals) { m_Textures = textures; m_GpuNormals = gpuNormals; }
 
 		void Render(Sky::IblResources iblResources, Texture2D& depth, ConstantBuffer& dimensions);
+
+		void SpawnGpuParticles(RenderTarget& renderTarget, DepthTarget& depthTarget);
+
+		void UpdateGpuParticles(Texture2D& depth, Texture2D& normals, ConstantBuffer& dimensions);
+
+		void RenderGpuParticles();
 
 		void Update(float dt, Camera& camera);
 
 		void AddSmoke(const SmokeEmitter& smoke);
 
+		Buffer& GetGpuParticles() { return m_GpuParticles; }
+
+		Buffer& GetIndirectArgs() { return m_IndirectArgs; }
+		
+		Buffer& GetRange() { return m_Range; }
+
+		ConstantBuffer& GetGpuConstants() { return m_GpuConstants; }
+
 		static ParticleSystem& Get() { return *s_Instance; }
 
 	private:
 		VertexBuffer m_InstanceBuffer;
+		Buffer m_GpuParticles;
+		Buffer m_Range;
+		Buffer m_IndirectArgs;
 
 		std::vector<SmokeEmitter>  m_Emmiters;
 
 		Shader* m_ForwardShader = nullptr;
+		Shader* m_UpdateGpuParticlesShader = nullptr;
+		Shader* m_UpdateGpuRangeShader = nullptr;
+		Shader* m_ForwardGpuParticlesShader = nullptr;
+
 		ParticleTextures m_Textures;
+		Texture2D* m_GpuNormals = nullptr;
+
+		ConstantBuffer m_GpuConstants;
+
 	private:
 		static ParticleSystem* s_Instance;
 	};

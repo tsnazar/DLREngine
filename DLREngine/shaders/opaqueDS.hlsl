@@ -55,7 +55,7 @@ Texture2D g_roughnessMetallic : register(t3);
 TextureCubeArray g_shadowMap : register(t4);
 Texture2D g_emission : register(t5);
 
-static const float3 basicF0 = float3(0.04, 0.04, 0.04);
+static const float3 BASICF0 = float3(0.04, 0.04, 0.04);
 
 float4 ps_main(VS_OUTPUT input) : SV_Target
 {
@@ -65,7 +65,7 @@ float4 ps_main(VS_OUTPUT input) : SV_Target
     float4 normalCompressed = g_normals.Load(int3(input.position.xy, 0));
     float2 roughnessMetallic = g_roughnessMetallic.Load(int3(input.position.xy, 0));
 
-    float3 f0 = lerp(basicF0, albedo.xyz, roughnessMetallic.g);
+    float3 f0 = lerp(BASICF0, albedo.xyz, roughnessMetallic.g);
 
     float3 N = unpackOctahedron(normalCompressed.xy);
     float3 GN = unpackOctahedron(normalCompressed.zw);

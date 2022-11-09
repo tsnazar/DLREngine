@@ -10,7 +10,7 @@ namespace engine
 
 	void Sky::SetSky(const std::string& name, const std::string& shaderPath, const std::string& texturePath, const char* irradiancePath, const char* reflectionPath, const char* reflectancePath)
 	{
-		m_Shader = &ShaderManager::Get().LoadShader(shaderPath, shaderPath, nullptr);
+		m_Shader = &ShaderManager::Get().LoadShader(shaderPath, shaderPath, nullptr, Shader::ShaderType::VertexPixel);
 		m_Texture = &TextureManager::Get().LoadCubemap(texturePath, texturePath);
 
 		if (irradiancePath != nullptr && reflectionPath != nullptr && reflectancePath != nullptr)

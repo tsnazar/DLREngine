@@ -30,7 +30,7 @@ namespace engine
 		s_Instance = nullptr;
 	}
 
-	Shader& ShaderManager::LoadShader(const std::string& name, const std::string& filepath, const std::vector<D3D11_INPUT_ELEMENT_DESC>* inputAttributes, bool hasGS)
+	Shader& ShaderManager::LoadShader(const std::string& name, const std::string& filepath, const std::vector<D3D11_INPUT_ELEMENT_DESC>* inputAttributes, int type)
 	{
 		ContainerShaders::iterator iter = m_Shaders.find(name);
 
@@ -39,7 +39,7 @@ namespace engine
 
 		std::unique_ptr<Shader>& shader = m_Shaders[name];
 		shader = std::make_unique<Shader>();
-		return shader->LoadFromFile(filepath, inputAttributes, hasGS);
+		return shader->LoadFromFile(filepath, inputAttributes, type);
 	}
 
 	InputLayout& ShaderManager::LoadInputLayout(const std::vector<D3D11_INPUT_ELEMENT_DESC>& inputAttributes, ID3D10Blob* blob)

@@ -1,7 +1,7 @@
 #ifndef GLOBALS
 #define GLOBALS
 
-static const uint MAX_POINT_LIGHTS = 1;
+static const uint MAX_POINT_LIGHTS = 2;
 static const float PI = 3.1415926;
 static const float MIN_DOT = 0.0005;
 
@@ -23,9 +23,8 @@ cbuffer PerFrame : register(b0)
     float4 g_cameraPos;
     float4 g_frustumCorners[3];
     float g_time;
-    uint g_viewportWidth;
-    uint g_viewportHeight;
-    float paddingPFrame;
+    float g_deltaTime;
+    float2 paddingPFrame;
     PointLight g_lights[MAX_POINT_LIGHTS];
 }
 

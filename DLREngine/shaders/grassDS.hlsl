@@ -55,8 +55,8 @@ Texture2D g_roughnessMetallic : register(t3);
 TextureCubeArray g_shadowMap : register(t4);
 Texture2D g_emission : register(t5);
 
-static const float3 basicF0 = float3(0.04, 0.04, 0.04);
-static const float power = 4;
+static const float3 BASICF0 = float3(0.04, 0.04, 0.04);
+static const float POWER = 4;
 
 float4 ps_main(VS_OUTPUT input) : SV_Target
 {
@@ -67,7 +67,7 @@ float4 ps_main(VS_OUTPUT input) : SV_Target
     float2 roughnessMetallic = g_roughnessMetallic.Load(int3(input.position.xy, 0));
     float4 translucencyAO = g_emission.Load(int3(input.position.xy, 0));
 
-    float3 f0 = lerp(basicF0, albedo.xyz, roughnessMetallic.g);
+    float3 f0 = lerp(BASICF0, albedo.xyz, roughnessMetallic.g);
 
     float3 N = unpackOctahedron(normalCompressed.xy);
     float3 GN = unpackOctahedron(normalCompressed.zw);
@@ -105,7 +105,7 @@ float4 ps_main(VS_OUTPUT input) : SV_Target
     float3 resultColor = calculatePointLighting(N, GN, V, L, dist, angularCos, lightAngleSin, solidAngle, NdotL, view, input.radius, input.radiance, material, visibility);
 
     if (NdotL < 0.0f)
-        resultColor += input.radiance * solidAngle * translucencyAO.rgb * pow(-NdotL, power) * visibility;
+        resultColor += input.radiance * solidAngle * translucencyAO.rgb * pow(-NdotL, POWER) * visibility;
 
     resultColor *= translucencyAO.a;
 
