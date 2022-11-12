@@ -9,8 +9,8 @@ using namespace DirectX;
 
 namespace engine
 {
-	const float DecalSystem::MAX_DEPTH = 1.0f;
-	const float DecalSystem::MIN_DEPTH = 0.1f;
+	const float DecalSystem::MAX_DEPTH = 2.0f;
+	const float DecalSystem::MIN_DEPTH = 0.2f;
 
 	DecalSystem* DecalSystem::s_Instance = nullptr;
 

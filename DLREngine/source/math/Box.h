@@ -21,7 +21,8 @@ namespace engine
 
 		inline DirectX::XMFLOAT3 size() const { return max - min; }
 		inline DirectX::XMFLOAT3 center() const { return (min + max) / 2.0f; }
-		inline float radius() const { return Length(size()) / 2.0f; }
+		inline float diameter() const { return Length(size()); }
+		inline float radius() const { return diameter() / 2.0f; }
 
 		inline void reset()
 		{
@@ -32,8 +33,10 @@ namespace engine
 
 		inline void expand(const Box& other)
 		{
-			min = min < other.min ? min : other.min;
-			max = max < other.max ? other.max : max;
+			min = Min(min, other.min);
+			max = Max(max, other.max);
+			//min = min < other.min ? min : other.min;
+			//max = max < other.max ? other.max : max;
 		}
 
 		inline bool contains(const DirectX::XMFLOAT3& P)
@@ -41,6 +44,4 @@ namespace engine
 			return min.x <= P.x && P.x <= max.x && min.y <= P.y && P.y <= max.y && min.z <= P.z && P.z <= max.z;
 		}
 	};
-
-	
 }

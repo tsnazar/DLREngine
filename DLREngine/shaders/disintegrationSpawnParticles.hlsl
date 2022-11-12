@@ -51,8 +51,6 @@ RWStructuredBuffer<int> g_range : register(u1);
 [maxvertexcount(1)]
 void gs_main(triangle VS_OUTPUT input[3])
 {
-    //float triangleCollisionTime = (input[0].vertexCollisionTime + input[1].vertexCollisionTime + input[2].vertexCollisionTime) / 3;
-    //float triangleCollisionTime = (input[0].vertexCollisionTime);
     float triangleCollisionTime = max(input[0].vertexCollisionTime, max(input[1].vertexCollisionTime,input[2].vertexCollisionTime));
 
     if (triangleCollisionTime < g_time && triangleCollisionTime > g_time - g_deltaTime)

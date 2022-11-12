@@ -25,7 +25,7 @@ struct VS_OUTPUT {
 StructuredBuffer<Particle> g_gpuParticles : register(t0);
 StructuredBuffer<int> g_range : register(t1);
 
-static const float SIZE = 0.03;
+static const float SIZE = 0.015;
 
 VS_OUTPUT vs_main(VS_INPUT input) {
     VS_OUTPUT output = (VS_OUTPUT)0;

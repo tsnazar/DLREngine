@@ -48,7 +48,9 @@ struct VS_OUTPUT {
     float3 normal : NORM;
     float3x3 TBN : TBN;
     float animationTime : TIME;
-    float vertexCollisionTime : VTIME;
+    float3 meshPos : MPOS;
+    float3 spherePos : SPOS;
+    float maxRadius : RADIUS;
     uint objectID : OBJECTID;
 };
 // vertex shader
@@ -58,10 +60,7 @@ VS_OUTPUT vs_main(VS_INPUT input)
     VS_OUTPUT output = (VS_OUTPUT)0;
     output.position = float4(input.inPosition, 1.0);
     output.position = mul(output.position, meshToModel);
-
-    float sphereToVertexDist = length(output.position.xyz - input.inSpherePos);
-    output.animationTime = (g_time - input.inSpawnTime) / g_maxAnimationTime;
-    output.vertexCollisionTime = sphereToVertexDist / input.inMaxRadius;
+    output.meshPos = output.position;
 
     output.position = mul(output.position, input.inModelToWorld);
     output.position = mul(output.position, g_viewProj);
@@ -71,7 +70,13 @@ VS_OUTPUT vs_main(VS_INPUT input)
     output.normal = mul(input.inNormal, meshToModel);
     output.normal = normalize(mul(output.normal, input.inModelToWorld));
 
+    output.animationTime = (g_time - input.inSpawnTime) / g_maxAnimationTime;
+
+    output.maxRadius = input.inMaxRadius;
+
     output.objectID = input.inObjectID;
+
+    output.spherePos = input.inSpherePos;
 
     if (g_flags & f_hasNormals)
     {
@@ -117,11 +122,14 @@ PS_OUTPUT ps_main(VS_OUTPUT input, bool isFrontFace : SV_IsFrontFace)
 
     float dissolveNoise = g_noiseTexture.Sample(g_sampler, input.texCoord);
 
-    float edge = step(input.vertexCollisionTime, input.animationTime);
+    float sphereToPixelDist = length(input.meshPos - input.spherePos);
+    float pixelCollisionTime = sphereToPixelDist / input.maxRadius;
 
-    float dissolveAnimationTime = (input.animationTime - input.vertexCollisionTime - EDGE_DELTA) / DISSOLVE_DELTA;
+    float edge = step(pixelCollisionTime, input.animationTime);
 
-    if (input.animationTime > (input.vertexCollisionTime + EDGE_DELTA) && dissolveAnimationTime >= dissolveNoise)
+    float dissolveAnimationTime = (input.animationTime - pixelCollisionTime - EDGE_DELTA) / DISSOLVE_DELTA;
+
+    if (input.animationTime > (pixelCollisionTime + EDGE_DELTA) && dissolveAnimationTime >= dissolveNoise)
         discard;
 
     output.albedo = g_colorTexture.Sample(g_sampler, input.texCoord) * (1 - edge);
@@ -155,7 +163,7 @@ PS_OUTPUT ps_main(VS_OUTPUT input, bool isFrontFace : SV_IsFrontFace)
 
     output.roughnessMetalness = float2(roughness, metallic);
 
-    float emissionFading = max((input.animationTime - input.vertexCollisionTime) / EDGE_DELTA, 1) * edge;
+    float emissionFading = max((input.animationTime - pixelCollisionTime) / EDGE_DELTA, 1) * edge;
 
     output.emission.rgb = EMISSION * emissionFading * dissolveNoise;
     output.emission.a = output.albedo.a;

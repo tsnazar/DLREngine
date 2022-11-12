@@ -110,8 +110,8 @@ namespace engine
 		Globals::Get().ResetRenderTargetsAndUAVs();
 		s_Devcon->RSSetViewports(1, &win.GetViewport());
 		s_Devcon->OMSetRenderTargets(1, m_HDRTarget.GetRenderTarget().ptrAdr(), m_GBuffer.depth.GetDepthView().ptr());
-		ParticleSystem::Get().RenderGpuParticles();
 		ParticleSystem::Get().Render(m_Sky.GetIBLResources(), m_GBuffer.depthCopy, m_GBuffer.dimensions);
+		ParticleSystem::Get().RenderGpuParticles();
 
 		Globals::Get().SetDefaultBlendState();
 		Postprocess::Get().Resolve(m_HDRTarget, win.GetBackBuffer());

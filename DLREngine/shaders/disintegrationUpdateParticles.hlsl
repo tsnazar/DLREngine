@@ -22,7 +22,6 @@ cbuffer RenderDimensions : register(b2)
 }
 
 static const float GRAVITY = 0.48;
-static const float SIZE = 0.03;
 static const float SPEED_DECREMENT = 0.5;
 
 [numthreads(64,1,1)]
@@ -69,7 +68,6 @@ void cs_main(uint3 threadID : SV_DispatchThreadID)
 	if (viewPos.z < posVS.z && viewPos.z > (posVS.z - 0.1))
 	{
 		float4 offset = float4(viewPos - posVS.xyz, 0);
-		offset.z -= SIZE / 2;
 		offset = mul(offset, g_invView);
 		g_gpuParticles[threadID.x].pos += offset;
 		vel = reflect(vel, GN) * SPEED_DECREMENT;

@@ -29,7 +29,9 @@ struct VS_OUTPUT {
     float4 position : SV_POSITION;
     float2 texCoord : TEX;
     float animationTime : TIME;
-    float vertexCollisionTime : VTIME;
+    float3 meshPos : MPOS;
+    float3 spherePos : SPOS;
+    nointerpolation float maxRadius : RADIUS;
 };
 // vertex shader
 
@@ -38,13 +40,13 @@ VS_OUTPUT vs_main(VS_INPUT input)
     VS_OUTPUT output = (VS_OUTPUT)0;
     output.position = float4(input.inPosition, 1.0);
     output.position = mul(output.position, meshToModel);
-
-    float sphereToVertexDist = length(output.position.xyz - input.inSpherePos);
-    output.animationTime = (g_time - input.inSpawnTime) / g_maxAnimationTime;
-    output.vertexCollisionTime = sphereToVertexDist / input.inMaxRadius;
+    output.meshPos = output.position;
 
     output.position = mul(output.position, input.inModelToWorld);
 
+    output.animationTime = (g_time - input.inSpawnTime) / g_maxAnimationTime;
+    output.maxRadius = input.inMaxRadius;
+    output.spherePos = input.inSpherePos;
     output.texCoord = input.inTexCoord;
 
     return output;
@@ -56,7 +58,9 @@ struct GS_OUTPUT
     nointerpolation uint slice : SV_RenderTargetArrayIndex; 
     float2 texCoord : TEX;
     float animationTime : TIME;
-    float vertexCollisionTime : VTIME;
+    float3 meshPos : MPOS;
+    float3 spherePos : SPOS;
+    nointerpolation float maxRadius : RADIUS;
 };
 
 cbuffer ShadowTransforms : register(b1)
@@ -79,8 +83,10 @@ void gs_main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> output
             output.position = mul(input[i].position, g_shadowTransforms[face]);
 
             output.animationTime = input[i].animationTime;
-            output.vertexCollisionTime = input[i].vertexCollisionTime;
             output.texCoord = input[i].texCoord;
+            output.maxRadius = input[i].maxRadius;
+            output.meshPos = input[i].meshPos;
+            output.spherePos = input[i].spherePos;
 
             outputStream.Append(output);
         }
@@ -98,8 +104,11 @@ void ps_main(GS_OUTPUT input)
 {
     float dissolveNoise = g_noiseTexture.Sample(g_sampler, input.texCoord);
 
-    float dissolveAnimationTime = (input.animationTime - input.vertexCollisionTime - EDGE_DELTA) / DISSOLVE_DELTA;
+    float sphereToPixelDist = length(input.meshPos - input.spherePos);
+    float pixelCollisionTime = sphereToPixelDist / input.maxRadius;
 
-    if (input.animationTime > (input.vertexCollisionTime + EDGE_DELTA) && dissolveAnimationTime >= dissolveNoise)
+    float dissolveAnimationTime = (input.animationTime - pixelCollisionTime - EDGE_DELTA) / DISSOLVE_DELTA;
+
+    if (input.animationTime > (pixelCollisionTime + EDGE_DELTA) && dissolveAnimationTime >= dissolveNoise)
         discard;
 }

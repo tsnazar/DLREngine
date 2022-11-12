@@ -54,7 +54,7 @@ namespace engine
 
 		MeshSystem::Get().GetOpaqueInstances().DeleteInstance(pModel, transformID, *reinterpret_cast<std::vector<OpaqueInstances::Material>*>((&(materials))));
 
-		Instance instance(pModel, materials, transformID, 1.5f * ParticleSystem::GPU_LIFETIME, Instance::Type::Despawn);
+		Instance instance(pModel, materials, transformID, ParticleSystem::GPU_LIFETIME, Instance::Type::Despawn);
 		m_Instances.push_back(instance);
 
 		MeshSystem::Get().GetDisintegrationInstances().AddInstance(pModel, *reinterpret_cast<std::vector<DisintegrationInstances::Material>*>((&(materials))), transformID, objectID, spherePos);

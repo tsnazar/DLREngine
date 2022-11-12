@@ -48,7 +48,7 @@ namespace engine
 						LoadMatrixInArray(transforms[instance.transformID].GetTranspose(), gpuInstance.modelToWorld);
 						gpuInstance.spherePos = instance.spherePos;
 						gpuInstance.spawnTime = instance.spawnTime;
-						gpuInstance.maxRadius = perModel.model->GetBoundingBox().radius();
+						gpuInstance.maxRadius = perModel.model->GetBoundingBox().diameter();
 						gpuInstance.objectID = instance.objectID;
 						dst[copiedNum++] = gpuInstance;
 					}
