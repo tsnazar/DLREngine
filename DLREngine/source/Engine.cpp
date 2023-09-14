@@ -7,6 +7,8 @@
 #include "LightSystem.h"
 #include "TransformSystem.h"
 #include "Postprocess.h"
+#include "ParticleSystem.h"
+#include "VegetationSystem.h"
 
 namespace engine
 {
@@ -16,17 +18,21 @@ namespace engine
 		ShaderManager::Init();
 		TextureManager::Init();
 		ModelManager::Init();
+		TransformSystem::Init();
 		MeshSystem::Init();
 		LightSystem::Init();
-		TransformSystem::Init();
 		Postprocess::Init();
+		ParticleSystem::Init();
+		VegetationSystem::Init();
 	}
 	void Engine::Fini()
 	{
+		VegetationSystem::Fini();
+		ParticleSystem::Fini();
 		Postprocess::Fini();
-		TransformSystem::Fini();
 		LightSystem::Fini();
 		MeshSystem::Fini();
+		TransformSystem::Fini();
 		ModelManager::Fini();
 		TextureManager::Fini();
 		ShaderManager::Fini();

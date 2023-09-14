@@ -30,7 +30,14 @@ namespace engine
 			float placeholder;
 		};
 
-		struct ShadowMapConstants
+		struct ShadowMapDimensions
+		{
+			uint32_t width;
+			uint32_t height;
+			DirectX::XMFLOAT2 padding;
+		};
+
+		struct ShadowMapMatrices
 		{
 			DirectX::XMFLOAT4X4 matrices[6];
 		};
@@ -69,7 +76,13 @@ namespace engine
 
 		Texture2D& GetShadowMap() { return m_ShadowMap; }
 
-		ConstantBuffer& GetShadowMatrices() { return m_ShadowMatricesBuffer; }
+		std::vector<ShadowMapMatrices>& GetShadowMatrices() { return m_Matrices; }
+
+		ConstantBuffer& GetShadowMatricesBuffer() { return m_ShadowMatricesBuffer; }
+
+		ConstantBuffer& GetShadowMatrixBuffer() { return m_ShadowMatrixBuffer; }
+
+		ConstantBuffer& GetShadowMapDimensions() { return m_ShadowMapDimensions; }
 
 	protected:
 		void GenerateShadowTransforms(DirectX::XMFLOAT4X4* arr,const DirectX::XMFLOAT3& position);
@@ -78,9 +91,10 @@ namespace engine
 		uint32_t m_NumLights = 0;
 		std::array<PointLight, MAX_POINT_LIGHTS> m_PointLightRefs;
 		DepthTarget m_ShadowMap;
-		std::vector<ShadowMapConstants> m_Matrices;
+		std::vector<ShadowMapMatrices> m_Matrices;
 		ConstantBuffer m_ShadowMatrixBuffer;
 		ConstantBuffer m_ShadowMatricesBuffer;
+		ConstantBuffer m_ShadowMapDimensions;
 	private:
 		static LightSystem* s_Instance;
 	};

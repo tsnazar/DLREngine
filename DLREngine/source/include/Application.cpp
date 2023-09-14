@@ -9,6 +9,8 @@
 #include "MathUtils.h"
 #include "Ray.h"
 #include "MeshSystem.h"
+#include "ParticleSystem.h"
+#include "VegetationSystem.h"
 
 namespace
 {
@@ -17,6 +19,8 @@ namespace
 	const float ZFAR = 0.1f;
 	const float FRAME_DURATION = 1.f / 60.f;
 	const float EXPOSURE_DELTA = 1.0f;
+	const float MESH_SPAWN_DISTANCE = 50.0f;
+	const float MESH_SPAWN_ANIMATION_TIME = 10.0f;
 }
 
 namespace engine
@@ -57,8 +61,32 @@ namespace engine
 			D3D11_INPUT_ELEMENT_DESC{ "MAT", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(OpaqueInstances::GpuInstance, matrix[3]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 		};
 
+		std::vector<D3D11_INPUT_ELEMENT_DESC> dissolution = {
+			D3D11_INPUT_ELEMENT_DESC{ "POS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTexNorTanBitan, pos), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			D3D11_INPUT_ELEMENT_DESC{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(VertexPosTexNorTanBitan, texCoord), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			D3D11_INPUT_ELEMENT_DESC{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTexNorTanBitan, nor), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			D3D11_INPUT_ELEMENT_DESC{ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTexNorTanBitan, tan), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			D3D11_INPUT_ELEMENT_DESC{ "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTexNorTanBitan, bitan), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, matrix[0]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, matrix[1]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, matrix[2]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, matrix[3]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "TIME", 0, DXGI_FORMAT_R32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, time), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+		};
+
+		std::vector<D3D11_INPUT_ELEMENT_DESC> dissolutionShadows = {
+			D3D11_INPUT_ELEMENT_DESC{ "POS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTexNorTanBitan, pos), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			D3D11_INPUT_ELEMENT_DESC{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(VertexPosTexNorTanBitan, texCoord), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, matrix[0]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, matrix[1]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, matrix[2]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "MAT", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, matrix[3]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "TIME", 0, DXGI_FORMAT_R32_FLOAT, 1, offsetof(DissolutionInstances::GpuInstance, time), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+		};
+
 		std::vector<D3D11_INPUT_ELEMENT_DESC> emissive = {
 			D3D11_INPUT_ELEMENT_DESC{ "POS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTexNorTan, pos), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			D3D11_INPUT_ELEMENT_DESC{ "NORM", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosTexNorTan, nor), D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			D3D11_INPUT_ELEMENT_DESC{ "MAT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(LightInstances::GpuInstance, matrix[0]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 			D3D11_INPUT_ELEMENT_DESC{ "MAT", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(LightInstances::GpuInstance, matrix[1]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 			D3D11_INPUT_ELEMENT_DESC{ "MAT", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(LightInstances::GpuInstance, matrix[2]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
@@ -74,12 +102,35 @@ namespace engine
 			D3D11_INPUT_ELEMENT_DESC{ "MAT", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, offsetof(LightInstances::GpuInstance, matrix[3]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 		};
 
+		std::vector<D3D11_INPUT_ELEMENT_DESC> particles = {
+			D3D11_INPUT_ELEMENT_DESC{ "POS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(ParticleSystem::Particle, pos), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "TIME", 0, DXGI_FORMAT_R32_FLOAT, 0, offsetof(ParticleSystem::Particle, lifeTime), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "TINT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, offsetof(ParticleSystem::Particle, tint), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "ROT", 0, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(ParticleSystem::Particle, rot[0]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "ROT", 1, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(ParticleSystem::Particle, rot[1]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "SIZE", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(ParticleSystem::Particle, size), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+		};
+
+		std::vector<D3D11_INPUT_ELEMENT_DESC> grass = {
+			D3D11_INPUT_ELEMENT_DESC{ "POS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VegetationSystem::Instance, pos), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "SCALE", 0, DXGI_FORMAT_R32_FLOAT, 0, offsetof(VegetationSystem::Instance, scale), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "ROT", 0, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(VegetationSystem::Instance, rot[0]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+			D3D11_INPUT_ELEMENT_DESC{ "ROT", 1, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(VegetationSystem::Instance, rot[1]), D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+		};
+
 		ShaderManager::Get().LoadShader("opaque", "shaders/opaque.hlsl", &opaque);
 		ShaderManager::Get().LoadShader("opaqueIBL", "shaders/opaqueIBL.hlsl", &opaque);
 		ShaderManager::Get().LoadShader("lightInstance", "shaders/emissive.hlsl", &emissive);
+		ShaderManager::Get().LoadShader("particles", "shaders/particles.hlsl", &particles);
+		ShaderManager::Get().LoadShader("dissolution", "shaders/dissolution.hlsl", &dissolution);
+		ShaderManager::Get().LoadShader("dissolutionAlpha", "shaders/dissolutionAlpha.hlsl", &dissolution);
+		ShaderManager::Get().LoadShader("dissolutionShadows", "shaders/dissolutionShadows.hlsl", &dissolutionShadows, true);
+		ShaderManager::Get().LoadShader("grass", "shaders/grass.hlsl", &grass);
 		ShaderManager::Get().LoadShader("shadows", "shaders/shadows.hlsl", &shadows, true);
+		ShaderManager::Get().LoadShader("shadowsGrass", "shaders/shadowsGrass.hlsl", &grass, true);
 		ShaderManager::Get().LoadShader("skybox", "shaders/sky.hlsl", nullptr);
 		ShaderManager::Get().LoadShader("resolve", "shaders/resolve.hlsl", nullptr);
+		ShaderManager::Get().LoadShader("resolveDepth", "shaders/resolveDepth.hlsl", nullptr);
 
 		Model* pSphere = &ModelManager::Get().GetUnitSphere();
 		Model* pCube = &ModelManager::Get().GetUnitCube();
@@ -144,29 +195,42 @@ namespace engine
 									  &TextureManager::Get().LoadTexture2D("TailNormal", "assets/KnightHorse/dds/Tail_Normal.dds"),  0.9f, 0.0f),
 		};
 
+		TextureManager::Get().LoadTexture2D("smokeEMVA", "assets/smoke/test_EMVA_2.dds");
+		TextureManager::Get().LoadTexture2D("smokeRLT", "assets/smoke/test_RLT_1.dds");
+		TextureManager::Get().LoadTexture2D("smokeBotBF", "assets/smoke/test_BotBF_1.dds");
+		TextureManager::Get().LoadTexture2D("noise", "assets/dissolution/noise.dds");
+		TextureManager::Get().LoadTexture2D("grassAlbedo", "assets/grass/ribbonGrass/trimed/Albedo.dds");
+		TextureManager::Get().LoadTexture2D("grassOpacity", "assets/grass/ribbonGrass/trimed/Opacity.dds");
+		TextureManager::Get().LoadTexture2D("grassNormal", "assets/grass/ribbonGrass/trimed/Normal.dds");
+		TextureManager::Get().LoadTexture2D("grassRoughness", "assets/grass/ribbonGrass/trimed/Roughness.dds");
+		TextureManager::Get().LoadTexture2D("grassMetallic", "assets/grass/ribbonGrass/trimed/Specular.dds");
+		TextureManager::Get().LoadTexture2D("grassAO", "assets/grass/ribbonGrass/trimed/AO.dds");
+		TextureManager::Get().LoadTexture2D("grassTranslucency", "assets/grass/ribbonGrass/trimed/Translucency.dds");
+
 		TransformSystem::Transform transform;
+		auto& transforms = TransformSystem::Get().GetTransforms();
 
 		transform.position = { 0.f, 0.5f, -4.f };
 		transform.scale = { 1.f, 1.f, 1.f };
 		transform.rotation = { 0.f, 0.f, 0.f };
-		MeshSystem::Get().GetOpaqueInstances().AddInstance(pCube, cubeContainerTexture, transform);
+		MeshSystem::Get().GetOpaqueInstances().AddInstance(pCube, cubeContainerTexture, transforms.insert(transform));
 
 		transform.position = { 0.f, -5.f, 0.f };
 		transform.scale = { 10.f, 10.f, 10.f };
 		transform.rotation = { 0.f, 0.f, 0.f };
-		MeshSystem::Get().GetOpaqueInstances().AddInstance(pCube, cubeWallTexture, transform);
+		MeshSystem::Get().GetOpaqueInstances().AddInstance(pCube, cubeWallTexture, transforms.insert(transform));
 
 		for (uint32_t i = 0; i < 3; ++i)
 		{
 			transform.position = { -4.0f + i * 3.0f, 0.0f, 0.0f };
 			transform.scale = { 1.f, 1.f, 1.f };
 			transform.rotation = { 0.f, 0.f, 0.f };
-			MeshSystem::Get().GetOpaqueInstances().AddInstance(pSamurai, samuraiTextures, transform);
+			MeshSystem::Get().GetOpaqueInstances().AddInstance(pSamurai, samuraiTextures, transforms.insert(transform));
 
 			transform.position = { -3.0f + i * 3.0f, 0.0f, 0.0f };
 			transform.scale = { 1.f, 1.f, 1.f };
 			transform.rotation = { 0.f, 0.f, 0.f };
-			MeshSystem::Get().GetOpaqueInstances().AddInstance(pHorse, horseTextures, transform);
+			MeshSystem::Get().GetOpaqueInstances().AddInstance(pHorse, horseTextures, transforms.insert(transform));
 		}
 
 		m_Renderer->GetSky().SetSky("skybox", "shaders/sky.hlsl", "assets/NightStreet/night_street.dds", "assets/NightStreet/night_street_irradiance.dds", "assets/NightStreet/night_street_reflection.dds", "assets/NightStreet/night_street_reflectance.dds");
@@ -180,6 +244,13 @@ namespace engine
 			LightSystem::GpuPointLight light({ 2.0f, 5.0f, -3.0f }, { 0.2f, 0.0f, 0.1f }, 0.15f, 4.0f);
 			LightSystem::Get().AddPointLight(light);
 		}
+
+		{
+			ParticleSystem::SmokeEmitter smoke({ -3.f, 0.f, -3.f }, 0.2f, 0.032f, { 1.f, 1.f, 1.f }, 3.f, { 0.4f, 0.4f }, {0.7f, 0.7f});
+			ParticleSystem::Get().AddSmoke(smoke);
+		}
+
+		VegetationSystem::Get().CreateField({ 0,0,0 }, 10.f, 0.3f, 0.7f, 1.0f, 225);
 
 		LightSystem::Get().InitShadowMaps();
 		//init camera
@@ -219,7 +290,7 @@ namespace engine
 	{
 		EventDispatcher dispatcher(e);
 		
-		dispatcher.Dispatch<KeyPressedEvent>([](KeyPressedEvent& e)
+		dispatcher.Dispatch<KeyPressedEvent>([&](KeyPressedEvent& e)
 			{
 				switch (e.GetKeyCode())
 				{
@@ -235,6 +306,39 @@ namespace engine
 				case Key::FOUR:
 					Globals::Get().SetCurrentSampler(4);
 					break;
+				case Key::N:
+				{
+					Ray ray = m_CameraController->GetPickingRay();
+					
+					TransformSystem::Transform transform;
+					DirectX::XMStoreFloat3(&transform.position, ray.PointAtLine(MESH_SPAWN_DISTANCE));
+					transform.scale = { 1.f, 1.f, 1.f };
+					transform.rotation = { 0.f, 0.f, 0.f };
+
+					Model* pHorse = &ModelManager::Get().LoadModel("Horse", "assets/KnightHorse/KnightHorse.fbx");
+					std::vector<DissolutionInstances::Material> horseTextures =
+					{
+						DissolutionInstances::Material(&TextureManager::Get().LoadTexture2D("Armor", "assets/KnightHorse/dds/Armor_BaseColor.dds"),
+												  &TextureManager::Get().LoadTexture2D("ArmorRoughness", "assets/KnightHorse/dds/Armor_Roughness.dds"),
+												  &TextureManager::Get().LoadTexture2D("ArmorMetallic", "assets/KnightHorse/dds/Armor_Metallic.dds"),
+												  &TextureManager::Get().LoadTexture2D("ArmorNormal", "assets/KnightHorse/dds/Armor_Normal.dds"), 0.9f, 0.0f),
+						DissolutionInstances::Material(&TextureManager::Get().LoadTexture2D("Horse", "assets/KnightHorse/dds/Horse_BaseColor.dds"),
+												  &TextureManager::Get().LoadTexture2D("HorseRoughness", "assets/KnightHorse/dds/Horse_Roughness.dds"), nullptr,
+												  &TextureManager::Get().LoadTexture2D("HorseNormal", "assets/KnightHorse/dds/Horse_Normal.dds"), 0.9f, 0.0f),
+						DissolutionInstances::Material(&TextureManager::Get().LoadTexture2D("Tail", "assets/KnightHorse/dds/Tail_BaseColor.dds"), nullptr, nullptr,
+												  &TextureManager::Get().LoadTexture2D("TailNormal", "assets/KnightHorse/dds/Tail_Normal.dds"),  0.9f, 0.0f),
+					};
+
+					m_SpawnModule.SpawnInstance(pHorse, horseTextures, TransformSystem::Get().GetTransforms().insert(transform), MESH_SPAWN_ANIMATION_TIME);
+				}
+				case Key::C:
+					Globals::Get().SetTestvar(0);
+					break;
+					//MeshSystem::Get().GetDissolutionInstances().SetDissolutionMode(0);
+				case Key::V:
+					Globals::Get().SetTestvar(1);
+					break;
+					//MeshSystem::Get().GetDissolutionInstances().SetDissolutionMode(1);
 				}
 				return true;
 			});
@@ -262,9 +366,14 @@ namespace engine
 
 		PerFrame& p = Globals::Get().GetPerFrameObj();
 
+		p.time += delta;
+
 		Camera& camera = m_CameraController->GetCamera();
 		
 		XMStoreFloat4x4(&p.viewProj, XMMatrixTranspose(camera.GetViewProj()));
+		XMStoreFloat4x4(&p.view, XMMatrixTranspose(camera.GetView()));
+		XMStoreFloat4x4(&p.invView, XMMatrixTranspose(camera.GetInvView()));
+		XMStoreFloat4x4(&p.proj, XMMatrixTranspose(camera.GetProj()));
 
 		DirectX::XMStoreFloat4(&p.cameraPos, camera.Position());
 
@@ -293,8 +402,6 @@ namespace engine
 			{
 				m_FirstRMB = false;
 
-				m_Query.reset();
-
 				MeshSystem::Get().PickMesh(ray, m_Query);
 			}
 
@@ -312,10 +419,14 @@ namespace engine
 		}
 		else {
 			m_FirstRMB = true;
+		
+			m_Query.reset();
 		}
 
+		m_SpawnModule.Update(delta);
+
 		m_Renderer->SetEV100(EV100);
-		m_Renderer->Update();
+		m_Renderer->Update(delta, camera);
 	}
 	
 	void Application::Render()

@@ -104,6 +104,71 @@ namespace engine
 		HRESULT result = m_Device5->CreateDepthStencilState(&depthStencilDesc, m_DepthStateReversed.reset());
 		ALWAYS_ASSERT(SUCCEEDED(result));
 
+		ZeroMemory(&depthStencilDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
+
+		depthStencilDesc.DepthEnable = true;
+		depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+		depthStencilDesc.DepthFunc = D3D11_COMPARISON_GREATER_EQUAL;
+
+		result = m_Device5->CreateDepthStencilState(&depthStencilDesc, m_DepthStateReversedReadOnly.reset());
+		ALWAYS_ASSERT(SUCCEEDED(result));
+
+		//Create Blend state
+		D3D11_BLEND_DESC blendDesc;
+		ZeroMemory(&blendDesc, sizeof(D3D11_BLEND_DESC));
+
+		blendDesc.AlphaToCoverageEnable = false;
+		blendDesc.IndependentBlendEnable = false;
+		blendDesc.RenderTarget[0].BlendEnable = true;
+		blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+		blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+		blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+		blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+		blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+		blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+		result = m_Device5->CreateBlendState(&blendDesc, m_BlendState.reset());
+		ALWAYS_ASSERT(SUCCEEDED(result));
+
+		ZeroMemory(&blendDesc, sizeof(D3D11_BLEND_DESC));
+
+		blendDesc.AlphaToCoverageEnable = true;
+		blendDesc.IndependentBlendEnable = false;
+		blendDesc.RenderTarget[0].BlendEnable = false;
+		blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+		blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+		blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+		blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+		blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+		blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+		result = m_Device5->CreateBlendState(&blendDesc, m_AlphaToCoverageBlendState.reset());
+		ALWAYS_ASSERT(SUCCEEDED(result));
+
+		//Create Rasterizer state
+		D3D11_RASTERIZER_DESC rastDesc;
+		ZeroMemory(&rastDesc, sizeof(D3D11_RASTERIZER_DESC));
+
+		rastDesc.FillMode = D3D11_FILL_SOLID;
+		rastDesc.CullMode = D3D11_CULL_NONE;
+		rastDesc.FrontCounterClockwise = false;
+		rastDesc.DepthBias = 0;
+		rastDesc.SlopeScaledDepthBias = 0.0f;
+		rastDesc.DepthBiasClamp = 0.0f;
+		rastDesc.DepthClipEnable = true;
+		rastDesc.ScissorEnable = false;
+		rastDesc.MultisampleEnable = false;
+		rastDesc.AntialiasedLineEnable = false;
+
+		result = m_Device5->CreateRasterizerState(&rastDesc, m_RasterizerStateCullingOff.reset());
+		ALWAYS_ASSERT(SUCCEEDED(result));
+
+		rastDesc.CullMode = D3D11_CULL_BACK;
+		result = m_Device5->CreateRasterizerState(&rastDesc, m_RasterizerState.reset());
+		ALWAYS_ASSERT(SUCCEEDED(result));
+
 		// Create Sampler states 
 		D3D11_SAMPLER_DESC sampDesc;
 		ZeroMemory(&sampDesc, sizeof(D3D11_SAMPLER_DESC));
@@ -141,34 +206,46 @@ namespace engine
 		sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 		result = m_Device5->CreateSamplerState(&sampDesc, m_SamplerCmp.reset());
 		ALWAYS_ASSERT(SUCCEEDED(result));
+
+		ZeroMemory(&sampDesc, sizeof(D3D11_SAMPLER_DESC));
+		sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+		sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+		sampDesc.MinLOD = 0;
+		sampDesc.MaxLOD = 5;
+
+		result = m_Device5->CreateSamplerState(&sampDesc, m_SamplerStateGrass.reset());
+		ALWAYS_ASSERT(SUCCEEDED(result));
 	}
 
 	void Globals::CreateDepthBuffer(uint32_t width, uint32_t height)
 	{
-		if (m_Depthbuffer.valid())
-			m_Depthbuffer.release();
-
-		// Create Depthbuffer
-		ID3D11Texture2D* pDepthStencil = NULL;
 		D3D11_TEXTURE2D_DESC descDepth;
 		descDepth.Width = width;
 		descDepth.Height = height;
 		descDepth.MipLevels = 1;
 		descDepth.ArraySize = 1;
-		descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		descDepth.Format = DXGI_FORMAT_R24G8_TYPELESS;
 		descDepth.SampleDesc.Count = 4;
 		descDepth.SampleDesc.Quality = D3D11_STANDARD_MULTISAMPLE_PATTERN;
 		descDepth.Usage = D3D11_USAGE_DEFAULT;
-		descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 		descDepth.CPUAccessFlags = 0;
 		descDepth.MiscFlags = 0;
 
-		HRESULT result = m_Device5->CreateTexture2D(&descDepth, NULL, &pDepthStencil);
-		ALWAYS_ASSERT(SUCCEEDED(result));
+		D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+		ZeroMemory(&shaderResourceViewDesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+		shaderResourceViewDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMS;
 
-		result = m_Device5->CreateDepthStencilView(pDepthStencil, NULL, m_Depthbuffer.reset());
-		ALWAYS_ASSERT(SUCCEEDED(result));
-		pDepthStencil->Release();
+		D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
+		ZeroMemory(&depthStencilViewDesc, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
+		depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
+
+		m_DepthBuffer.CreateFromDescription(descDepth, &shaderResourceViewDesc, &depthStencilViewDesc);
 	}
 
 	void Globals::Update()
@@ -177,6 +254,7 @@ namespace engine
 
 		m_PerFrameBuffer.BindToVS(0);
 		m_PerFrameBuffer.BindToPS(0);
+		m_PerFrameBuffer.BindToGS(0);
 
 		if (m_CurrentSampler == 1)
 			m_Devcon->PSSetSamplers(0, 1, m_SamplerStatePoint.ptrAdr());
@@ -188,7 +266,13 @@ namespace engine
 			m_Devcon->PSSetSamplers(0, 1, m_SamplerStateAnisotropic.ptrAdr());
 
 		m_Devcon->PSSetSamplers(1, 1, m_SamplerStateLinear.ptrAdr());
-		m_Devcon->PSSetSamplers(2, 1, m_SamplerCmp.ptrAdr());
+
+		if(m_Var == 0)
+			m_Devcon->PSSetSamplers(2, 1, m_SamplerStateGrass.ptrAdr());
+		else
+			m_Devcon->PSSetSamplers(2, 1, m_SamplerStateLinear.ptrAdr());
+
+		m_Devcon->PSSetSamplers(3, 1, m_SamplerCmp.ptrAdr());
 
 		this->UpdateConstants();
 	}

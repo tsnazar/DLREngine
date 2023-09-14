@@ -2,9 +2,6 @@
 #define LIGHTING
 #include "globals.hlsli"
 
-static const float PI = 3.14;
-static const float MIN_DOT = 0.0005;
-
 struct Material
 {
     float3 albedo;
@@ -88,21 +85,37 @@ void clampDirToHorizon(inout float3 dir, inout float NdotD, float3 normal, float
     }
 }
 
-float shadowCalculation(float3 N, float3 L, float3 fragPos, float3 lightPos, TextureCubeArray tex, float texWidth, uint index)
+float visibilityCalculation(float3 N, float3 L, float3 posWS, TextureCubeArray tex, uint pointlightIndex)
 {
-    fragPos += L * 0.005;
-    float3 sampleVec = fragPos - lightPos;
-    float4x4 mat = g_shadowMapTransforms[index * 6 + getCubemapFace(sampleVec)];
-    float4 pos = mul(float4(fragPos, 1.0), mat);
-    pos.xyz /= pos.w;
-    float currentDepth = pos.z;
+    posWS += normalize(L) * 0.009;
 
-    fragPos += N * pos.w * 2 / texWidth;
+    float4x4 mat = g_shadowMapTransforms[pointlightIndex * 6 + getCubemapFace(-L)];
+    float4 posCS = mul(float4(posWS, 1.0), mat);
+    float currentDepth = posCS.z / posCS.w;
 
-    sampleVec = fragPos - lightPos;
+    posWS += N * posCS.w * 2 / g_shadowMapWidth;
 
-    float shadow = tex.SampleCmp(g_cmpSampler, float4(sampleVec, index), currentDepth);
-    return shadow;
+    float3 sampleVec = posWS - g_lights[pointlightIndex].position;
+
+    float visibility = tex.SampleCmp(g_cmpSampler, float4(sampleVec, pointlightIndex), currentDepth);
+    return visibility;
+}
+
+float visibilityCalculationGrass(float3 N, float3 L, float3 posWS, TextureCubeArray tex, uint pointlightIndex)
+{
+    float coef = step(0, dot(N, L)) * 2 - 1;
+    posWS += L * 0.01 * coef;
+
+    float4x4 mat = g_shadowMapTransforms[pointlightIndex * 6 + getCubemapFace(-L)];
+    float4 posCS = mul(float4(posWS, 1.0), mat);
+    float currentDepth = posCS.z / posCS.w;
+
+    posWS += N * posCS.w * 2 / g_shadowMapWidth;
+
+    float3 sampleVec = posWS - g_lights[pointlightIndex].position;
+
+    float visibility = tex.SampleCmp(g_cmpSampler, float4(sampleVec, pointlightIndex), currentDepth);
+    return visibility;
 }
 
 #ifdef IBL
@@ -114,9 +127,14 @@ void addEnvironmentReflection(inout float3 diffuseReflection, inout float3 specu
     float3 samplel = g_reflection.SampleLevel(g_linearClampSampler, v.reflection, m.roughness * 9);
     specularReflection += reflectance * samplel;
 }
+
+void addEnvironmentDiffuse(inout float3 diffuseReflection, float3 N, in Material m)
+{
+    diffuseReflection += m.albedo * (1.0 - m.metallic) * g_irradiance.SampleLevel(g_linearClampSampler, N, 0.0);
+}
 #endif
 
-float3 calculatePointLighting(float3 N, float3 GN, float3 V, float3 L, View view, float radius, float3 radiance, Material material, float shadow)
+float3 calculatePointLighting(float3 N, float3 GN, float3 V, float3 L, View view, float radius, float3 radiance, Material material, float visibility)
 {
     float dist = length(L);
 
@@ -158,6 +176,6 @@ float3 calculatePointLighting(float3 N, float3 GN, float3 V, float3 L, View view
     float3 spec = brdfCookTorrance(FH, D, G, view.NdotV, solidAngle);
     float3 diff = brdfLambert(material.albedo.xyz, material.metallic, FL);
 
-    return float3((diff * solidAngle * NdotL + spec) * radiance * faddingGeom * faddingNMap * shadow);
+    return float3((diff * solidAngle * NdotL + spec) * radiance * faddingGeom * faddingNMap * visibility);
 }
 #endif

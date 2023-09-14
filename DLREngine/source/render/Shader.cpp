@@ -80,7 +80,6 @@ namespace engine
 		
 		s_Devcon->VSSetShader(m_VertexShader.ptr(), NULL, 0);
 		s_Devcon->PSSetShader(m_PixelShader.ptr(), NULL, 0);
-		if(m_HasGS)
-			s_Devcon->GSSetShader(m_GeometryShader.ptr(), NULL, 0);
+		s_Devcon->GSSetShader(m_GeometryShader.ptr(), NULL, 0);
 	}
 }

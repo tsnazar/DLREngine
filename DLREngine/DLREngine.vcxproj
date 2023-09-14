@@ -100,16 +100,20 @@ copy /Y "$(ProjectDir)shaders" "$(OutDir)shaders"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="source\include\DissolutionInstances.cpp" />
     <ClCompile Include="source\include\LightInstances.cpp" />
     <ClCompile Include="source\include\OpaqueInstances.cpp" />
     <ClCompile Include="source\include\ModelManager.cpp" />
     <ClCompile Include="source\include\Postprocess.cpp" />
+    <ClCompile Include="source\include\SpawnModule.cpp" />
     <ClCompile Include="source\math\SolidVector.h" />
     <ClCompile Include="source\math\TriangleOctree.cpp" />
     <ClCompile Include="source\render\DepthTarget.cpp" />
+    <ClCompile Include="source\render\VegetationSystem.cpp" />
     <ClCompile Include="source\render\LightSystem.cpp" />
     <ClCompile Include="source\render\MeshSystem.cpp" />
     <ClCompile Include="source\render\Model.cpp" />
+    <ClCompile Include="source\render\ParticleSystem.cpp" />
     <ClCompile Include="source\render\RenderTarget.cpp" />
     <ClCompile Include="source\render\Sky.cpp" />
     <ClCompile Include="source\Engine.cpp" />
@@ -131,14 +135,17 @@ copy /Y "$(ProjectDir)shaders" "$(OutDir)shaders"</Command>
     <ClCompile Include="source\render\InputLayout.cpp" />
     <ClCompile Include="source\render\Shader.cpp" />
     <ClCompile Include="source\utility\MathUtils.cpp" />
+    <ClCompile Include="source\utility\PoissonDiskSampling.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="source\include\DissolutionInstances.h" />
     <ClInclude Include="source\include\LightInstances.h" />
     <ClInclude Include="source\include\OpaqueInstances.h" />
     <ClInclude Include="source\ecs\components\ModelComponent.h" />
     <ClInclude Include="source\ecs\components\TransformComponent.h" />
     <ClInclude Include="source\include\ModelManager.h" />
     <ClInclude Include="source\include\Postprocess.h" />
+    <ClInclude Include="source\include\SpawnModule.h" />
     <ClInclude Include="source\math\Box.h" />
     <ClInclude Include="source\math\MeshIntersection.h" />
     <ClInclude Include="source\math\Query.h" />
@@ -147,10 +154,12 @@ copy /Y "$(ProjectDir)shaders" "$(OutDir)shaders"</Command>
     <ClInclude Include="source\renderer\Pipeline\RenderPipelinePass.h" />
     <ClInclude Include="source\renderer\Pipeline\RenderPipeline.h" />
     <ClInclude Include="source\render\DepthTarget.h" />
+    <ClInclude Include="source\render\VegetationSystem.h" />
     <ClInclude Include="source\render\IndexBuffer.h" />
     <ClInclude Include="source\render\LightSystem.h" />
     <ClInclude Include="source\render\MeshSystem.h" />
     <ClInclude Include="source\render\Model.h" />
+    <ClInclude Include="source\render\ParticleSystem.h" />
     <ClInclude Include="source\render\RenderTarget.h" />
     <ClInclude Include="source\render\Sky.h" />
     <ClInclude Include="source\Engine.h" />
@@ -194,6 +203,7 @@ copy /Y "$(ProjectDir)shaders" "$(OutDir)shaders"</Command>
     <ClInclude Include="source\render\VertexBuffer.h" />
     <ClInclude Include="source\utility\HashUtils.h" />
     <ClInclude Include="source\utility\MathUtils.h" />
+    <ClInclude Include="source\utility\PoissonDiskSampling.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

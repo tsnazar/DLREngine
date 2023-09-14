@@ -308,20 +308,21 @@ namespace engine
 						ptr[sideMasks[side][1]] = pos.y * sideSigns[side][1];
 						ptr[sideMasks[side][2]] = pos.z * sideSigns[side][2];
 						DirectX::XMStoreFloat3(&dst.pos, DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&dst.pos)));
+						dst.nor = dst.pos;
 					};
 
 					setPos(side, vertex[0], quad[0]);
 					setPos(side, vertex[1], quad[2]);
 					setPos(side, vertex[2], quad[1]);
 
-					{
+					/*{
 						DirectX::XMVECTOR AB = DirectX::XMVectorSet(vertex[1].pos.x - vertex[0].pos.x, vertex[1].pos.y - vertex[0].pos.y, vertex[1].pos.z - vertex[0].pos.z, 0.0f);
 						DirectX::XMVECTOR AC = DirectX::XMVectorSet(vertex[2].pos.x - vertex[0].pos.x, vertex[2].pos.y - vertex[0].pos.y, vertex[2].pos.z - vertex[0].pos.z, 0.0f);;
 						DirectX::XMVECTOR norm = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(AB, AC));
 						DirectX::XMStoreFloat3(&vertex[0].nor, norm);
 						DirectX::XMStoreFloat3(&vertex[1].nor, norm);
 						DirectX::XMStoreFloat3(&vertex[2].nor, norm);
-					}
+					}*/
 
 					vertex += 3;
 
@@ -329,14 +330,14 @@ namespace engine
 					setPos(side, vertex[1], quad[2]);
 					setPos(side, vertex[2], quad[3]);
 
-					{
+					/*{
 						DirectX::XMVECTOR AB = DirectX::XMVectorSet(vertex[1].pos.x - vertex[0].pos.x, vertex[1].pos.y - vertex[0].pos.y, vertex[1].pos.z - vertex[0].pos.z, 0.0f);
 						DirectX::XMVECTOR AC = DirectX::XMVectorSet(vertex[2].pos.x - vertex[0].pos.x, vertex[2].pos.y - vertex[0].pos.y, vertex[2].pos.z - vertex[0].pos.z, 0.0f);;
 						DirectX::XMVECTOR norm = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(AB, AC));
 						DirectX::XMStoreFloat3(&vertex[0].nor, norm);
 						DirectX::XMStoreFloat3(&vertex[1].nor, norm);
 						DirectX::XMStoreFloat3(&vertex[2].nor, norm);
-					}
+					}*/
 					
 					vertex += 3;
 				}

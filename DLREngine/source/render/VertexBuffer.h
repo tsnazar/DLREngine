@@ -18,7 +18,7 @@ namespace engine
 		template<typename T>
 		void Update(const T* data, const uint32_t size);
 
-		void SetBuffer(uint32_t slot);
+		void SetBuffer(uint32_t slot, D3D_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		void* Map();
 
@@ -67,7 +67,7 @@ namespace engine
 	void VertexBuffer::Update(const T* data, const uint32_t size)
 	{
 		m_VertexType = GetVertexTypeFromStruct<T>();
-		m_Offset = size;
+		m_Offset = 0;
 		m_Stride = sizeof(T);
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 
@@ -79,13 +79,9 @@ namespace engine
 		s_Devcon->Unmap(m_Buffer.ptr(), 0);
 	}
 
-	inline void VertexBuffer::SetBuffer(uint32_t slot)
+	inline void VertexBuffer::SetBuffer(uint32_t slot, D3D_PRIMITIVE_TOPOLOGY topology)
 	{
-		//if (!ShaderManager::Get().InputLayoutExists(m_VertexType))
-			//ALWAYS_ASSERT(false);
-
-		s_Devcon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		//ShaderManager::Get().GetInputLayout(m_VertexType).SetInputLayout();
+		s_Devcon->IASetPrimitiveTopology(topology);
 		s_Devcon->IASetVertexBuffers(slot, 1, m_Buffer.ptrAdr(), &m_Stride, &m_Offset);
 	}
 

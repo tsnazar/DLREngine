@@ -136,6 +136,21 @@
     <ClCompile Include="source\render\DepthTarget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\render\ParticleSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\include\DissolutionInstances.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\include\SpawnModule.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\render\VegetationSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\utility\PoissonDiskSampling.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\decorators\math\TransformMover.h">
@@ -277,5 +292,10 @@
     <ClInclude Include="source\math\Query.h" />
     <ClInclude Include="source\include\Postprocess.h" />
     <ClInclude Include="source\render\DepthTarget.h" />
+    <ClInclude Include="source\render\ParticleSystem.h" />
+    <ClInclude Include="source\include\DissolutionInstances.h" />
+    <ClInclude Include="source\include\SpawnModule.h" />
+    <ClInclude Include="source\render\VegetationSystem.h" />
+    <ClInclude Include="source\utility\PoissonDiskSampling.h" />
   </ItemGroup>
 </Project>

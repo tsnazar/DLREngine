@@ -11,10 +11,16 @@ namespace engine
 
 		DepthTarget& RecreateDSV(const D3D11_DEPTH_STENCIL_VIEW_DESC& depthDesc);
 
+		D3D11_DEPTH_STENCIL_VIEW_DESC* GetDSVDesc() { return m_HasDSVDesc ? &m_DSVDesc : nullptr; }
+
 		void Release();
 
 		DxResPtr<ID3D11DepthStencilView>& GetDepthView() { return m_DepthTarget; }
 	private:
 		DxResPtr<ID3D11DepthStencilView> m_DepthTarget;
+
+		D3D11_DEPTH_STENCIL_VIEW_DESC m_DSVDesc;
+
+		bool m_HasDSVDesc = false;
 	};
 }

@@ -24,7 +24,7 @@ namespace engine
 
 		bool Render(MainWindow& win, Camera& camera);
 
-		void Update();
+		void Update(float dt, Camera& camera);
 
 		Sky& GetSky() { return m_Sky; }
 		
