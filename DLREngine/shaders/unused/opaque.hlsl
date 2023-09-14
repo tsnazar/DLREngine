@@ -1,4 +1,3 @@
-#define IBL
 #include "globals.hlsli"
 #include "lighting.hlsli"
 
@@ -12,7 +11,7 @@ cbuffer PerMaterial : register(b2)
     int g_flags;
     float g_roughness;
     float g_metallic;
-    float padding;
+    float paddingPMat1;
 }
 
 //flags
@@ -28,7 +27,6 @@ struct VS_INPUT {
     float3 inTangent : TANGENT;
     float3 inBitangent : BITANGENT;
     float4x4 inModelToWorld : MAT;
-    float inAnimationTime : TIME;
 };
 
 struct VS_OUTPUT {
@@ -37,7 +35,6 @@ struct VS_OUTPUT {
     float2 texCoord : TCOORD;
     float3 normal : NORM;
     float3x3 TBN : TBN;
-    float animationTime : TIME;
 };
 // vertex shader
 
@@ -53,9 +50,7 @@ VS_OUTPUT vs_main(VS_INPUT input) {
     output.texCoord = input.inTexCoord;
 
     output.normal = mul(input.inNormal, meshToModel);
-    output.normal = mul(output.normal, input.inModelToWorld);
-
-    output.animationTime = input.inAnimationTime;
+    output.normal = mul(output.normal , input.inModelToWorld);
 
     if (g_flags & f_hasNormals)
     {
@@ -80,17 +75,14 @@ Texture2D g_roughnessTexture : ROUGHNESS: register(t1);
 Texture2D g_metallicTexture : METALIC: register(t2);
 Texture2D g_normalTexture : NORMAL_MAP: register(t3);
 TextureCubeArray g_shadowMap : register(t4);
-Texture2D g_noiseTexture : register(t8);
 
 static const float3 basicF0 = float3(0.04, 0.04, 0.04);
-static const float3 emission = float3(3, 0, 0);
-static const float edgeSize = 0.1;
 
 ///pixel shader
 
 float4 ps_main(VS_OUTPUT input) : SV_TARGET
 {
-    float4 albedo = g_colorTexture.Sample(g_sampler, input.texCoord);
+    float3 albedo = g_colorTexture.Sample(g_sampler, input.texCoord);
 
     float3 resultColor = float3(0, 0, 0);
 
@@ -113,7 +105,7 @@ float4 ps_main(VS_OUTPUT input) : SV_TARGET
     if (g_flags & f_hasMetallic)
         metallic = g_metallicTexture.Sample(g_sampler, input.texCoord);
 
-    float3 f0 = lerp(basicF0, albedo.rgb, metallic);
+    float3 f0 = lerp(basicF0, albedo, metallic);
 
     float3 N = normalize(input.normal);
     float3 V = normalize(g_cameraPos - input.worldPos);
@@ -127,7 +119,7 @@ float4 ps_main(VS_OUTPUT input) : SV_TARGET
     view.NdotV = NdotV;
 
     Material material;
-    material.albedo = albedo.rgb;
+    material.albedo = albedo;
     material.f0 = f0;
     material.roughness = roughness;
     material.metallic = metallic;
@@ -137,29 +129,14 @@ float4 ps_main(VS_OUTPUT input) : SV_TARGET
         float3 L = g_lights[i].position - input.worldPos;
         float3 shadowFragPos = input.worldPos;
 
-        resultColor += calculatePointLighting(N, GN, V, L, view, g_lights[i].radius, g_lights[i].radiance, material, visibilityCalculation(N, normalize(L), shadowFragPos, g_shadowMap, i));
+        resultColor += calculatePointLighting(N, GN, V, L, view, g_lights[i].radius, g_lights[i].radiance, material, visibilityCalculation(GN, normalize(L), shadowFragPos, g_shadowMap, i));
     }
-
-    #ifdef IBL
-        float3 diff = float3(0, 0, 0);
-        float3 spec = float3(0, 0, 0);
-        addEnvironmentReflection(diff, spec, N, view, material);
-
-        resultColor += diff + spec;
-    #endif
-
-    float dissolveNoise = g_noiseTexture.Sample(g_sampler, input.texCoord);
-    float step1 = step(dissolveNoise, input.animationTime);
-
-    #ifndef DIS_ALPHA
-        if (!step1.r)
-            discard;
-    #endif
-
-    float step2 = step(dissolveNoise, input.animationTime - edgeSize);
-    float edge = step1 - step2;
     
-    float4 result = lerp(float4(resultColor.xyz, albedo.a * step1), float4(emission * edge, albedo.a), edge);
+    float3 diff = float3(0, 0, 0);
+    float3 spec = float3(0, 0, 0);
+    addEnvironmentReflection(diff, spec, N, view, material);
 
-    return result;
+    resultColor += diff + spec;
+
+    return float4(resultColor.xyz, 1.0);
 }

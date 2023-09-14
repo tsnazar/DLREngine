@@ -1,6 +1,5 @@
 #include "globals.hlsli"
-#define IBL
-#include "lighting.hlsli"
+#include "geometryInclude.hlsli"
 #include "grassInclude.hlsli"
 
 struct VS_INPUT {
@@ -14,7 +13,7 @@ struct VS_OUTPUT {
     float2 tex : TEX;
     float4 position : SV_Position;
     float3 normal : NORM;
-    float3 worldPos : WPOS;
+    //float3 worldPos : WPOS;
 };
 
 static const float NUM_GRASS_SECTIONS = 3;
@@ -47,15 +46,15 @@ VS_OUTPUT vs_main(VS_INPUT input) {
     output.tex.x = squareIndex % 2;
     output.tex.y = (((squareIndex % 5 % 4) >= 1) + squareNumber) / NUM_GRASS_SECTIONS;
 
-    //output.position = float4((output.tex.x - 0.5), (1 - output.tex.y), ZFAR, 1);
     output.position = float4((output.tex.x - 0.5), 0, ZFAR, 1);
     output.position.xyz *= input.inScale;
     output.position.xz = mul(output.position.xz, bladeRotation);
     output.position.xz = mul(output.position.xz, input.inRotation);
-    
+
     output.normal = float3(0, 0, -1);
     output.normal.xz = mul(output.normal.xz, bladeRotation);
     output.normal.xz = mul(output.normal.xz, input.inRotation);
+    output.normal = normalize(output.normal);
 
     float windAngle = computeGrassAngle(input.inPosition.xz, normalize(g_windInvRotation.xy)) * PI / 2.0;
     windAngle = max(windAngle, MIN_DOT);
@@ -63,11 +62,11 @@ VS_OUTPUT vs_main(VS_INPUT input) {
     float waveSin = 0;
     float waveCos = 0;
     sincos(windAngle * (1 - output.tex.y), waveSin, waveCos);
-    float2x2 waveRotation = { waveCos, waveSin, 
+    float2x2 waveRotation = { waveCos, waveSin,
                              -waveSin, waveCos };
-    float2x2 waveRotationInv = { waveCos, -waveSin, 
+    float2x2 waveRotationInv = { waveCos, -waveSin,
                                  waveSin, waveCos };
-    
+
     float R = input.inScale / windAngle;
 
     output.position.xz = mul(output.position.xz, float2x2(g_windRotation));
@@ -80,7 +79,7 @@ VS_OUTPUT vs_main(VS_INPUT input) {
     output.position.xz = mul(output.position.xz, float2x2(g_windInvRotation));
 
     output.position.xyz += input.inPosition;
-    output.worldPos = output.position;
+    //output.worldPos = output.position;
     output.position = mul(output.position, g_viewProj);
 
     return output;
@@ -90,20 +89,37 @@ Texture2D g_albedo : register(t0);
 Texture2D g_roughnessTexture : register(t1);
 Texture2D g_metallicTexture : register(t2);
 Texture2D g_normalTexture : register(t3);
-TextureCubeArray g_shadowMap : register(t4);
 Texture2D g_opacity : register(t8);
 Texture2D g_ao : register(t9);
 Texture2D g_translucency : register(t10);
 
 static const float3 basicF0 = float3(0.04, 0.04, 0.04);
 
-float4 ps_main(VS_OUTPUT input, bool isFrontFace : SV_IsFrontFace) : SV_TARGET
+//pixel shader
+
+struct PS_OUTPUT
 {
-    float3 albedo = g_albedo.Sample(g_sampler, input.tex);
- 
+    float4 albedo : SV_Target0;
+    float4 normal : SV_Target1;
+    float2 roughnessMetalness : SV_Target2;
+    float4 emission : SV_Target3;
+
+};
+
+PS_OUTPUT ps_main(VS_OUTPUT input, bool isFrontFace : SV_IsFrontFace)
+{
+    PS_OUTPUT output = (PS_OUTPUT)0;
+
+    output.albedo.rgb = g_albedo.Sample(g_sampler, input.tex);
+    //output.albedo.a = g_opacity.Sample(g_sampler, input.tex);
+    output.albedo.a = grassAlpha(input.tex, g_opacity);
+
+    if (output.albedo.a < ALPHA_THRESHOLD)
+        discard;
+
     input.normal = isFrontFace ? input.normal : -input.normal;
-    
-    float3 GN = normalize(input.normal);
+
+    output.normal.zw = packOctahedron(input.normal);
 
     float3 bitangent = float3(0, -1, 0);
     float3 tangent = cross(bitangent, input.normal);
@@ -113,56 +129,19 @@ float4 ps_main(VS_OUTPUT input, bool isFrontFace : SV_IsFrontFace) : SV_TARGET
     input.normal = g_normalTexture.Sample(g_sampler, input.tex).xyz * 2.0 - 1.0;
     input.normal.y = -input.normal.y;
 
-    float3 N = normalize(mul(input.normal, TBN));
+    input.normal = normalize(mul(input.normal, TBN));
+
+    output.normal.xy = packOctahedron(input.normal);
 
     float roughness = g_roughnessTexture.Sample(g_sampler, input.tex);
 
     float metallic = g_metallicTexture.Sample(g_sampler, input.tex);
 
-    float3 f0 = lerp(basicF0, albedo, metallic);
+    output.roughnessMetalness = float2(roughness, metallic);
 
-    float3 V = normalize(g_cameraPos - input.worldPos);
-
-    float NdotV = max(dot(N, V), MIN_DOT);
-
-    float3 reflection = reflect(-V, N);
-
-    View view;
-    view.reflection = reflection;
-    view.NdotV = NdotV;
-
-    Material material;
-    material.albedo = albedo;
-    material.f0 = f0;
-    material.roughness = roughness;
-    material.metallic = metallic;
-
-    float4 resultColor = float4(0, 0, 0, 0);
-
-    for (uint i = 0; i < MAX_POINT_LIGHTS; ++i)
-    {
-        float3 L = g_lights[i].position - input.worldPos;
-
-        float LdotV = pow(max(dot(normalize(-L), V), 0), 4);
-
-        float dist = length(L);
-        dist = max(dist, g_lights[i].radius);
-        float lightAngleSin = g_lights[i].radius / dist;
-        float angularCos = sqrt(1.0 - lightAngleSin * lightAngleSin);
-
-        float visibility = visibilityCalculationGrass(GN, normalize(L), input.worldPos, g_shadowMap, i);
-
-        resultColor.rgb += g_translucency.Sample(g_sampler, input.tex) * g_lights[i].radiance * (1 - angularCos) * 2 * PI * LdotV * visibility;
-
-        resultColor.rgb += calculatePointLighting(N, GN, V, L, view, g_lights[i].radius, g_lights[i].radiance, material, visibility);
-    }
-
-    addEnvironmentDiffuse(resultColor.rgb, N, material);
-
-    //resultColor.a = grassAlpha(input.tex, g_opacity);
-    resultColor.a = g_opacity.Sample(g_sampler, input.tex);
-
-    resultColor *= g_ao.Sample(g_sampler, input.tex);
+    output.emission.rgb = g_translucency.Sample(g_sampler, input.tex);
     
-    return resultColor;
+    output.emission.a = g_ao.Sample(g_sampler, input.tex).r;
+
+    return output;
 }

@@ -28,12 +28,35 @@ namespace engine
 		return DirectX::XMFLOAT3(irradiance.x / occupation, irradiance.y / occupation, irradiance.z / occupation);
 	}
 
-	
+	float MaxIlluminationDistance(float radius, DirectX::XMFLOAT3 radiance)
+	{
+		float maxComponent = std::max(std::max(radiance.x, radiance.y), radiance.z);
+		
+		float distance = radius / sqrtf(1 - powf((1 - 0.01 / maxComponent), 2));
+
+		return distance;
+	}
+
 	float Length(const DirectX::XMFLOAT3& vec)
 	{
 		return sqrtf(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
 	}
 
+	float Dot(const DirectX::XMFLOAT3& a, const DirectX::XMFLOAT3& b)
+	{
+		return a.x * b.x + a.y * b.y + a.z * b.z;
+	}
+
+	float Lerp(float a, float b, float s)
+	{
+		return a + s * (b - a);
+	}
+
+	DirectX::XMFLOAT3 Normalize(const DirectX::XMFLOAT3& vec)
+	{
+		float length = Length(vec);
+		return { vec.x / length, vec.y / length, vec.z / length };
+	}
 }
 
 namespace DirectX

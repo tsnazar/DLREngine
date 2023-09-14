@@ -2,6 +2,8 @@
 #define GRASS_FUNCTIONS
 #include "globals.hlsli"
 
+static const float ALPHA_THRESHOLD = 0.0001;
+
 float computeGrassAngle(float2 instancePos, float2 windDir)
 {
     const float MAX_VARIATION = PI;

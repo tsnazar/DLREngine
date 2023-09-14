@@ -1,6 +1,7 @@
 #include "globals.hlsli"
-#define IBL
 #include "lighting.hlsli"
+#include "geometryInclude.hlsli"
+
 
 struct VS_INPUT {
     uint inId : SV_VertexId;
@@ -19,7 +20,6 @@ struct VS_OUTPUT {
     float4 color : COLOR;
     float2x2 rot : ROT;
     float3 viewPos : VPOS;
-    float depth : DEPTH;
     float3 worldPos : WPOS;
     float3 worldNormal : WNORM;
 };
@@ -37,7 +37,6 @@ VS_OUTPUT vs_main(VS_INPUT input) {
     output.worldPos = mul(output.position, g_invView);
     output.worldNormal = normalize(mul(float4(0, 0, -1, 0), g_invView));
     output.position = mul(output.position, g_proj);
-    output.depth = output.position.z / output.position.w;
 
     output.rot = input.inRotation;
 
@@ -47,6 +46,13 @@ VS_OUTPUT vs_main(VS_INPUT input) {
     output.thickness = input.inSize.z;
 
     return output;
+}
+
+cbuffer RenderDimensions : register(b4)
+{
+    uint g_targetWidth;
+    uint g_targetHeight;
+    float2 g_RDpadding;
 }
 
 Texture2D g_smokeEMVA : register(t0);
@@ -143,10 +149,11 @@ float4 ps_main(VS_OUTPUT input) : SV_TARGET
     addEnvironmentDiffuse(result.rgb, input.worldNormal, material);
 
     float sceneDepth = g_depth.Load(int3(input.position.xy, 0));
+    float3 sceneDepthPosVS = viewSpacePositionFromDepth(sceneDepth, float2(input.position.x / g_targetWidth, input.position.y / g_targetHeight));
 
-    float particleFading = saturate((sceneDepth - input.depth) / input.thickness);
+    float particleFading = saturate((sceneDepthPosVS.z - input.viewPos.z) / input.thickness);
 
-    result.a *= (1 - particleFading);
+    result.a *= particleFading;
 
     return result;
 }

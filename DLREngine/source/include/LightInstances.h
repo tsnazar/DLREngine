@@ -40,6 +40,8 @@ namespace engine
 	public:
 		LightInstances();
 
+		void SetShaders(Shader* forwardShader) { m_ForwardShader = forwardShader; }
+
 		void UpdateInstanceBuffers();
 
 		void Render();
@@ -51,6 +53,8 @@ namespace engine
 		std::vector<PerModel> m_PerModel;
 		std::unordered_map<Model*, uint32_t> m_ModelIndexMap;
 		VertexBuffer m_InstanceBuffer;
+
+		Shader* m_ForwardShader;
 
 		friend MeshSystem;
 	};

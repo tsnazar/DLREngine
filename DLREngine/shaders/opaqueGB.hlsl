@@ -1,5 +1,5 @@
 #include "globals.hlsli"
-#include "lighting.hlsli"
+#include "geometryInclude.hlsli"
 
 cbuffer PerMesh : register(b1)
 {
@@ -27,14 +27,15 @@ struct VS_INPUT {
     float3 inTangent : TANGENT;
     float3 inBitangent : BITANGENT;
     float4x4 inModelToWorld : MAT;
+    uint inObjectID : OBJECTID;
 };
 
 struct VS_OUTPUT {
     float4 position : SV_POSITION;
-    float3 worldPos : WPOS;
     float2 texCoord : TCOORD;
     float3 normal : NORM;
     float3x3 TBN : TBN;
+    uint objectID : OBJECTID;
 };
 // vertex shader
 
@@ -44,13 +45,13 @@ VS_OUTPUT vs_main(VS_INPUT input) {
     output.position = float4(input.inPosition, 1.0);
     output.position = mul(output.position, meshToModel);
     output.position = mul(output.position, input.inModelToWorld);
-    output.worldPos = output.position;
     output.position = mul(output.position, g_viewProj);
 
     output.texCoord = input.inTexCoord;
+    output.objectID = input.inObjectID;
 
     output.normal = mul(input.inNormal, meshToModel);
-    output.normal = mul(output.normal , input.inModelToWorld);
+    output.normal = mul(output.normal, input.inModelToWorld);
 
     if (g_flags & f_hasNormals)
     {
@@ -74,19 +75,27 @@ Texture2D g_colorTexture : TEXTURE: register(t0);
 Texture2D g_roughnessTexture : ROUGHNESS: register(t1);
 Texture2D g_metallicTexture : METALIC: register(t2);
 Texture2D g_normalTexture : NORMAL_MAP: register(t3);
-TextureCubeArray g_shadowMap : register(t4);
 
 static const float3 basicF0 = float3(0.04, 0.04, 0.04);
 
 ///pixel shader
 
-float4 ps_main(VS_OUTPUT input) : SV_TARGET
+struct PS_OUTPUT
 {
-    float3 albedo = g_colorTexture.Sample(g_sampler, input.texCoord);
+    float4 albedo : SV_Target0;
+    float4 normal : SV_Target1;
+    float2 roughnessMetalness : SV_Target2;
+    float4 emission : SV_Target3;
+    uint objectID : SV_Target4;
+};
 
-    float3 resultColor = float3(0, 0, 0);
+PS_OUTPUT ps_main(VS_OUTPUT input)
+{
+    PS_OUTPUT output = (PS_OUTPUT)0;
 
-    float3 GN = normalize(input.normal); // geometryNormal
+    output.albedo = g_colorTexture.Sample(g_sampler, input.texCoord);
+
+    output.normal.zw = packOctahedron(normalize(input.normal));
 
     if (g_flags & f_hasNormals)
     {
@@ -94,8 +103,10 @@ float4 ps_main(VS_OUTPUT input) : SV_TARGET
         if (g_flags & f_flipNormals)
             input.normal.y = -input.normal.y;
 
-        input.normal = normalize(mul(input.normal, input.TBN));
+        input.normal = mul(input.normal, input.TBN);
     }
+
+    output.normal.xy = packOctahedron(normalize(input.normal));
 
     float roughness = g_roughness;
     if (g_flags & f_hasRoughness)
@@ -105,40 +116,9 @@ float4 ps_main(VS_OUTPUT input) : SV_TARGET
     if (g_flags & f_hasMetallic)
         metallic = g_metallicTexture.Sample(g_sampler, input.texCoord);
 
-    float3 f0 = lerp(basicF0, albedo, metallic);
+    output.roughnessMetalness = float2(roughness, metallic);
 
-    float3 N = normalize(input.normal);
-    float3 V = normalize(g_cameraPos - input.worldPos);
+    output.objectID = input.objectID;
 
-    float NdotV = max(dot(N, V), MIN_DOT);
-
-    float3 reflection = reflect(-V, N);
-
-    View view;
-    view.reflection = reflection;
-    view.NdotV = NdotV;
-
-    Material material;
-    material.albedo = albedo;
-    material.f0 = f0;
-    material.roughness = roughness;
-    material.metallic = metallic;
-
-    for (uint i = 0; i < MAX_POINT_LIGHTS; ++i)
-    {
-        float3 L = g_lights[i].position - input.worldPos;
-        float3 shadowFragPos = input.worldPos;
-
-        resultColor += calculatePointLighting(N, GN, V, L, view, g_lights[i].radius, g_lights[i].radiance, material, visibilityCalculation(N, normalize(L), shadowFragPos, g_shadowMap, i));
-    }
-    
-    #ifdef IBL
-        float3 diff = float3(0, 0, 0);
-        float3 spec = float3(0, 0, 0);
-        addEnvironmentReflection(diff, spec, N, view, material);
-
-        resultColor += diff + spec;
-    #endif
-
-    return float4(resultColor.xyz, 1.0);
+    return output;
 }

@@ -22,10 +22,26 @@ namespace engine
 			enum Bindings : uint32_t {
 				SMOKE_TEXTURE = 0, LIGHTMAP1_TEXTURE = 1, LIGHTMAP2_TEXTURE = 2, DEPTH_TEXTURE = 3,
 				SHADOWMAP_TEXTURE = 4, IRRADIANCE_TEXTURE = 5,INSTANCE_BUFFER = 0,
+				TARGET_DIMENSIONS_CONSTANTS = 4,
 				SHADOWMAP_MATRICES = 1, SHADOWMAP_DIMENSIONS = 3
 			};
 		};
 	public:
+		struct ParticleTextures
+		{
+			Texture2D* EMVA = nullptr;
+			Texture2D* lightMapRLT = nullptr;
+			Texture2D* lightMapBotBF = nullptr;
+
+			ParticleTextures(){}
+			ParticleTextures(Texture2D* EMVA, Texture2D* lightMapRLT, Texture2D* lightMapBotBF) 
+				: EMVA(EMVA), lightMapRLT(lightMapRLT), lightMapBotBF(lightMapBotBF)
+			{}
+
+			bool IsValid() { return !(EMVA == nullptr || lightMapRLT == nullptr || lightMapBotBF == nullptr); }
+
+		};
+
 		struct Particle
 		{
 			DirectX::XMFLOAT3 pos;
@@ -65,6 +81,7 @@ namespace engine
 					particle.tint.w = 1 - std::abs(2 * particle.lifeTime - 1);
 					particle.size.x = maxSize.x - (maxSize.x - initialSize.x) * particle.lifeTime;
 					particle.size.y = maxSize.y - (maxSize.y - initialSize.y) * particle.lifeTime;
+					particle.thickness = std::max(particle.size.x, particle.size.y) / 2.f;
 				}
 
 				std::sort(particles.begin(), particles.end(), [](Particle a, Particle b) {
@@ -86,21 +103,21 @@ namespace engine
 
 				for (uint32_t i = 0; i < newParticlesCount && particles.size() < MAX_PARTICLES_COUNT; ++i)
 				{
-					Particle p;
-					p.lifeTime = 1.0f;
+					Particle particle;
+					particle.lifeTime = 1.0f;
 					float angle = ((rand() % 360) * DirectX::XM_PI) / 180.f;
 					float cos = cosf(angle);
 					float sin = sinf(angle);
-					p.rot[0] = { cos, sin };
-					p.rot[1] = { -sin, cos };
-					p.pos = pos;
-					p.pos.x += spawnRadius * std::sqrtf((rand() % 100) / 100.f) * cos;
-					p.pos.z += spawnRadius * std::sqrtf((rand() % 100) / 100.f) * sin;
-					p.thickness = 0.05f;
-					p.size = initialSize;
-					p.tint = { tint.x,tint.y, tint.z, 0.0f };
+					particle.rot[0] = { cos, sin };
+					particle.rot[1] = { -sin, cos };
+					particle.pos = pos;
+					particle.pos.x += spawnRadius * std::sqrtf((rand() % 100) / 100.f) * cos;
+					particle.pos.z += spawnRadius * std::sqrtf((rand() % 100) / 100.f) * sin;
+					particle.size = initialSize;
+					particle.thickness = std::max(initialSize.x, initialSize.y) / 2.f;
+					particle.tint = { tint.x,tint.y, tint.z, 0.0f };
 
-					particles.push_back(p);
+					particles.push_back(particle);
 				}
 			}
 		};
@@ -110,7 +127,11 @@ namespace engine
 
 		static void Fini();
 
-		void Render(Sky::IblResources iblResources);
+		void SetShaders(Shader* forwardShader) { m_ForwardShader = forwardShader; }
+
+		void SetTextures(ParticleTextures textures) { m_Textures = textures; }
+
+		void Render(Sky::IblResources iblResources, Texture2D& depth, ConstantBuffer& dimensions);
 
 		void Update(float dt, Camera& camera);
 
@@ -118,14 +139,13 @@ namespace engine
 
 		static ParticleSystem& Get() { return *s_Instance; }
 
-		void CreateAndResolveDepthCopy();
-
 	private:
 		VertexBuffer m_InstanceBuffer;
 
-		DepthTarget m_DepthCopy;
-
 		std::vector<SmokeEmitter>  m_Emmiters;
+
+		Shader* m_ForwardShader = nullptr;
+		ParticleTextures m_Textures;
 	private:
 		static ParticleSystem* s_Instance;
 	};

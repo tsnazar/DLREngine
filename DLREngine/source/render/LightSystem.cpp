@@ -14,7 +14,7 @@ namespace engine
 	LightSystem* LightSystem::s_Instance = nullptr;
 
 	const float LightSystem::SHADOW_MAP_ASPECT = (float)SHADOW_MAP_WIDTH / (float)SHADOW_MAP_HEIGHT;
-	const float LightSystem::SHADOW_MAP_NEAR = 25.0f;
+	const float LightSystem::SHADOW_MAP_NEAR = 50.0f;
 	const float LightSystem::SHADOW_MAP_FAR = 0.1f;
 	const DirectX::XMMATRIX LightSystem::SHADOW_MAP_PROJECTION = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PI / 2.0f, SHADOW_MAP_ASPECT, SHADOW_MAP_NEAR, SHADOW_MAP_FAR);
 
@@ -38,9 +38,9 @@ namespace engine
 	void LightSystem::AddPointLight(const GpuPointLight& light)
 	{
 		TransformSystem::Transform transform;
-		transform.position = light.position;
+		transform.position = light.pos;
 		transform.rotation = { 0,0,0 };
-		transform.scale = { light.radius , light.radius , light.radius };
+		transform.scale = { light.rad , light.rad , light.rad };
 
 		auto& transforms = TransformSystem::Get().GetTransforms();
 		uint32_t id = transforms.insert(transform);
@@ -48,14 +48,16 @@ namespace engine
 		PointLight ref;
 		ref.transformId = id;
 		ref.radiance = light.radiance;
-		ref.radius = light.radius;
+		ref.radius = light.rad;
+		ref.dist = light.dist;
 
 		ALWAYS_ASSERT(m_NumLights < MAX_POINT_LIGHTS);
 		m_PointLightRefs[m_NumLights] = ref;
 
-		MeshSystem::Get().GetLightInstances().AddInstance(&ModelManager::Get().GetModel("Sphere"), light.radiance, id);
+		MeshSystem::Get().GetLightInstances().AddInstance(&ModelManager::Get().GetUnitSphere(), light.radiance, id);
 
 		++m_NumLights;
+		m_ResizeLightInstances = true;
 	}
 
 	void LightSystem::InitShadowMaps()
@@ -102,6 +104,45 @@ namespace engine
 		m_ShadowMapDimensions.Create<ShadowMapDimensions>(D3D11_USAGE_DYNAMIC, &dimensions, 1);
 	}
 
+	void LightSystem::ResolveGBuffer(DepthTarget& depth, RenderTarget& albedo, RenderTarget& normals, RenderTarget& roughnessMetallic, 
+		RenderTarget& emission, RenderTarget& position, ConstantBuffer& dimensions)
+	{
+		if (m_LightInstances.GetVertexCount() == 0 || !m_LightInstances.IsValid())
+			return;
+
+		ShaderManager::Get().GetShader("opaqueIBLDS").SetShaders();
+
+		m_ShadowMatricesBuffer.BindToPS(1);
+		m_ShadowMapDimensions.BindToPS(3);
+		dimensions.BindToPS(4);
+
+		//Globals::Get().SetDefaultBlendState();
+		Globals::Get().SetBlendStateAddition();
+		Globals::Get().SetDepthStencilStateRead(1);
+		//Globals::Get().SetDefaultRasterizerState();
+		Globals::Get().SetRasterizerFrontFaceCull();
+		
+		depth.BindToPS(0);
+		albedo.BindToPS(1);
+		normals.BindToPS(2);
+		roughnessMetallic.BindToPS(3);
+		m_ShadowMap.BindToPS(4);
+		emission.BindToPS(5);
+		position.BindToPS(6);
+
+		Model& sphere = ModelManager::Get().GetUnitSphere();
+		sphere.Bind(0);
+		m_LightInstances.SetBuffer(1);
+
+		s_Devcon->DrawInstanced(sphere.GetSubMeshes()[0].vertexNum, m_NumLights, 0, sphere.GetSubMeshes()[0].vertexOffset);
+		//s_Devcon->DrawInstanced(3, m_NumLights, 0, 0);
+
+		Globals::Get().SetDepthStencilStateRead(2);
+		ShaderManager::Get().GetShader("grassDSR").SetShaders();
+		s_Devcon->DrawInstanced(sphere.GetSubMeshes()[0].vertexNum, m_NumLights, 0, sphere.GetSubMeshes()[0].vertexOffset);
+
+	}
+
 	void LightSystem::Update()
 	{
 		auto& perFrame = Globals::Get().GetPerFrameObj();
@@ -113,17 +154,23 @@ namespace engine
 		for (uint32_t i = 0; i < m_NumLights; ++i)
 		{
 			GpuPointLight light;
-			light.position = transforms[m_PointLightRefs[i].transformId].position;
+			light.pos = transforms[m_PointLightRefs[i].transformId].position;
 			light.radiance = m_PointLightRefs[i].radiance;
-			light.radius = m_PointLightRefs[i].radius;
+			light.rad = m_PointLightRefs[i].radius;
+			light.dist = m_PointLightRefs[i].dist;
 
 			perFrame.pointLights[i] = light;
 
-			GenerateShadowTransforms(con.matrices, light.position);
+			GenerateShadowTransforms(con.matrices, light.pos);
 			m_Matrices.push_back(con);
 		}
 
 		m_ShadowMatricesBuffer.Update(m_Matrices.data(), m_Matrices.size());
+
+		if(m_ResizeLightInstances)
+			m_LightInstances.Create<GpuPointLight>(D3D11_USAGE_DYNAMIC, perFrame.pointLights, m_NumLights);
+		else
+			m_LightInstances.Update<GpuPointLight>(perFrame.pointLights, m_NumLights);
 	}
 
 	void LightSystem::RenderToShadowMaps()
@@ -152,14 +199,20 @@ namespace engine
 		s_Devcon->OMSetRenderTargets(1, pRTV, m_ShadowMap.GetDepthView().ptr());
 		s_Devcon->ClearDepthStencilView(m_ShadowMap.GetDepthView(), D3D11_CLEAR_DEPTH, 0.0f, 0);
 
+		Globals::Get().SetReversedDepthState();
+		Globals::Get().SetDefaultBlendState();
+		Globals::Get().SetDefaultRasterizerState();
 		MeshSystem::Get().GetOpaqueInstances().RenderToShadowMap(m_ShadowMatrixBuffer, m_Matrices, m_NumLights);
 
+		Globals::Get().SetReversedDepthState();
+		Globals::Get().SetDefaultBlendState();
 		Globals::Get().SetRasterizerStateCullOff();
 		MeshSystem::Get().GetDissolutionInstances().RenderToShadowMap(m_ShadowMatrixBuffer, m_Matrices, m_NumLights);
 
+		Globals::Get().SetReversedDepthState();
+		Globals::Get().SetDefaultBlendState();
 		Globals::Get().SetRasterizerStateCullOff();
 		VegetationSystem::Get().RenderToShadowMap(m_ShadowMatrixBuffer, m_Matrices, m_NumLights);
-
 	}
 
 	void LightSystem::GenerateShadowTransforms(DirectX::XMFLOAT4X4* arr, const DirectX::XMFLOAT3& position)

@@ -11,6 +11,8 @@ namespace engine
 
 		inline static ModelManager& Get() { return *s_Instance; }
 
+		void CreateUnitShapes();
+
 		Model& CreateModel(const std::string& name);
 
 		Model& LoadModel(const std::string& name, const std::string& filepath);
@@ -26,6 +28,10 @@ namespace engine
 		using ContainerModels = std::unordered_map<std::string, std::unique_ptr<Model>>;
 
 		ContainerModels m_Models;
+
+		std::unique_ptr<Model> m_Cube;
+		std::unique_ptr<Model> m_Sphere;
+
 	protected:
 		ModelManager();
 

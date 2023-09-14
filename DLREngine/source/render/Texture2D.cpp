@@ -58,14 +58,14 @@ namespace engine
 
 		if ((m_Desc.BindFlags & D3D11_BIND_SHADER_RESOURCE) == D3D11_BIND_SHADER_RESOURCE)
 		{
-			result = s_Device->CreateShaderResourceView(m_Texture.ptr(), texture.GetSRVDesc(), m_TextureView.reset());
-			ALWAYS_ASSERT(SUCCEEDED(result));
-		}
+			if (texture.m_HasSRVDesc)
+			{
+				m_HasSRVDesc = true;
+				m_SRVDesc = *texture.GetSRVDesc();
+			}
 
-		if (texture.GetSRVDesc() != nullptr)
-		{
-			m_HasSRVDesc = true;
-			m_SRVDesc = *texture.GetSRVDesc();
+			result = s_Device->CreateShaderResourceView(m_Texture.ptr(), m_HasSRVDesc ? &m_SRVDesc : NULL, m_TextureView.reset());
+			ALWAYS_ASSERT(SUCCEEDED(result));
 		}
 
 		s_Devcon->CopyResource(m_Texture.ptr(), texture.GetTexture().ptr());

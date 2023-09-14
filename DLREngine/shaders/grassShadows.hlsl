@@ -86,7 +86,7 @@ cbuffer ShadowTransforms : register(b1)
 struct GS_OUTPUT
 {
     float4 position : SV_Position;
-    float2 uv : UV;
+    float2 tex : TEX;
     nointerpolation uint slice : SV_RenderTargetArrayIndex;
 };
 
@@ -104,7 +104,7 @@ void gs_main(triangle VS_OUTPUT input[3], inout TriangleStream<GS_OUTPUT> output
 
             output.slice = g_sliceOffset + face;
 
-            output.uv = input[i].tex;
+            output.tex = input[i].tex;
 
             outputStream.Append(output);
         }
@@ -116,6 +116,7 @@ Texture2D g_opacity : register(t8);
 
 void ps_main(GS_OUTPUT input)
 {
-    if (g_opacity.Sample(g_sampler, input.uv).r == 0)
+    //if (g_opacity.Sample(g_sampler, input.tex).r < ALPHA_THRESHOLD)
+    if (grassAlpha(input.tex, g_opacity) < ALPHA_THRESHOLD)
         discard;
 }

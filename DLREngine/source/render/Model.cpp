@@ -5,7 +5,6 @@
 #include "assimp/scene.h"
 #include "assimp/postprocess.h"
 #include "MathUtils.h"
-#include "Ray.h"
 
 namespace engine
 {
@@ -40,7 +39,7 @@ namespace engine
 			dstMesh.box.min = reinterpret_cast<DirectX::XMFLOAT3&>(srcMesh->mAABB.mMin);
 			dstMesh.box.max = reinterpret_cast<DirectX::XMFLOAT3&>(srcMesh->mAABB.mMax);
 			dstMesh.meshToModel = reinterpret_cast<DirectX::XMFLOAT4X4&>(mat);
-			DirectX::XMStoreFloat4x4(&dstMesh.modelToMesh, DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&dstMesh.meshToModel)))));
+			DirectX::XMStoreFloat4x4(&dstMesh.modelToMesh, DirectX::XMMatrixInverse(nullptr, DirectX::XMLoadFloat4x4(&dstMesh.meshToModel)));
 
 			uint32_t numVertices = srcMesh->mNumVertices;
 			uint32_t numFaces = srcMesh->mNumFaces;
@@ -58,6 +57,10 @@ namespace engine
 				VertexPosTexNorTanBitan vertex;
 				vertex.pos = reinterpret_cast<DirectX::XMFLOAT3&>(srcMesh->mVertices[v]);
 				vertex.texCoord = reinterpret_cast<DirectX::XMFLOAT2&>(srcMesh->mTextureCoords[0][v]);
+				if (vertex.texCoord.x > 1.f)
+					vertex.texCoord.x -= 1.f;
+				if (vertex.texCoord.y > 1.f)
+					vertex.texCoord.y -= 1.f;
 				vertex.nor = reinterpret_cast<DirectX::XMFLOAT3&>(srcMesh->mNormals[v]);
 				vertex.tan = reinterpret_cast<DirectX::XMFLOAT3&>(srcMesh->mTangents[v]);
 				vertex.bitan = reinterpret_cast<DirectX::XMFLOAT3&>(srcMesh->mBitangents[v]) * -1.0f;
@@ -234,7 +237,7 @@ namespace engine
 	void Model::InitUnitSphere()
 	{
 		const uint32_t SIDES = 6;
-		const uint32_t GRID_SIZE = 12;
+		const uint32_t GRID_SIZE = 6;
 		const uint32_t TRIS_PER_SIDE = GRID_SIZE * GRID_SIZE * 2;
 		const uint32_t VERT_PER_SIDE = 3 * TRIS_PER_SIDE;
 		const uint32_t VERTEX_COUNT = VERT_PER_SIDE * SIDES;
@@ -351,17 +354,16 @@ namespace engine
 		m_Vertices.Create<VertexPosTexNorTanBitan>(D3D11_USAGE_DYNAMIC, vertices.data(), VERTEX_COUNT);
 	}
 	
-	bool Model::Intersect(const Ray& ray, MeshIntersection& intersection, const DirectX::XMFLOAT4X4& transform)
+	bool Model::Intersect(const Ray& ray, MeshIntersection& intersection, const DirectX::XMMATRIX& worldToModel)
 	{
 		bool intersect = false;
 		
 		Ray meshRay;
 
-		DirectX::XMMATRIX modelMatrix = DirectX::XMMatrixInverse(nullptr,DirectX::XMLoadFloat4x4(&transform));
 		DirectX::XMVECTOR origin = DirectX::XMVectorSetW(DirectX::XMLoadFloat3(&ray.origin), 1.0f);
 		DirectX::XMVECTOR direction = DirectX::XMLoadFloat3(&ray.direction);
-		origin = DirectX::XMVector4Transform(origin, modelMatrix);
-		direction = DirectX::XMVector4Transform(direction, modelMatrix);
+		origin = DirectX::XMVector4Transform(origin, worldToModel);
+		direction = DirectX::XMVector4Transform(direction, worldToModel);
 
 		for (auto& mesh : m_Meshes)
 		{
@@ -377,4 +379,5 @@ namespace engine
 
 		return intersect;
 	}
+
 }

@@ -14,6 +14,7 @@ namespace engine
 		DirectX::XMFLOAT4X4 view;
 		DirectX::XMFLOAT4X4 invView;
 		DirectX::XMFLOAT4X4 proj;
+		DirectX::XMFLOAT4X4 invProj;
 		DirectX::XMFLOAT4 cameraPos;
 		DirectX::XMFLOAT4 frustumCorners[3];
 		float time = 0.f;
@@ -36,29 +37,29 @@ namespace engine
 
 		void InitStates();
 
-		void CreateDepthBuffer(uint32_t width, uint32_t height);
-
 		void Update();
 
 		void UpdateConstants();
 
 		void SetCurrentSampler(int sampler);
 
-		void SetTestvar(int var) { m_Var = var; }
-
 		ConstantBuffer& GetPerFrameBuffer() { return m_PerFrameBuffer; }
 		
 		PerFrame& GetPerFrameObj() { return m_PerFrame; }
-
-		DxResPtr<ID3D11DepthStencilView>& GetDepthBufferView() { return m_DepthBuffer.GetDepthView(); }
-
-		DepthTarget& GetDepthBuffer() { return m_DepthBuffer; }
 
 		void SetReversedDepthState() { m_Devcon->OMSetDepthStencilState(m_DepthStateReversed.ptr(), 0); }
 
 		void SetReversedDepthStateReadOnly() { m_Devcon->OMSetDepthStencilState(m_DepthStateReversedReadOnly.ptr(), 0); }
 
+		void SetDepthStencilStateWrite(uint32_t stencilRef) { m_Devcon->OMSetDepthStencilState(m_DepthStencilStateWrite.ptr(), stencilRef); }
+
+		void SetDepthStencilStateWriteIgnoreDepth(uint32_t stencilRef) { m_Devcon->OMSetDepthStencilState(m_DepthStencilStateWriteIgnoreDepth.ptr(), stencilRef); }
+
+		void SetDepthStencilStateRead(uint32_t stencilRef) { m_Devcon->OMSetDepthStencilState(m_DepthStencilStateRead.ptr(), stencilRef); }
+
 		void SetBlendState() { m_Devcon->OMSetBlendState(m_BlendState.ptr(), NULL, 0xffffffff); }
+
+		void SetBlendStateAddition() { m_Devcon->OMSetBlendState(m_BlendStateAddition.ptr(), NULL, 0xffffffff); }
 
 		void SetAlphaToCoverageBlendState() { m_Devcon->OMSetBlendState(m_AlphaToCoverageBlendState.ptr(), NULL, 0xffffffff); }
 
@@ -66,7 +67,15 @@ namespace engine
 
 		void SetRasterizerStateCullOff() { m_Devcon->RSSetState(m_RasterizerStateCullingOff.ptr());}
 
+		void SetRasterizerStateFrontFaceCullDepthClipOff() { m_Devcon->RSSetState(m_RasterizerStateFrontFaceCullDepthClipOff.ptr());}
+
+		void SetRasterizerFrontFaceCull() { m_Devcon->RSSetState(m_RasterizerStateFrontFaceCull.ptr());}
+
 		void SetDefaultRasterizerState() { m_Devcon->RSSetState(m_RasterizerState.ptr()); }
+
+		void ResetRenderTargets() { ID3D11RenderTargetView* pRTVs[8] = { nullptr,nullptr ,nullptr ,nullptr, nullptr ,nullptr ,nullptr, nullptr }; m_Devcon->OMSetRenderTargets(8, pRTVs, NULL); }
+
+		uint32_t& GetObjectIDCounter() { return m_ObjectIDCounter; }
 
 	private:
 		DxResPtr<IDXGIFactory> m_Factory;
@@ -85,21 +94,26 @@ namespace engine
 		DxResPtr<ID3D11SamplerState> m_SamplerStateGrass;
 
 		DxResPtr<ID3D11BlendState> m_BlendState;
+		DxResPtr<ID3D11BlendState> m_BlendStateAddition;
 		DxResPtr<ID3D11BlendState> m_AlphaToCoverageBlendState;
 
-		DxResPtr<ID3D11RasterizerState> m_RasterizerStateCullingOff;
 		DxResPtr<ID3D11RasterizerState> m_RasterizerState;
+		DxResPtr<ID3D11RasterizerState> m_RasterizerStateCullingOff;
+		DxResPtr<ID3D11RasterizerState> m_RasterizerStateFrontFaceCull;
+		DxResPtr<ID3D11RasterizerState> m_RasterizerStateFrontFaceCullDepthClipOff;
 
 		int m_CurrentSampler = 3;
 
-		int m_Var = 0;
-
-		DepthTarget m_DepthBuffer;
 		DxResPtr<ID3D11DepthStencilState> m_DepthStateReversed;
 		DxResPtr<ID3D11DepthStencilState> m_DepthStateReversedReadOnly;
+		DxResPtr<ID3D11DepthStencilState> m_DepthStencilStateWrite;
+		DxResPtr<ID3D11DepthStencilState> m_DepthStencilStateWriteIgnoreDepth;
+		DxResPtr<ID3D11DepthStencilState> m_DepthStencilStateRead;
 
 		PerFrame m_PerFrame;
 		ConstantBuffer m_PerFrameBuffer;
+
+		uint32_t m_ObjectIDCounter = 1;
 	protected:
 		Globals();
 

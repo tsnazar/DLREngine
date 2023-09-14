@@ -27,6 +27,23 @@ namespace engine
 		return *this;
 	}
 
+	void DepthTarget::CopyDepthTarget(DepthTarget& target)
+	{
+		ALWAYS_ASSERT(s_Device != nullptr);
+		ALWAYS_ASSERT(s_Devcon != nullptr);
+
+		Texture2D::CopyTexture(target);
+
+		if (target.GetDSVDesc() != nullptr)
+		{
+			m_HasDSVDesc = true;
+			m_DSVDesc = *target.GetDSVDesc();
+
+			HRESULT result = s_Device->CreateDepthStencilView(m_Texture.ptr(), &m_DSVDesc, m_DepthTarget.reset());
+			ALWAYS_ASSERT(SUCCEEDED(result));
+		}
+	}
+
 	void DepthTarget::Release()
 	{
 		m_Desc = { 0 };
