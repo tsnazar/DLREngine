@@ -117,4 +117,11 @@ namespace engine
 		s_Devcon->PSSetShaderResources(slot, 1, m_TextureView.ptrAdr());
 	}
 
+	void Texture2D::BindToCS(uint32_t slot)
+	{
+		ALWAYS_ASSERT(s_Devcon != nullptr && m_TextureView.valid());
+		s_Devcon->CSSetShaderResources(slot, 1, m_TextureView.ptrAdr());
+	}
+
+
 }

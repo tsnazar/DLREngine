@@ -98,15 +98,27 @@ namespace engine
 		m_GBuffer.depthCopy.CopyTexture(m_GBuffer.depth);
 
 		s_Devcon->RSSetViewports(1, &win.GetViewport());
-		s_Devcon->OMSetRenderTargets(1, m_HDRTarget.GetRenderTarget().ptrAdr(), m_GBuffer.depth.GetDepthView().ptr());
+		ID3D11UnorderedAccessView* const pUAV[3] = { ParticleSystem::Get().GetGpuParticles().GetUAV().ptr(), ParticleSystem::Get().GetRange().GetUAV().ptr(), ParticleSystem::Get().GetIndirectArgs().GetUAV().ptr()};
+		UINT const UAVCount[3] = { 0,0,0 };
+		s_Devcon->OMSetRenderTargetsAndUnorderedAccessViews(0, NULL, NULL, 0, 3, pUAV, UAVCount);
+		MeshSystem::Get().GetDisintegrationInstances().SpawnParticles();
+		Globals::Get().ResetRenderTargetsAndUAVs();
+		ParticleSystem::Get().UpdateGpuParticles(m_GBuffer.depthCopy, m_GBuffer.normalsCopy, m_GBuffer.dimensions);
 
+		ID3D11UnorderedAccessView* prUAV[] = { nullptr, nullptr, nullptr };
+		s_Devcon->CSSetUnorderedAccessViews(0, 3, prUAV, UAVCount);
+		Globals::Get().ResetRenderTargetsAndUAVs();
+		s_Devcon->RSSetViewports(1, &win.GetViewport());
+		s_Devcon->OMSetRenderTargets(1, m_HDRTarget.GetRenderTarget().ptrAdr(), m_GBuffer.depth.GetDepthView().ptr());
 		ParticleSystem::Get().Render(m_Sky.GetIBLResources(), m_GBuffer.depthCopy, m_GBuffer.dimensions);
+		ParticleSystem::Get().RenderGpuParticles();
 
 		Globals::Get().SetDefaultBlendState();
 		Postprocess::Get().Resolve(m_HDRTarget, win.GetBackBuffer());
 
 		ID3D11ShaderResourceView* const pSRV[8] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
 		s_Devcon->PSSetShaderResources(0, 8, pSRV);
+		s_Devcon->VSSetShaderResources(0, 8, pSRV);
 
 		return true;
 	}

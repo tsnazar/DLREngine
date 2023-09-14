@@ -6,7 +6,6 @@
 #include "MathUtils.h"
 #include "DepthTarget.h"
 #include "RenderTarget.h"
-//#include "Renderer.h"
 #include "VertexBuffer.h"
 
 namespace engine
@@ -77,9 +76,6 @@ namespace engine
 		void RenderToShadowMaps();
 
 		void InitShadowMaps();
-
-		void ResolveGBuffer(DepthTarget& depth, RenderTarget& albedo, RenderTarget& normals, 
-						RenderTarget& roughnessMetallic, RenderTarget& emission, RenderTarget& position, ConstantBuffer& dimensions);
 
 		Texture2D& GetShadowMap() { return m_ShadowMap; }
 

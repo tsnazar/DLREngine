@@ -18,7 +18,8 @@ namespace engine
 		DirectX::XMFLOAT4 cameraPos;
 		DirectX::XMFLOAT4 frustumCorners[3];
 		float time = 0.f;
-		DirectX::XMFLOAT3 padding;
+		float deltaTime = 0.f;
+		DirectX::XMFLOAT2 padding;
 		LightSystem::GpuPointLight pointLights[LightSystem::MAX_POINT_LIGHTS];
 	};
 
@@ -47,6 +48,8 @@ namespace engine
 		
 		PerFrame& GetPerFrameObj() { return m_PerFrame; }
 
+		void SetDepthStateDisabled() { m_Devcon->OMSetDepthStencilState(m_DepthStateDisabled.ptr(), 0); }
+
 		void SetReversedDepthState() { m_Devcon->OMSetDepthStencilState(m_DepthStateReversed.ptr(), 0); }
 
 		void SetReversedDepthStateReadOnly() { m_Devcon->OMSetDepthStencilState(m_DepthStateReversedReadOnly.ptr(), 0); }
@@ -74,6 +77,8 @@ namespace engine
 		void SetDefaultRasterizerState() { m_Devcon->RSSetState(m_RasterizerState.ptr()); }
 
 		void ResetRenderTargets() { ID3D11RenderTargetView* pRTVs[8] = { nullptr,nullptr ,nullptr ,nullptr, nullptr ,nullptr ,nullptr, nullptr }; m_Devcon->OMSetRenderTargets(8, pRTVs, NULL); }
+		
+		void ResetRenderTargetsAndUAVs() { ID3D11RenderTargetView* pRTVs[8] = { nullptr,nullptr ,nullptr ,nullptr, nullptr ,nullptr ,nullptr, nullptr }; ID3D11UnorderedAccessView* pUAVs[3] = { nullptr, nullptr, nullptr }; UINT count[] = { 0,0,0 }; m_Devcon->OMSetRenderTargetsAndUnorderedAccessViews(0, pRTVs, NULL, 0, 3, pUAVs, count); }
 
 		uint32_t& GetObjectIDCounter() { return m_ObjectIDCounter; }
 
@@ -104,6 +109,7 @@ namespace engine
 
 		int m_CurrentSampler = 3;
 
+		DxResPtr<ID3D11DepthStencilState> m_DepthStateDisabled;
 		DxResPtr<ID3D11DepthStencilState> m_DepthStateReversed;
 		DxResPtr<ID3D11DepthStencilState> m_DepthStateReversedReadOnly;
 		DxResPtr<ID3D11DepthStencilState> m_DepthStencilStateWrite;

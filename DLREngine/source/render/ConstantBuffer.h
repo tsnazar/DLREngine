@@ -18,8 +18,10 @@ namespace engine
 		void BindToVS(uint32_t slot);
 		void BindToGS(uint32_t slot);
 		void BindToPS(uint32_t slot);
+		void BindToCS(uint32_t slot);
 
 	private:
+		bool m_Dynamic;
 		uint32_t m_Stride, m_Offset, m_ByteWidthGPU;
 		DxResPtr<ID3D11Buffer> m_Buffer;
 	};
@@ -34,13 +36,13 @@ namespace engine
 		m_Offset = 0;
 		m_ByteWidthGPU = size * m_Stride;
 
-		bool dynamic = usage == D3D11_USAGE_DYNAMIC;
+		m_Dynamic = usage == D3D11_USAGE_DYNAMIC ? true : false;
 
 		D3D11_BUFFER_DESC desc = { 0 };
 		desc.ByteWidth = m_ByteWidthGPU;
 		desc.Usage = usage;
 		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		desc.CPUAccessFlags = dynamic ? D3D11_CPU_ACCESS_WRITE : 0;
+		desc.CPUAccessFlags = m_Dynamic ? D3D11_CPU_ACCESS_WRITE : 0;
 		desc.MiscFlags = 0;
 		desc.StructureByteStride = 0;
 
@@ -56,7 +58,7 @@ namespace engine
 	template<typename T>
 	void ConstantBuffer::Update(const T* data, const uint32_t size)
 	{
-		ALWAYS_ASSERT(m_Stride == sizeof(T));
+		ALWAYS_ASSERT(m_Stride == sizeof(T) && m_Dynamic);
 
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 
@@ -81,5 +83,10 @@ namespace engine
 	inline void ConstantBuffer::BindToPS(uint32_t slot)
 	{
 		s_Devcon->PSSetConstantBuffers(slot, 1, m_Buffer.ptrAdr());
+	}
+
+	inline void ConstantBuffer::BindToCS(uint32_t slot)
+	{
+		s_Devcon->CSSetConstantBuffers(slot, 1, m_Buffer.ptrAdr());
 	}
 }

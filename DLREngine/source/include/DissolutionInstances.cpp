@@ -44,7 +44,7 @@ namespace engine
 					for (const auto& instance : perMaterial.instances)
 					{
 						GpuInstance gpuInstance;
-						LoadMatrixInArray(transforms[instance.transformID].GetTranspose(), gpuInstance.matrix);
+						LoadMatrixInArray(transforms[instance.transformID].GetTranspose(), gpuInstance.modelToWorld);
 						gpuInstance.time = 1.0f - instance.lifeTime / instance.maxLifeTime;
 						dst[copiedNum++] = gpuInstance;
 					}
@@ -82,9 +82,10 @@ namespace engine
 		ALWAYS_ASSERT(m_ShadowsShader != nullptr && m_NoiseTexture != nullptr);
 
 		m_ShadowsShader->SetShaders();
-		//ShaderManager::Get().GetShader("dissolutionShadows").SetShaders();
-
-		//TextureManager::Get().GetTexture("noise").BindToPS(ShaderDescription::Bindings::NOISE_TEXTURE);
+		
+		Globals::Get().SetReversedDepthState();
+		Globals::Get().SetDefaultBlendState();
+		Globals::Get().SetRasterizerStateCullOff();
 
 		m_NoiseTexture->BindToPS(ShaderDescription::Bindings::NOISE_TEXTURE);
 
@@ -267,57 +268,6 @@ namespace engine
 		}
 	}
 
-	void DissolutionInstances::ResolveGBuffer(Sky::IblResources iblResources, Texture2D& depth, Texture2D& albedo,
-		Texture2D& normals, Texture2D& roughnessMetallic, Texture2D& emission, ConstantBuffer& dimensions)
-	{
-		auto& instanceBuffer = LightSystem::Get().GetDeferedShadingLightInstances();
-
-		if (instanceBuffer.GetVertexCount() == 0 || !instanceBuffer.IsValid())
-			return;
-
-		ALWAYS_ASSERT(iblResources.hasResources);
-
-		ALWAYS_ASSERT(m_DeferredShader != nullptr && m_DeferredIBLShader != nullptr);
-
-		m_DeferredShader->SetShaders();
-
-		Globals::Get().SetBlendStateAddition();
-		Globals::Get().SetDepthStencilStateRead(ShaderDescription::Bindings::STENCIL_REF);
-		Globals::Get().SetRasterizerStateFrontFaceCullDepthClipOff();
-
-		LightSystem::Get().GetShadowMap().BindToPS(ShaderDescription::Bindings::SHADOWMAP_TEXTURE);
-		LightSystem::Get().GetShadowMatricesBuffer().BindToPS(ShaderDescription::Bindings::SHADOWMAP_MATRICES);
-		LightSystem::Get().GetShadowMapDimensions().BindToPS(ShaderDescription::Bindings::SHADOWMAP_DIMENSIONS);
-
-		dimensions.BindToPS(ShaderDescription::Bindings::TARGET_DIMENSIONS_CONSTANTS);
-
-		depth.BindToPS(ShaderDescription::Bindings::DEPTH_DS_TEXTURE);
-		albedo.BindToPS(ShaderDescription::Bindings::ALBEDO_DS_TEXTURE);
-		normals.BindToPS(ShaderDescription::Bindings::NORMALS_DS_TEXTURE);
-		roughnessMetallic.BindToPS(ShaderDescription::Bindings::ROUGHMETALLIC_DS_TEXTURE);
-		emission.BindToPS(ShaderDescription::Bindings::EMISSION_DS_TEXTURE);
-
-		Model& sphere = ModelManager::Get().GetUnitSphere();
-		sphere.Bind(ShaderDescription::Bindings::MESH_BUFFER);
-
-		instanceBuffer.SetBuffer(ShaderDescription::Bindings::INSTANCE_BUFFER);
-
-		s_Devcon->DrawInstanced(sphere.GetSubMeshes()[0].vertexNum, instanceBuffer.GetVertexCount(), 0, sphere.GetSubMeshes()[0].vertexOffset);
-
-		m_DeferredIBLShader->SetShaders();
-
-		Globals::Get().SetBlendStateAddition();
-		Globals::Get().SetDepthStencilStateRead(ShaderDescription::Bindings::STENCIL_REF);
-		Globals::Get().SetDefaultRasterizerState();
-
-		emission.BindToPS(ShaderDescription::Bindings::EMISSION_GB_TEXTURE);
-		iblResources.irradiance->BindToPS(ShaderDescription::Bindings::IRRADIANCE_TEXTURE);
-		iblResources.reflection->BindToPS(ShaderDescription::Bindings::REFLECTION_TEXTURE);
-		iblResources.reflectance->BindToPS(ShaderDescription::Bindings::REFLECTANCE_TEXTURE);
-
-		s_Devcon->Draw(3, 0);
-	}
-
 	void DissolutionInstances::AddInstance(Model* model, const std::vector<Material>& materials, uint32_t transformId, float animationTime)
 	{
 		m_ResizeInstanceBuffer = true;
@@ -384,19 +334,7 @@ namespace engine
 
 			instances.erase(instance);
 
-			if (instances.size() == 0)
-			{
-				perModel.perMesh[i].perMaterial.erase(perModel.perMesh[i].perMaterial.begin() + materialIter->second);
-				materialIndexMap.erase(materialIter);
-			}
-
 			materialsSize += perModel.perMesh[i].perMaterial.size();
-		}
-
-		if (materialsSize == 0)
-		{
-			m_PerModel.erase(m_PerModel.begin() + modelIter->second);
-			m_ModelIndexMap.erase(modelIter);
 		}
 
 	}

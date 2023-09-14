@@ -9,6 +9,23 @@ namespace engine
 {
 	ParticleSystem* ParticleSystem::s_Instance = nullptr;
 
+	const float ParticleSystem::GPU_LIFETIME = 10.0f;
+	const float ParticleSystem::EDGE_SIZE = 0.1;
+
+	ParticleSystem::ParticleSystem()
+	{
+		m_GpuParticles.Create<GpuParticle>(D3D11_USAGE_DEFAULT, nullptr, GPU_PARTICLES_COUNT, D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE, D3D11_RESOURCE_MISC_BUFFER_STRUCTURED);
+
+		int range[3] = { 0,0,0 };
+		m_Range.Create<int>(D3D11_USAGE_DEFAULT, range, 3, D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE, D3D11_RESOURCE_MISC_BUFFER_STRUCTURED);
+
+		uint32_t args[4] = { 4,0,0,0 };
+		m_IndirectArgs.Create<uint32_t>(D3D11_USAGE_DEFAULT, args, 4, D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE, D3D11_RESOURCE_MISC_DRAWINDIRECT_ARGS, DXGI_FORMAT_R32_UINT);
+
+		GpuParticleConstants constants = { GPU_PARTICLES_COUNT, GPU_LIFETIME, EDGE_SIZE, 0 };
+		m_GpuConstants.Create<GpuParticleConstants>(D3D11_USAGE_DEFAULT, &constants, 1);
+	}
+
 	void ParticleSystem::Init()
 	{
 		ALWAYS_ASSERT(s_Instance == nullptr);
@@ -56,6 +73,45 @@ namespace engine
 		m_InstanceBuffer.SetBuffer(ShaderDescription::Bindings::INSTANCE_BUFFER, D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 		s_Devcon->DrawInstanced(4, m_InstanceBuffer.GetVertexCount(), 0, 0);
+	}
+
+	void ParticleSystem::UpdateGpuParticles(Texture2D& depth, Texture2D& normals, ConstantBuffer& dimensions)
+	{
+		ALWAYS_ASSERT(m_UpdateGpuParticlesShader != nullptr && m_UpdateGpuRangeShader != nullptr);
+
+		m_GpuParticles.BindToCS(ShaderDescription::Bindings::GPU_PARTICLES_UAV);
+		m_Range.BindToCS(ShaderDescription::Bindings::RANGE_UAV);
+		m_IndirectArgs.BindToCS(ShaderDescription::Bindings::INDIRECT_ARGS_UAV);
+		depth.BindToCS(ShaderDescription::Bindings::GBUFFER_DEPTH);
+		normals.BindToCS(ShaderDescription::Bindings::GBUFFER_NORMALS);
+
+		m_GpuConstants.BindToCS(ShaderDescription::Bindings::GPU_CONSTANTS);
+		dimensions.BindToCS(ShaderDescription::Bindings::GBUFFER_DIMENSIONS);
+
+		m_UpdateGpuParticlesShader->SetShaders();
+		s_Devcon->Dispatch(std::ceilf(GPU_PARTICLES_COUNT / 64.f), 1, 1);
+		m_UpdateGpuRangeShader->SetShaders();
+		s_Devcon->Dispatch(1, 1, 1);
+	}
+
+	void ParticleSystem::RenderGpuParticles()
+	{
+		ALWAYS_ASSERT(m_ForwardGpuParticlesShader != nullptr && m_GpuNormals != nullptr);
+
+		m_ForwardGpuParticlesShader->SetShaders();
+
+		Globals::Get().SetReversedDepthStateReadOnly();
+		Globals::Get().SetDefaultRasterizerState();
+		Globals::Get().SetBlendState();
+
+		m_GpuParticles.BindToVS(ShaderDescription::Bindings::GPU_PARTICLES_UAV);
+		m_Range.BindToVS(ShaderDescription::Bindings::RANGE_UAV);
+		m_GpuConstants.BindToVS(ShaderDescription::Bindings::GPU_CONSTANTS);
+		m_GpuConstants.BindToPS(ShaderDescription::Bindings::GPU_CONSTANTS);
+		m_GpuNormals->BindToPS(ShaderDescription::Bindings::NORMALS_PARTICLES);
+
+		s_Devcon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+		s_Devcon->DrawInstancedIndirect(m_IndirectArgs.GetBuffer().ptr(), 0);
 	}
 	
 	void ParticleSystem::Update(float dt, Camera& camera)

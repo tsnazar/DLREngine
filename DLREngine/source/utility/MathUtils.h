@@ -29,4 +29,6 @@ namespace DirectX
 	bool operator<(const DirectX::XMFLOAT3& lhs, const DirectX::XMFLOAT3& rhs);
 	bool operator==(const DirectX::XMFLOAT3& lhs, const DirectX::XMFLOAT3& rhs);
 	bool operator<=(const DirectX::XMFLOAT3& lhs, const DirectX::XMFLOAT3& rhs);
+	DirectX::XMFLOAT3 Min(const DirectX::XMFLOAT3& a, const DirectX::XMFLOAT3& b);
+	DirectX::XMFLOAT3 Max(const DirectX::XMFLOAT3& a, const DirectX::XMFLOAT3& b);
 }

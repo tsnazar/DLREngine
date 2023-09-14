@@ -64,8 +64,8 @@ namespace engine
 			}
 		}
 
-		const D3D_FEATURE_LEVEL featureLevelRequested = D3D_FEATURE_LEVEL_11_0;
-		D3D_FEATURE_LEVEL featureLevelInitialized = D3D_FEATURE_LEVEL_11_0;
+		const D3D_FEATURE_LEVEL featureLevelRequested = D3D_FEATURE_LEVEL_11_1;
+		D3D_FEATURE_LEVEL featureLevelInitialized = D3D_FEATURE_LEVEL_11_1;
 		result = D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, D3D11_CREATE_DEVICE_DEBUG,
 			&featureLevelRequested, 1, D3D11_SDK_VERSION, m_Device.reset(), &featureLevelInitialized, m_Devcon.reset());
 		ALWAYS_ASSERT(SUCCEEDED(result));
@@ -97,11 +97,17 @@ namespace engine
 		D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
 		ZeroMemory(&depthStencilDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
 
+		depthStencilDesc.DepthEnable = false;
+		depthStencilDesc.StencilEnable = false;
+
+		HRESULT result = m_Device5->CreateDepthStencilState(&depthStencilDesc, m_DepthStateDisabled.reset());
+		ALWAYS_ASSERT(SUCCEEDED(result));
+
 		depthStencilDesc.DepthEnable = true;
 		depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 		depthStencilDesc.DepthFunc = D3D11_COMPARISON_GREATER_EQUAL;
 
-		HRESULT result = m_Device5->CreateDepthStencilState(&depthStencilDesc, m_DepthStateReversed.reset());
+		result = m_Device5->CreateDepthStencilState(&depthStencilDesc, m_DepthStateReversed.reset());
 		ALWAYS_ASSERT(SUCCEEDED(result));
 
 		depthStencilDesc.DepthEnable = true;
@@ -284,6 +290,7 @@ namespace engine
 		m_PerFrameBuffer.BindToVS(0);
 		m_PerFrameBuffer.BindToPS(0);
 		m_PerFrameBuffer.BindToGS(0);
+		m_PerFrameBuffer.BindToCS(0);
 
 		ID3D11SamplerState* pSS[] = { NULL, m_SamplerStateLinear.ptr(), m_SamplerStateGrass.ptr(), m_SamplerCmp.ptr() };
 

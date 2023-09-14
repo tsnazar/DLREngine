@@ -4,6 +4,8 @@
 #include "VertexBuffer.h"
 #include "ConstantBuffer.h"
 #include "TransformSystem.h"
+#include "Shader.h"
+#include <unordered_map>
 #include <xhash>
 
 namespace engine

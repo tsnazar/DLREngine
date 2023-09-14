@@ -92,9 +92,12 @@ namespace engine
 
 		bool Intersect(const Ray& ray, MeshIntersection& intersection, const DirectX::XMMATRIX& worldToModel);
 
+		Box& GetBoundingBox() { return m_BoundingBox; }
+
 	private:
 		std::vector<SubMesh> m_Submeshes;
 		std::vector<Mesh> m_Meshes;
+		Box m_BoundingBox;
 		VertexBuffer m_Vertices;
 		IndexBuffer m_Indices;
 		bool m_VertexBufferOnly = false;

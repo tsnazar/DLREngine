@@ -33,7 +33,7 @@ namespace engine
 
 		struct GpuInstance
 		{
-			DirectX::XMFLOAT4 matrix[4];
+			DirectX::XMFLOAT4 modelToWorld[4];
 			float time;
 		};
 
@@ -140,9 +140,6 @@ namespace engine
 		void Render(Sky::IblResources iblResources);
 
 		void RenderToGBuffer();
-
-		void ResolveGBuffer(Sky::IblResources iblResources, Texture2D& depth, Texture2D& albedo, Texture2D& normals,
-			Texture2D& roughnessMetallic, Texture2D& emission, ConstantBuffer& dimensions);
 
 		void RenderToShadowMap(ConstantBuffer& shadowMatrixBuffer, std::vector<LightSystem::ShadowMapMatrices>& matrices, uint32_t numLights);
 

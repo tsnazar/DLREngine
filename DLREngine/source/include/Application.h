@@ -38,6 +38,7 @@ namespace engine
 
 		bool m_FirstRMB = true;
 		bool m_FirstF = true;
+		bool m_FirstM = true;
 		Query m_Query;
 		SpawnModule m_SpawnModule;
 	private:

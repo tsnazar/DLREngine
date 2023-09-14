@@ -207,7 +207,10 @@ namespace engine
 		ALWAYS_ASSERT(m_ShadowsShader != nullptr);
 
 		m_ShadowsShader->SetShaders();
-		//ShaderManager::Get().GetShader("grassShadows").SetShaders();
+
+		Globals::Get().SetReversedDepthState();
+		Globals::Get().SetDefaultBlendState();
+		Globals::Get().SetRasterizerStateCullOff();
 
 		Globals::Get().SetReversedDepthState();
 		Globals::Get().SetDefaultBlendState();

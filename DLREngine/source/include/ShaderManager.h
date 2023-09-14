@@ -17,7 +17,7 @@ namespace engine
 
 		inline static ShaderManager& Get() { return *s_Instance; }
 
-		Shader& LoadShader(const std::string& name, const std::string& filepath, const std::vector<D3D11_INPUT_ELEMENT_DESC>* inputAttributes, bool hasGS = false);
+		Shader& LoadShader(const std::string& name, const std::string& filepath, const std::vector<D3D11_INPUT_ELEMENT_DESC>* inputAttributes, int type);
 		
 		InputLayout& LoadInputLayout(const std::vector<D3D11_INPUT_ELEMENT_DESC>& inputAttributes, ID3D10Blob* blob);
 

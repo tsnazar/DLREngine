@@ -79,7 +79,6 @@ VS_OUTPUT vs_main(VS_INPUT input) {
     output.position.xz = mul(output.position.xz, float2x2(g_windInvRotation));
 
     output.position.xyz += input.inPosition;
-    //output.worldPos = output.position;
     output.position = mul(output.position, g_viewProj);
 
     return output;
@@ -93,7 +92,7 @@ Texture2D g_opacity : register(t8);
 Texture2D g_ao : register(t9);
 Texture2D g_translucency : register(t10);
 
-static const float3 basicF0 = float3(0.04, 0.04, 0.04);
+static const float3 BASICF0 = float3(0.04, 0.04, 0.04);
 
 //pixel shader
 
@@ -111,7 +110,6 @@ PS_OUTPUT ps_main(VS_OUTPUT input, bool isFrontFace : SV_IsFrontFace)
     PS_OUTPUT output = (PS_OUTPUT)0;
 
     output.albedo.rgb = g_albedo.Sample(g_sampler, input.tex);
-    //output.albedo.a = g_opacity.Sample(g_sampler, input.tex);
     output.albedo.a = grassAlpha(input.tex, g_opacity);
 
     if (output.albedo.a < ALPHA_THRESHOLD)

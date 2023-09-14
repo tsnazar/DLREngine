@@ -3,13 +3,14 @@
 #include "ModelManager.h"
 #include "Globals.h"
 #include "TextureManager.h"
+#include <algorithm>
 
 using namespace DirectX;
 
 namespace engine
 {
-	const float DecalSystem::MAX_DEPTH = 1.0f;
-	const float DecalSystem::MIN_DEPTH = 0.1f;
+	const float DecalSystem::MAX_DEPTH = 2.0f;
+	const float DecalSystem::MIN_DEPTH = 0.2f;
 
 	DecalSystem* DecalSystem::s_Instance = nullptr;
 
@@ -39,7 +40,7 @@ namespace engine
 
 			LoadMatrixInArray(DirectX::XMMatrixTranspose(instance.decalToModel * modelToWorld), gpuInstance.decalToWorld);
 			LoadMatrixInArray(DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, instance.decalToModel * modelToWorld)), gpuInstance.worldToDecal);
-			
+
 			gpuInstance.color = instance.color;
 			gpuInstance.objectID = instance.objectID;
 			gpuInstance.decalRight = instance.decalRight;
@@ -47,7 +48,7 @@ namespace engine
 			gpuInstances.push_back(gpuInstance);
 		}
 
-		if(gpuInstances.size() > 0)
+		if (gpuInstances.size() > 0)
 			m_InstanceBuffer.Create<GpuInstance>(D3D11_USAGE_DYNAMIC, gpuInstances.data(), gpuInstances.size());
 	}
 
@@ -63,7 +64,7 @@ namespace engine
 		decalToModel.r[0] = DirectX::XMVector4Transform(camera.Right(), worldToModel);
 		decalToModel.r[1] = DirectX::XMVector4Transform(camera.Up(), worldToModel);
 		decalToModel.r[2] = DirectX::XMVector4Transform(camera.Forward(), worldToModel);
-		
+
 		decalToModel.r[0] *= halfSize;
 		decalToModel.r[1] *= halfSize;
 		decalToModel.r[2] *= Lerp(MAX_DEPTH, MIN_DEPTH, NdotR);
@@ -83,6 +84,18 @@ namespace engine
 		instance.color = DirectX::XMFLOAT3(rand() / static_cast<float>(RAND_MAX), rand() / static_cast<float>(RAND_MAX), rand() / static_cast<float>(RAND_MAX));
 
 		m_Instances.push_back(instance);
+	}
+
+	void DecalSystem::DespawnDecal(uint32_t transformID)
+	{
+		std::sort(m_Instances.begin(), m_Instances.end(), [](Instance a, Instance b) {
+			return a.transformID > b.transformID;
+			});
+
+		auto begin = std::find_if(m_Instances.begin(), m_Instances.end(), [&](Instance p) { return p.transformID == transformID; });
+		auto end = std::find_if(m_Instances.begin(), m_Instances.end(), [&](Instance p) { return p.transformID == transformID - 1; });
+
+		m_Instances.erase(begin, end);
 	}
 	
 	void DecalSystem::RenderToGBuffer(Texture2D& depth, ConstantBuffer& dimensions, Texture2D& normals, Texture2D& objectIDs)

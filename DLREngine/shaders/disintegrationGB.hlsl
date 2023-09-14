@@ -1,10 +1,19 @@
 #include "globals.hlsli"
 #include "geometryInclude.hlsli"
+#include "gpuParticlesInclude.hlsli"
 
 cbuffer PerMesh : register(b1)
 {
     float4x4 meshToModel;
 }
+
+cbuffer Constants : register(b4)
+{
+    uint g_bufferSize;
+    float g_maxAnimationTime;
+    float CPadding1;
+    float CPadding2;
+};
 
 cbuffer PerMaterial : register(b2)
 {
@@ -27,7 +36,10 @@ struct VS_INPUT {
     float3 inTangent : TANGENT;
     float3 inBitangent : BITANGENT;
     float4x4 inModelToWorld : MAT;
-    float inAnimationTime : TIME;
+    uint inObjectID : OBJECTID;
+    float3 inSpherePos : SPHEREPOS;
+    float inSpawnTime : TIME;
+    float inMaxRadius : RADIUS;
 };
 
 struct VS_OUTPUT {
@@ -36,14 +48,20 @@ struct VS_OUTPUT {
     float3 normal : NORM;
     float3x3 TBN : TBN;
     float animationTime : TIME;
+    float3 meshPos : MPOS;
+    float3 spherePos : SPOS;
+    float maxRadius : RADIUS;
+    uint objectID : OBJECTID;
 };
 // vertex shader
 
-VS_OUTPUT vs_main(VS_INPUT input) {
-
+VS_OUTPUT vs_main(VS_INPUT input) 
+{
     VS_OUTPUT output = (VS_OUTPUT)0;
     output.position = float4(input.inPosition, 1.0);
     output.position = mul(output.position, meshToModel);
+    output.meshPos = output.position;
+
     output.position = mul(output.position, input.inModelToWorld);
     output.position = mul(output.position, g_viewProj);
 
@@ -52,7 +70,13 @@ VS_OUTPUT vs_main(VS_INPUT input) {
     output.normal = mul(input.inNormal, meshToModel);
     output.normal = normalize(mul(output.normal, input.inModelToWorld));
 
-    output.animationTime = input.inAnimationTime;
+    output.animationTime = (g_time - input.inSpawnTime) / g_maxAnimationTime;
+
+    output.maxRadius = input.inMaxRadius;
+
+    output.objectID = input.inObjectID;
+
+    output.spherePos = input.inSpherePos;
 
     if (g_flags & f_hasNormals)
     {
@@ -78,8 +102,9 @@ Texture2D g_metallicTexture : METALIC: register(t2);
 Texture2D g_normalTexture : NORMAL_MAP: register(t3);
 Texture2D g_noiseTexture : register(t8);
 
-static const float3 EMISSION = float3(10, 0, 0);
-static const float EDGE_SIZE = 0.1;
+static const float3 EMISSION = float3(8, 0, 0);
+static const float EDGE_DELTA = 0.05;
+static const float DISSOLVE_DELTA = 0.2;
 
 ///pixel shader
 struct PS_OUTPUT
@@ -88,6 +113,7 @@ struct PS_OUTPUT
     float4 normal : SV_Target1;
     float2 roughnessMetalness : SV_Target2;
     float4 emission : SV_Target3;
+    uint objectID : SV_Target4;
 };
 
 PS_OUTPUT ps_main(VS_OUTPUT input, bool isFrontFace : SV_IsFrontFace)
@@ -95,19 +121,22 @@ PS_OUTPUT ps_main(VS_OUTPUT input, bool isFrontFace : SV_IsFrontFace)
     PS_OUTPUT output = (PS_OUTPUT)0;
 
     float dissolveNoise = g_noiseTexture.Sample(g_sampler, input.texCoord);
-    float step1 = step(dissolveNoise, input.animationTime);
 
-    if (!step1)
+    float sphereToPixelDist = length(input.meshPos - input.spherePos);
+    float pixelCollisionTime = sphereToPixelDist / input.maxRadius;
+
+    float edge = step(pixelCollisionTime, input.animationTime);
+
+    float dissolveAnimationTime = (input.animationTime - pixelCollisionTime - EDGE_DELTA) / DISSOLVE_DELTA;
+
+    if (input.animationTime > (pixelCollisionTime + EDGE_DELTA) && dissolveAnimationTime >= dissolveNoise)
         discard;
-
-    float step2 = step(dissolveNoise, input.animationTime - EDGE_SIZE);
-    float edge = step1 - step2;
 
     output.albedo = g_colorTexture.Sample(g_sampler, input.texCoord) * (1 - edge);
 
     if (!isFrontFace)
     {
-        input.normal = -input.normal;
+        input.normal =  -input.normal;
         input.TBN[2] = input.normal;
     }
 
@@ -134,8 +163,12 @@ PS_OUTPUT ps_main(VS_OUTPUT input, bool isFrontFace : SV_IsFrontFace)
 
     output.roughnessMetalness = float2(roughness, metallic);
 
-    output.emission.rgb = EMISSION * edge * dissolveNoise;
+    float emissionFading = max((input.animationTime - pixelCollisionTime) / EDGE_DELTA, 1) * edge;
+
+    output.emission.rgb = EMISSION * emissionFading * dissolveNoise;
     output.emission.a = output.albedo.a;
+
+    output.objectID = input.objectID;
 
     return output;
 }

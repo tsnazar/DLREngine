@@ -29,6 +29,8 @@ namespace engine
 		uint32_t verticesOffset = 0;
 		uint32_t indicesOffset = 0;
 
+		m_BoundingBox.empty();
+
 		for (uint32_t i = 0; i < numMeshes; ++i)
 		{
 			auto& srcMesh = assimpScene->mMeshes[i];
@@ -40,6 +42,14 @@ namespace engine
 			dstMesh.box.max = reinterpret_cast<DirectX::XMFLOAT3&>(srcMesh->mAABB.mMax);
 			dstMesh.meshToModel = reinterpret_cast<DirectX::XMFLOAT4X4&>(mat);
 			DirectX::XMStoreFloat4x4(&dstMesh.modelToMesh, DirectX::XMMatrixInverse(nullptr, DirectX::XMLoadFloat4x4(&dstMesh.meshToModel)));
+
+			{
+				DirectX::XMMATRIX meshToModel = DirectX::XMLoadFloat4x4(&dstMesh.meshToModel);
+				Box box;
+				DirectX::XMStoreFloat3(&box.min, DirectX::XMVector4Transform(DirectX::XMVectorSet(dstMesh.box.min.x, dstMesh.box.min.y, dstMesh.box.min.z, 1.0), meshToModel));
+				DirectX::XMStoreFloat3(&box.max, DirectX::XMVector4Transform(DirectX::XMVectorSet(dstMesh.box.max.x, dstMesh.box.max.y, dstMesh.box.max.z, 1.0), meshToModel));
+				m_BoundingBox.expand(box);
+			}
 
 			uint32_t numVertices = srcMesh->mNumVertices;
 			uint32_t numFaces = srcMesh->mNumFaces;
@@ -229,7 +239,10 @@ namespace engine
 
 		m_Meshes[0].vertices.assign(vertices.begin(), vertices.end());
 		m_Meshes[0].box = { {-0.6f, -0.6f, -0.6f}, {0.6f, 0.6f, 0.6f} };
+		m_BoundingBox = m_Meshes[0].box;
+
 		m_Meshes[0].UpdateOctree();
+
 
 		m_Vertices.Create<VertexPosTexNorTanBitan>(D3D11_USAGE_DYNAMIC, vertices.data(), VERTEX_COUNT);
 	}
@@ -349,6 +362,8 @@ namespace engine
 
 		m_Meshes[0].vertices.assign(vertices.begin(), vertices.end());
 		m_Meshes[0].box = { {-1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 1.0f} };
+		m_BoundingBox = m_Meshes[0].box;
+
 		m_Meshes[0].UpdateOctree();
 
 		m_Vertices.Create<VertexPosTexNorTanBitan>(D3D11_USAGE_DYNAMIC, vertices.data(), VERTEX_COUNT);
